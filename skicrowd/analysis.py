@@ -8,6 +8,7 @@ import pandas as pd
 
 from .calendar_features import calendar_frame, day_type, season_dates, season_of
 from .config import ikon_resorts
+from . import intraday
 from .model import add_rankings, build_inputs, run_model
 
 LCC_STATION = "766:UT:SNTL"
@@ -77,6 +78,16 @@ def insights(hist: pd.DataFrame, cfg: dict) -> dict[str, pd.DataFrame]:
     recent = days[days.index >= days.index.max() - pd.Timedelta(days=3 * 365)]
     out["worst_days_recent"] = recent.sort_values("mean_crowd", ascending=False).head(20).round(0)
     out["best_days_recent"] = recent.sort_values("mean_crowd").head(10).round(0)
+    hr = intraday.hourly(core, cfg)
+    hr = hr[hr["hour"].isin(intraday.DAY_HOURS)].merge(core[["date", "resort", "day_type"]].drop_duplicates(),
+                                                        on=["date", "resort"])
+    hr["Resort"] = hr["resort"].map(names)
+    hr["Hour"] = hr["hour"].map(intraday.LABEL)
+    cols = [intraday.LABEL[h] for h in intraday.DAY_HOURS]
+    for label, types in [("crowd_by_hour_weekday", ["weekday"]), ("crowd_by_hour_saturday", ["saturday"]),
+                         ("crowd_by_hour_holiday", ["holiday"])]:
+        out[label] = (hr[hr["day_type"].isin(types)].pivot_table(index="Resort", columns="Hour",
+                      values="crowd_index", aggfunc="mean").reindex(columns=cols).round(0))
     out["overall"] = pd.DataFrame({
         "avg crowd (core season)": core.groupby("Resort")["crowd_index"].mean().round(0),
         "% days least busy": (winners["Resort"].value_counts(normalize=True) * 100).round(0),
@@ -101,8 +112,10 @@ def analog_weather(weather: pd.DataFrame, target_dates: pd.DatetimeIndex, analog
     return w[w["date"].isin(target_dates)]
 
 
-def climatology(cfg: dict, weather: pd.DataFrame, target_season: int, analogs: list[int]) -> pd.DataFrame:
-    """Run the target season's calendar against every past season's weather."""
+def climatology(cfg: dict, weather: pd.DataFrame, target_season: int, analogs: list[int],
+                with_hourly: bool = False):
+    """Run the target season's calendar against every past season's weather.
+    With `with_hourly`, also returns the mean crowd index by hour block."""
     dates = season_dates(target_season)
     ikon = ikon_resorts(cfg)
     runs = []
@@ -115,6 +128,10 @@ def climatology(cfg: dict, weather: pd.DataFrame, target_season: int, analogs: l
         runs.append(r)
     allr = pd.concat(runs, ignore_index=True)
     allr = allr[allr["resort"].isin(ikon)]
+    hourly_mean = None
+    if with_hourly:
+        hr = pd.concat([intraday.hourly(g, cfg) for _, g in allr.groupby("analog")], ignore_index=True)
+        hourly_mean = hr.groupby(["date", "resort", "hour"], as_index=False)["crowd_index"].mean()
     g = allr.groupby(["date", "resort"])
     out = pd.DataFrame({
         "p_open": g["open"].mean(),
@@ -123,14 +140,14 @@ def climatology(cfg: dict, weather: pd.DataFrame, target_season: int, analogs: l
         "crowd_p90": g["crowd_index"].quantile(0.9),
         "p_least_busy": g["rank"].apply(lambda s: float((s == 1).sum()) / len(analogs)),
     }).reset_index()
-    return out
+    return (out, hourly_mean) if with_hourly else out
 
 
 # ------------------------------------------------------------ predict
 def predict_day(cfg: dict, weather: pd.DataFrame, date: dt.date, forecast: pd.DataFrame | None = None,
-                analogs: list[int] | None = None) -> tuple[pd.DataFrame, str]:
+                analogs: list[int] | None = None) -> tuple[pd.DataFrame, str, pd.DataFrame]:
     """Rank Ikon resorts for one date. Uses the forecast when available,
-    otherwise the climatological ensemble."""
+    otherwise the climatological ensemble. Also returns crowd by hour."""
     ikon = ikon_resorts(cfg)
     season = season_of(date)
     ts = pd.Timestamp(date)
@@ -152,7 +169,7 @@ def predict_day(cfg: dict, weather: pd.DataFrame, date: dt.date, forecast: pd.Da
         day = res[(res["date"] == ts) & res["resort"].isin(ikon)].copy()
         day["p_least_busy"] = (day["rank"] == 1).astype(float)
         day["p_open"] = day["open"].astype(float)
-        return day.sort_values("crowd_index"), "forecast"
+        return day.sort_values("crowd_index"), "forecast", intraday.hourly(day, cfg)
     last_obs = weather["date"].max()
     if season_of(last_obs.date()) == season and 0 <= (ts - last_obs).days <= 15:
         # No forecast, but this season's snowpack is measured: carry it
@@ -170,8 +187,8 @@ def predict_day(cfg: dict, weather: pd.DataFrame, date: dt.date, forecast: pd.Da
         day = res[(res["date"] == ts) & res["resort"].isin(ikon)].copy()
         day["p_least_busy"] = (day["rank"] == 1).astype(float)
         day["p_open"] = day["open"].astype(float)
-        return day.sort_values("crowd_index"), "measured snowpack to date, assuming no new snow"
+        return day.sort_values("crowd_index"), "measured snowpack to date, assuming no new snow", intraday.hourly(day, cfg)
     analogs = analogs or sorted(weather["date"].map(lambda d: season_of(d.date())).unique())[:-1]
-    clim = climatology(cfg, weather, season, analogs)
+    clim, hr = climatology(cfg, weather, season, analogs, with_hourly=True)
     day = clim[clim["date"] == ts].rename(columns={"crowd_mean": "crowd_index"})
-    return day.sort_values("crowd_index"), "climatology"
+    return day.sort_values("crowd_index"), "climatology", hr[hr["date"] == ts]

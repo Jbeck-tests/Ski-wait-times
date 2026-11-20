@@ -48,6 +48,13 @@ def write_backtest_report(ins: dict, cfg: dict, seasons: list[int], path: Path) 
         _md(ins["least_busy_share_by_daytype"]), "",
         "## Powder effects (LCC new snow >= 8\" = powder day)", _md(ins["crowd_by_snow"]), "",
         "### Least-busy share on snow days (%)", _md(ins["least_busy_share_by_snow"]), "",
+        "## Time of day",
+        "On-mountain skier counts by hour are measured from UDOT up/down canyon traffic; the conversion to "
+        "lift-line pressure (morning base rush, lunch and afternoon breaks) is an estimate until refitted "
+        "from webcam lift-line counts. Each cell is the crowd index for that hour block (e.g. 2p = 2-3pm).",
+        "", "### Plain weekdays", _md(ins["crowd_by_hour_weekday"]),
+        "", "### Saturdays", _md(ins["crowd_by_hour_saturday"]),
+        "", "### Holidays", _md(ins["crowd_by_hour_holiday"]), "",
         "## By month", _md(ins["crowd_by_month"]), "",
         "## By day of week (non-holiday core season)", _md(ins["crowd_by_dow_nonholiday"]), "",
         "## By season (snowy winters vs. lean ones)", _md(ins["crowd_by_season"]), "",
@@ -58,19 +65,28 @@ def write_backtest_report(ins: dict, cfg: dict, seasons: list[int], path: Path) 
     return path
 
 
-def write_calendar_html(clim: pd.DataFrame, cfg: dict, season: int, path: Path) -> Path:
+def write_calendar_html(clim: pd.DataFrame, cfg: dict, season: int, path: Path,
+                        hourly: pd.DataFrame | None = None) -> Path:
     """Self-contained month-grid calendar (also publishable as a web page)."""
     from .calendar_features import calendar_frame, day_type
 
     ikon = ikon_resorts(cfg)
     names = {r: cfg["resorts"][r]["name"] for r in ikon}
+    from .intraday import DAY_HOURS
+    hmap = {}
+    if hourly is not None and len(hourly):
+        hh = hourly[hourly["hour"].isin(DAY_HOURS)]
+        for (d, r), g in hh.groupby(["date", "resort"]):
+            v = g.set_index("hour")["crowd_index"].reindex(DAY_HOURS)
+            hmap[(d, r)] = [None if x != x else round(x) for x in v]
     rows = {}
     for d, g in clim.groupby("date"):
         rec = {}
         for r in g.itertuples():
             nan = r.crowd_mean != r.crowd_mean
             rec[r.resort] = [None if nan else round(r.crowd_mean), round(r.p_least_busy, 2), round(r.p_open, 2),
-                             None if nan else round(r.crowd_p10), None if nan else round(r.crowd_p90)]
+                             None if nan else round(r.crowd_p10), None if nan else round(r.crowd_p90),
+                             hmap.get((d, r.resort))]
         rows[d.strftime("%Y-%m-%d")] = rec
     cal = calendar_frame(pd.DatetimeIndex(sorted(clim["date"].unique())))
     labels = {"holiday": "holiday", "holiday-week weekday": "school-break / holiday week"}
@@ -81,7 +97,8 @@ def write_calendar_html(clim: pd.DataFrame, cfg: dict, season: int, path: Path) 
         note = (f"Open/closed days follow the Ski Utah snow report as of "
                 f"{dt.date.fromisoformat(st['as_of']):%b %-d, %Y}; later dates use typical opening and "
                 f"closing dates and snow depth.")
-    data = json.dumps({"names": names, "days": rows, "flags": flags, "statusNote": note}, separators=(",", ":"))
+    data = json.dumps({"names": names, "days": rows, "flags": flags, "statusNote": note,
+                       "hours": DAY_HOURS}, separators=(",", ":"))
     title = f"Crowd calendar {season - 1}\u2013{str(season)[2:]}"
     tpl = (Path(__file__).parent / "templates" / "calendar.html").read_text()
     out = tpl.replace("__TITLE__", html.escape(title)).replace("__DATA__", data)

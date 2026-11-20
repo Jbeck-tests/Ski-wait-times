@@ -58,6 +58,8 @@ powder_bonus = 0.40
 
 [resorts.brighton]
 name = "Brighton"
+# Night skiing 4-9pm (typical schedule, estimate): mid-Dec to late March, Mon-Sat
+night_skiing = { start_mmdd = "12-12", end_mmdd = "03-28", weekdays = [0, 1, 2, 3, 4, 5] }
 ikon = true
 canyon = "BCC"
 station = "366:UT:SNTL"
@@ -383,3 +385,22 @@ bpr_beta = 4.0
 closure_snow_in = 22
 closure_spread_in = 5
 closure_delay_min = 25
+
+# ---------------------------------------------------------------------------
+# Time of day (skicrowd/intraday.py). On-mountain occupancy by hour is
+# measured from UDOT up/down canyon counts; these two convert it to lift-line
+# pressure and are re-fitted from webcam lift-line counts once collected.
+# ---------------------------------------------------------------------------
+[intraday]
+base_rush = 1.0           # extra weight on skiers arriving that hour (base-lift crush)
+# Share of on-mountain skiers actually riding lifts / in lines in each hour
+# block (lunch, breaks, fatigue). Estimates until webcam lift-line counts
+# re-fit them (`python -m skicrowd intraday fit`).
+[intraday.activity]
+9 = 1.0
+10 = 1.0
+11 = 0.95
+12 = 0.78
+13 = 0.85
+14 = 0.86
+15 = 0.78

@@ -195,3 +195,45 @@ def test_operating_status_overrides_snow_guess(cfg):
     assert res[(pd.Timestamp("2026-11-27"), "snowbird")]
     assert not res[(pd.Timestamp("2026-12-10"), "deer_valley")]   # opens Jan 3
     assert not res[(pd.Timestamp("2026-11-20"), "park_city")]     # TBA -> closed today
+
+
+# ---------------------------------------------------------------- intraday
+def _synthetic_canyon_hourly():
+    """Cars go up 7-10am and come down 2-5pm."""
+    rows = []
+    for d in pd.date_range("2025-01-06", "2025-02-28"):
+        weekend = d.weekday() >= 5
+        for direction, active in (("PDir", range(7, 11)), ("NDir", range(14, 18))):
+            r = {"station": 317, "date": d, "direction": direction, "holiday": None}
+            for h in range(24):
+                r[f"Z{h:02d}00"] = (500 if weekend else 250) if h in active else 10
+            rows.append(r)
+    return pd.DataFrame(rows)
+
+
+def test_intraday_profiles_and_hourly(cfg, tmp_path, monkeypatch):
+    from skicrowd import intraday
+    monkeypatch.setattr(intraday, "PROFILE_PATH", tmp_path / "prof.csv")
+    monkeypatch.setattr(intraday, "WEBCAM_FIT_PATH", tmp_path / "nofit.json")
+    w = synthetic_weather(cfg, pd.date_range("2025-01-01", "2025-03-01"))
+    prof = intraday.build_profiles(_synthetic_canyon_hourly(), w)
+    lcc = prof[(prof.region == "LCC") & (prof.daytype == "weekday") & (prof.snow == "normal")].set_index("hour")
+    assert lcc.loc[11, "occupancy"] > 0.9 and lcc.loc[19, "occupancy"] < 0.1     # all up by 11, gone by 7pm
+    assert lcc.loc[8, "arrivals"] > lcc.loc[15, "arrivals"]
+    res = pd.DataFrame({"date": pd.to_datetime(["2025-01-15", "2025-01-15"]), "resort": ["alta", "brighton"],
+                        "crowd_index": [100.0, 100.0], "new_24": [0.0, 0.0]})
+    hr = intraday.hourly(res, cfg, prof)
+    alta = hr[hr.resort == "alta"].set_index("hour")["crowd_index"]
+    assert abs(alta.max() - 100) < 1e-6 and alta.loc[15] < alta.loc[10]       # afternoon quieter than peak
+    assert hr[(hr.resort == "alta")]["hour"].max() < 16                       # no night skiing at Alta
+    assert hr[(hr.resort == "brighton")]["hour"].max() >= 16                  # Brighton night skiing in Jan
+    bw = intraday.best_windows(hr)
+    assert set(bw["resort"]) == {"alta", "brighton"}
+
+
+def test_brighton_night_skiing_season(cfg):
+    from skicrowd.intraday import _night_open
+    b = cfg["resorts"]["brighton"]
+    assert not _night_open(b, pd.Timestamp("2026-11-28"))   # before mid-December
+    assert _night_open(b, pd.Timestamp("2027-01-13"))       # Wednesday in January
+    assert not _night_open(b, pd.Timestamp("2027-01-17"))   # Sunday

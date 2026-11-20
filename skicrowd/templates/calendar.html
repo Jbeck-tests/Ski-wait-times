@@ -85,6 +85,12 @@ select:focus-visible, .day:focus-visible { outline: 2px solid var(--accent); out
 .tick100 { position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--muted); opacity: .6; }
 .best { display: inline-block; font-family: var(--display); text-transform: uppercase; letter-spacing: .06em; font-size: .75rem;
   font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--accent); color: var(--surface); margin-left: 4px; }
+.hrs { grid-column: 2 / 4; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
+.hrs span { font-size: .66rem; text-align: center; border-radius: 3px; padding: 1px 0; font-variant-numeric: tabular-nums; }
+.hrs-head { display: grid; grid-template-columns: 96px minmax(0, 1fr) 44px; gap: 4px 10px; font-size: .66rem; color: var(--muted); }
+.hrs-head .lab { grid-column: 2 / 4; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; text-align: center; text-transform: uppercase; letter-spacing: .04em; }
+.tip { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: .84rem; margin-bottom: 12px; }
+@media (max-width: 420px) { .hrs-head { grid-template-columns: 84px minmax(0, 1fr) 40px; } }
 .note { color: var(--muted); font-size: .8rem; margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px; }
 footer { color: var(--muted); font-size: .82rem; max-width: 80ch; margin-top: 36px; display: grid; gap: 6px; }
 @media (max-width: 420px) { .day .pick { font-size: .66rem; } .day .n { font-size: .68rem; } .row { grid-template-columns: 84px minmax(0, 1fr) 40px; } }
@@ -193,8 +199,26 @@ function detail(d) {
     .sort((a, b) => days[d][a][0] - days[d][b][0]);
   const best = pick(d), max = 170, pct = v => Math.max(0, Math.min(100, v / max * 100));
   const flag = DATA.flags[d] ? ` · ${DATA.flags[d]}` : "";
+  const HL = (DATA.hours || []).map(x => (x % 12 || 12) + (x < 12 ? "a" : "p"));
+  // quietest 2-hour window across open resorts
+  let tip = "";
+  let bestW = null;
+  for (const r of o) {
+    const hv = days[d][r][5]; if (!hv) continue;
+    for (let i = 0; i + 1 < hv.length; i++) {
+      if (hv[i] == null || hv[i + 1] == null) continue;
+      const m = (hv[i] + hv[i + 1]) / 2;
+      if (!bestW || m < bestW.m) bestW = { r, i, m };
+    }
+  }
+  if (bestW) {
+    const end = DATA.hours[bestW.i] + 2, endL = (end % 12 || 12) + (end < 12 ? "a" : "p");
+    tip = `<div class="tip"><strong>Quietest window:</strong> ${DATA.names[bestW.r]}, ${HL[bestW.i]}–${endL} (about ${Math.round(bestW.m)}).</div>`;
+  }
   let h = `<h2>${DOWS[(dt.getDay() + 6) % 7]} ${dt.getDate()} ${MONTHS[dt.getMonth()]} ${dt.getFullYear()}</h2>
-    <div class="sub">Ranked quietest first${flag}</div><div class="rows">`;
+    <div class="sub">Ranked quietest first${flag}</div>${tip}`;
+  if (HL.length) h += `<div class="hrs-head"><span></span><div class="lab">${HL.map(x => `<span>${x}</span>`).join("")}</div></div>`;
+  h += `<div class="rows">`;
   for (const r of o) {
     const [c, pl, po, lo, hi] = days[d][r], b = band(c);
     h += `<div class="row"><span class="name">${DATA.names[r]}</span>
@@ -203,10 +227,11 @@ function detail(d) {
         <div class="tick100" style="left:${pct(100)}%"></div>
         <div class="mean" style="left:calc(${pct(c)}% - 1px)"></div></div>
       <span class="val">${Math.round(c)}</span>
-      <span class="meta">${LABEL[b]} · least busy in ${Math.round(pl * 100)}% of past winters${po < 0.95 ? ` · open in ${Math.round(po * 100)}%` : ""}${r === best ? '<span class="best">Best bet</span>' : ""}</span></div>`;
+      <span class="meta">${LABEL[b]} · least busy in ${Math.round(pl * 100)}% of past winters${po < 0.95 ? ` · open in ${Math.round(po * 100)}%` : ""}${r === best ? '<span class="best">Best bet</span>' : ""}</span>
+      ${days[d][r][5] ? `<div class="hrs" aria-label="Crowd by hour">${days[d][r][5].map((v, i) => v == null ? "<span></span>" : `<span class="q${band(v)}" title="${HL[i]}: ${v}">${v}</span>`).join("")}</div>` : ""}</div>`;
   }
   const closed = resorts.filter(r => !o.includes(r));
-  h += `</div><div class="note">Bar: thick mark = expected crowd index, shaded span = 10th–90th percentile across past winters, thin line = 100 (at capacity).${closed.length ? " Not expected open: " + closed.map(r => DATA.names[r]).join(", ") + "." : ""}</div>`;
+  h += `</div><div class="note">Bar: thick mark = expected peak crowd index, shaded span = 10th–90th percentile across past winters, thin line = 100 (at capacity). Hour cells: crowd in each hour block (2p = 2–3pm), from measured canyon traffic by hour.${closed.length ? " Not expected open: " + closed.map(r => DATA.names[r]).join(", ") + "." : ""}</div>`;
   document.getElementById("panel").innerHTML = h;
 }
 

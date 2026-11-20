@@ -63,11 +63,11 @@ def cmd_calendar(args):
     target = args.season or season_of(dt.date.today())
     analogs = _seasons(cfg, args.first, args.last)
     print(f"Running {target - 1}-{str(target)[2:]} calendar against {len(analogs)} past winters ...")
-    clim = climatology(cfg, w, target, analogs)
+    clim, hr = climatology(cfg, w, target, analogs, with_hourly=True)
     REPORTS.mkdir(exist_ok=True)
     csv = REPORTS / f"crowd_calendar_{target - 1}-{str(target)[2:]}.csv"
     clim.to_csv(csv, index=False)
-    html = write_calendar_html(clim, cfg, target, REPORTS / f"crowd_calendar_{target - 1}-{str(target)[2:]}.html")
+    html = write_calendar_html(clim, cfg, target, hourly=hr, path=REPORTS / f"crowd_calendar_{target - 1}-{str(target)[2:]}.html")
     print(f"Wrote {csv.relative_to(ROOT)} and {html.relative_to(ROOT)}")
 
 
@@ -85,7 +85,7 @@ def cmd_predict(args):
             fc = fetch_forecast(list(cfg["resorts"]))
         except Exception as e:  # noqa: BLE001
             print(f"(forecast unavailable: {e}; using climatology)")
-    day, mode = predict_day(cfg, w, date, forecast=fc)
+    day, mode, hr = predict_day(cfg, w, date, forecast=fc)
     day = day.assign(_closed=day["crowd_index"].isna()).sort_values(["_closed", "crowd_index"])
     names = {r: c["name"] for r, c in cfg["resorts"].items()}
     print(f"\n{date:%a %d %b %Y}  — based on {mode}\n")
@@ -101,7 +101,34 @@ def cmd_predict(args):
         print("\nNew snow (in) / expected canyon delay (min):")
         for r, s in snow.iterrows():
             print(f"  {names[r]:<13}{s.new_24:>5.1f}  {s.road_delay_min:>5.0f}")
+    _print_hourly(hr, day, names)
     print("\nCrowd index: 100 = at comfortable capacity. Ranking matters more than the absolute number.")
+
+
+def _print_hourly(hr, day, names):
+    from . import intraday
+    if hr is None or hr.empty:
+        return
+    order = [r for r in day.dropna(subset=["crowd_index"])["resort"] if r in set(hr["resort"])]
+    t = hr.pivot_table(index="resort", columns="hour", values="crowd_index").reindex(order)
+    hours = [h for h in intraday.DAY_HOURS if h in t.columns]
+    print("\nBy time of day (crowd index for each hour block; 2p = 2-3pm):")
+    print(f"{'':<13}" + "".join(f"{intraday.LABEL[h]:>6}" for h in hours))
+    for r, row in t.iterrows():
+        print(f"{names[r]:<13}" + "".join(f"{row[h]:>6.0f}" for h in hours))
+    bw = intraday.best_windows(hr)
+    if bw.empty:
+        return
+    best = bw.loc[bw["best_crowd"].idxmin()]
+    lab = lambda h: intraday.LABEL[h]  # noqa: E731
+    print(f"\nQuietest window: {names[best.resort]} {lab(best.best_start)}-{lab(best.best_start + 2)} "
+          f"(~{best.best_crowd:.0f}).")
+    for b in bw.sort_values("best_crowd").itertuples():
+        print(f"  {names[b.resort]:<12} best {lab(b.best_start)}-{lab(b.best_start + 2)} (~{b.best_crowd:.0f}),"
+              f" worst around {lab(b.peak_hour)} (~{b.peak_crowd:.0f})")
+    if "brighton" in t.index and 17 in t.columns and t.loc["brighton"].notna().get(17, False):
+        night = t.loc["brighton", [h for h in intraday.NIGHT_HOURS if h in t.columns]]
+        print("  Brighton night skiing: " + ", ".join(f"{intraday.LABEL[h]} ~{v:.0f}" for h, v in night.items()))
 
 
 def cmd_calibrate(args):
@@ -213,6 +240,20 @@ def cmd_status(args):
     print("\n".join("  " + ln for ln in describe(st, {r: c["name"] for r, c in cfg["resorts"].items()})))
 
 
+def cmd_intraday(args):
+    from . import intraday, udot
+    from .weather import load_daily_history
+    if args.action == "build":
+        h = pd.read_csv(udot.HOURLY_PATH, parse_dates=["date"])
+        prof = intraday.build_profiles(h, load_daily_history())
+        print(f"Wrote {intraday.PROFILE_PATH.relative_to(ROOT)} "
+              f"({prof.groupby(['region', 'daytype', 'snow'])['n'].min().to_dict()})")
+    else:
+        fit = intraday.fit_from_webcams(args.data, load_config())
+        if fit is None:
+            print("Not enough lift-line webcam data yet; keeping the current time-of-day settings.")
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog="skicrowd", description="Utah Ikon resort crowd model")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -248,6 +289,11 @@ def main(argv=None):
     ca.add_argument("--collected", help="directory of collector data (a checkout of the collector-data branch)")
     ca.add_argument("--dry-run", action="store_true", help="report the fit without saving it")
     ca.set_defaults(fn=cmd_calibrate)
+
+    it = sub.add_parser("intraday", help="time-of-day curves: rebuild from UDOT counts or refit from webcams")
+    it.add_argument("action", choices=["build", "fit"])
+    it.add_argument("--data", default="collector-data", help="collector data directory for `fit`")
+    it.set_defaults(fn=cmd_intraday)
 
     stp = sub.add_parser("status", help="show / refresh which resorts are open and announced opening dates")
     stp.add_argument("--refresh", action="store_true")

@@ -91,11 +91,33 @@ model after training on 2022–2025 canyon traffic counts.
   (traffic counts are *flat* on 8"+ days). The mountain stays relatively
   calm because the road meters people in, so you pay in canyon delay.
   `predict` shows the expected delay.
+* **Time of day matters as much as the resort.** Measured canyon traffic
+  puts the peak at 10am to noon. Lunch (12–1) dips about 10%, and 2–4pm is
+  the quietest window at every resort.
+  - On Saturdays, Snowbasin is the worst of all six at 10am (about 121) but
+    the quietest by 3pm (about 60): Ogden locals ski early and leave early.
+  - Solitude stays busy later into the afternoon.
+  - On weekdays (mid-Dec to late March), Brighton still has about a third
+    of the day's skiers at 6pm for night skiing.
 * **Brighton is the most crowded** of the six on about two-thirds of days.
 * **School breaks matter much less than assumed.** Utah's Christmas and
   spring breaks barely move canyon traffic beyond the holidays themselves.
 * **Early season** runs 30–50% busier than February, because there are few
   runs open. The quietest stretch is weekdays from late March to mid-April.
+
+## Time of day
+
+Every prediction includes crowd by hour block (9a–3p, plus Brighton night
+skiing in season).
+
+* **Measured:** how many skiers are on the mountain each hour, from UDOT's
+  hourly up- and down-canyon counts. Cars in the canyon by hour are tracked
+  per canyon, for weekday vs weekend and powder vs normal days.
+* **Modelled:** turning that into lift-line pressure. Morning arrivals all
+  load the base lifts; at lunch and in the afternoon, fewer people are in
+  lines. These two settings are estimates until refitted from the webcam
+  lift-line counts the collector gathers:
+  `python -m skicrowd intraday fit --data collector-data`
 
 ## Real data
 
@@ -128,6 +150,7 @@ skicrowd/model.py            demand -> choice -> congestion equilibrium
 skicrowd/calibrate.py        MAP fitting to observations
 skicrowd/analysis.py         backtests, climatology, point predictions
 skicrowd/status.py           live open/closed status + announced opening dates
+skicrowd/intraday.py         time-of-day curves (UDOT hourly) + webcam refit
 skicrowd/udot.py             UDOT traffic-count importer + live canyon volume
 skicrowd/collect.py          webcam + live canyon collector (GitHub Actions)
 skicrowd/config/webcams.toml cameras the collector reads
@@ -144,8 +167,11 @@ tests/                       pytest suite
   (Alta vs Snowbird, Brighton vs Solitude) and Deer Valley still rest
   mostly on priors until webcam data accumulates. Trust the ranking more
   than the absolute number.
-* It's a daily model. Arriving at opening still beats any model, especially
-  on LCC powder days.
+* Hourly lift-line pressure uses estimated lunch, afternoon and morning-rush
+  effects until webcam data refits them. Deer Valley borrows the Cottonwood
+  curves (no usable counter). Snowbasin weekdays borrow them too, because
+  Trappers Loop is commuter traffic on weekdays. First chair still beats
+  any model on powder days.
 * Open and close dates for past seasons are typical dates gated by snow
   depth (the collector is now recording real ones), and capacity figures
   are approximate. Deer Valley's 2025-26 expansion is modelled as a

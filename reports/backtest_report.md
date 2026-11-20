@@ -50,6 +50,39 @@ _Generated 2026-11-20. Snow and temperature are **measured** SNOTEL history; the
 | Snowbird | 5 | 6 | 46 | 43 | 29 | 49 |
 | Solitude | 5 | 2 | 4 | 25 | 18 | 9 |
 
+## Time of day
+On-mountain skier counts by hour are measured from UDOT up/down canyon traffic; the conversion to lift-line pressure (morning base rush, lunch and afternoon breaks) is an estimate until refitted from webcam lift-line counts. Each cell is the crowd index for that hour block (e.g. 2p = 2-3pm).
+
+### Plain weekdays
+| Resort | 9a | 10a | 11a | 12p | 1p | 2p | 3p |
+|---|---|---|---|---|---|---|---|
+| Alta | 58 | 66 | 66 | 56 | 58 | 52 | 38 |
+| Brighton | 58 | 76 | 76 | 66 | 68 | 65 | 54 |
+| Deer Valley | 55 | 62 | 62 | 54 | 56 | 51 | 38 |
+| Snowbasin | 45 | 50 | 50 | 43 | 45 | 41 | 31 |
+| Snowbird | 53 | 60 | 60 | 51 | 53 | 48 | 34 |
+| Solitude | 57 | 64 | 64 | 56 | 59 | 55 | 43 |
+
+### Saturdays
+| Resort | 9a | 10a | 11a | 12p | 1p | 2p | 3p |
+|---|---|---|---|---|---|---|---|
+| Alta | 91 | 99 | 103 | 90 | 95 | 87 | 62 |
+| Brighton | 106 | 113 | 117 | 105 | 112 | 103 | 75 |
+| Deer Valley | 88 | 94 | 97 | 87 | 93 | 85 | 62 |
+| Snowbasin | 111 | 121 | 118 | 101 | 99 | 86 | 60 |
+| Snowbird | 84 | 92 | 95 | 84 | 88 | 81 | 58 |
+| Solitude | 95 | 99 | 101 | 92 | 100 | 92 | 69 |
+
+### Holidays
+| Resort | 9a | 10a | 11a | 12p | 1p | 2p | 3p |
+|---|---|---|---|---|---|---|---|
+| Alta | 101 | 110 | 114 | 100 | 105 | 96 | 69 |
+| Brighton | 111 | 118 | 121 | 109 | 116 | 107 | 78 |
+| Deer Valley | 93 | 99 | 102 | 92 | 98 | 90 | 66 |
+| Snowbasin | 110 | 120 | 118 | 101 | 98 | 86 | 59 |
+| Snowbird | 91 | 100 | 103 | 90 | 95 | 87 | 63 |
+| Solitude | 106 | 110 | 112 | 103 | 111 | 102 | 76 |
+
 ## By month
 | Resort | Nov | Dec | Jan | Feb | Mar | Apr |
 |---|---|---|---|---|---|---|
