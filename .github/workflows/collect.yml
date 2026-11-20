@@ -17,6 +17,10 @@ on:
         description: "Collect even outside ski hours"
         type: boolean
         default: true
+      max_wait:
+        description: "Testing: cap this run's wait before the handoff (seconds)"
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -108,6 +112,8 @@ jobs:
         id: wait
         run: |
           w=$(python3 -m skicrowd.schedule wait)
+          cap="${{ inputs.max_wait }}"
+          if [ "$w" != "stop" ] && [ -n "$cap" ] && [ "$cap" -lt "$w" ]; then w="$cap"; fi
           echo "wait=$w" >> "$GITHUB_OUTPUT"
           if [ "$w" = "stop" ]; then echo "Ski season over; chain stops."; exit 0; fi
           echo "Sleeping ${w}s"; sleep "$w"
