@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import math
 import datetime as dt
 import sys
 from pathlib import Path
@@ -112,9 +113,48 @@ def cmd_calibrate(args):
         for k, (p, f, t) in out["params"].items():
             print(f"  {k:<48} {p:>7} -> {f:>7} | {t}")
         return
-    obs = load_observations(args.obs or OBS_PATH)
-    if len(obs) < 10:
-        sys.exit(f"Only {len(obs)} usable observations in {args.obs or OBS_PATH}; log at least ~10 first.")
+    obs = load_observations(args.obs or OBS_PATH) if Path(args.obs or OBS_PATH).exists() else None
+    if args.collected:
+        from .collect import summarize
+        from .calibrate import normalise_obs
+        c = summarize(args.collected)
+        print(f"Including {len(c)} observations from collected webcam / live canyon data")
+        obs = normalise_obs(pd.concat([o for o in (obs, c) if o is not None and len(o)], ignore_index=True))
+    if args.udot:
+        from . import udot
+        from .calibrate import evaluate, normalise_obs, traffic_param_specs
+        if not udot.DAILY_PATH.exists():
+            udot.ski_daily(udot.fetch_hourly())
+        u = udot.to_observations()
+        obs = normalise_obs(pd.concat([o for o in (obs, u) if o is not None and len(o)], ignore_index=True))
+        cfg0 = load_config(use_calibrated=False)
+        season = obs["date"].map(lambda d: season_of(d.date()))
+        train = obs[season != args.holdout] if args.holdout else obs
+        print(f"Training on {len(train):,} observations"
+              + (f"; holding out the {args.holdout - 1}-{str(args.holdout)[2:]} season" if args.holdout else ""))
+        fitted, info, _ = fit(train.reset_index(drop=True), w, cfg=cfg0, specs=traffic_param_specs(cfg0))
+        from .config import apply_overrides
+        post = apply_overrides(cfg0, fitted)
+        for label, part in [("train", train), ("holdout", obs[season == args.holdout] if args.holdout else None)]:
+            if part is None or not len(part):
+                continue
+            a = evaluate(part, w, cfg0).set_index(["source", "target", "n"])
+            b = evaluate(part, w, post).set_index(["source", "target", "n"])
+            print(f"\n{label}: rank correlation with observations, priors -> trained")
+            print(pd.concat({"priors": a["spearman_r"], "trained": b["spearman_r"],
+                             "pearson priors": a["pearson_r"], "pearson trained": b["pearson_r"]}, axis=1).to_string())
+        if not args.dry_run:
+            save_calibration(fitted, info)
+            print("\nSaved data/calibrated_params.toml - all commands now use it.")
+        print("\nLargest parameter changes:")
+        from .calibrate import _get_default
+        ch = sorted(fitted.items(), key=lambda kv: -abs(math.log(max(kv[1], 1e-6) / max(_get_default(cfg0, kv[0]), 1e-6)))
+                    if _get_default(cfg0, kv[0]) > 0 and kv[1] > 0 else -abs(kv[1] - _get_default(cfg0, kv[0])))
+        for k, v in ch[:12]:
+            print(f"  {k:<48} {_get_default(cfg0, k):>9.3f} -> {v:.3f}")
+        return
+    if obs is None or len(obs) < 10:
+        sys.exit(f"Only {0 if obs is None else len(obs)} usable observations in {args.obs or OBS_PATH}; log at least ~10 first.")
     fitted, info, _ = fit(obs, w)
     save_calibration(fitted, info)
     print("Fit quality:", info)
@@ -131,6 +171,32 @@ def cmd_log(args):
         notes = (args.notes or "").replace(",", ";")
         f.write(f"{args.date},{args.resort},{args.kind},{args.value},{args.weight},{notes}\n")
     print(f"Logged to {OBS_PATH.relative_to(ROOT)}")
+
+
+def cmd_udot(args):
+    from . import udot
+    if args.action == "fetch":
+        print("Downloading UDOT hourly counts ...")
+        h = udot.fetch_hourly()
+        d = udot.ski_daily(h)
+        print(f"{len(h):,} hourly station-direction-days; up-canyon directions: {udot.up_direction(h)}")
+        print(d.groupby("station").agg(days=("am_up", "size"), first=("date", "min"), last=("date", "max"),
+                                       median_am_up=("am_up", "median")).to_string())
+    else:
+        print(udot.fetch_live().to_string(index=False))
+
+
+def cmd_collect(args):
+    from . import collect
+    if args.action == "run":
+        collect.run(args.out)
+    else:
+        obs = collect.summarize(args.data)
+        out = Path(args.data) / "observations_from_collector.csv"
+        obs.to_csv(out, index=False)
+        print(f"{len(obs)} daily observations -> {out}")
+        if len(obs):
+            print(obs.groupby("source").size().to_string())
 
 
 def main(argv=None):
@@ -163,12 +229,26 @@ def main(argv=None):
     ca = sub.add_parser("calibrate", help="fit the model to logged observations")
     ca.add_argument("--obs", help="observations CSV (default data/observations/observations.csv)")
     ca.add_argument("--synthetic-demo", action="store_true", help="prove the fitter recovers a known truth")
+    ca.add_argument("--udot", action="store_true", help="also train on UDOT canyon traffic counts")
+    ca.add_argument("--holdout", type=int, help="season (end year) to keep out of training and test on, e.g. 2025")
+    ca.add_argument("--collected", help="directory of collector data (a checkout of the collector-data branch)")
+    ca.add_argument("--dry-run", action="store_true", help="report the fit without saving it")
     ca.set_defaults(fn=cmd_calibrate)
+
+    ud = sub.add_parser("udot", help="UDOT traffic counts: download history or show live canyon volumes")
+    ud.add_argument("action", choices=["fetch", "live"])
+    ud.set_defaults(fn=cmd_udot)
+
+    co = sub.add_parser("collect", help="webcam + live canyon collector (run by GitHub Actions)")
+    co.add_argument("action", choices=["run", "summarize"])
+    co.add_argument("--out", default="collector-data", help="output directory for `run`")
+    co.add_argument("--data", default="collector-data", help="collected data directory for `summarize`")
+    co.set_defaults(fn=cmd_collect)
 
     lg = sub.add_parser("log", help="record a crowd observation for training")
     lg.add_argument("date")
     lg.add_argument("resort", help="resort key (alta, snowbird, ...) or LCC/BCC for canyon_vehicles")
-    lg.add_argument("kind", choices=["crowd_rating", "wait_min", "parking_full_hour", "canyon_vehicles", "visitors"])
+    lg.add_argument("kind", choices=["crowd_rating", "wait_min", "parking_full_hour", "canyon_vehicles", "resort_vehicles", "visitors"])
     lg.add_argument("value", type=float)
     lg.add_argument("--weight", type=float, default=1.0)
     lg.add_argument("--notes")

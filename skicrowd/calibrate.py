@@ -10,8 +10,12 @@ evidence you can collect into a proper fit:
   wait_min           resort key           typical lift wait, minutes  affine in load
   parking_full_hour  resort key           hour lot/reservations sold  affine in load (b<0)
                                           out, e.g. 8.75 = 8:45am
-  canyon_vehicles    LCC / BCC            UDOT up-canyon vehicle      affine in canyon visitors
+  canyon_vehicles    LCC / BCC / OGDEN    UDOT up-canyon vehicle      affine in canyon visitors
                                           count for the day
+  resort_vehicles    resort key           vehicle count on a road     affine in resort visitors
+                                          serving one resort
+  webcam_count       resort key           people / cars detected in   affine in load
+                                          a resort webcam (per camera)
   visitors           resort key           actual skier count          identity (log scale)
 
 "Affine" observation types get their own intercept & slope (solved in closed
@@ -38,7 +42,7 @@ from .model import build_inputs, run_model
 
 ROOT = Path(__file__).resolve().parent.parent
 OBS_PATH = ROOT / "data" / "observations" / "observations.csv"
-AFFINE_KINDS = {"crowd_rating", "wait_min", "parking_full_hour", "canyon_vehicles"}
+AFFINE_KINDS = {"crowd_rating", "wait_min", "parking_full_hour", "canyon_vehicles", "resort_vehicles", "webcam_count"}
 ALL_KINDS = AFFINE_KINDS | {"visitors"}
 
 
@@ -68,6 +72,20 @@ def default_param_specs(cfg: dict) -> list[ParamSpec]:
     return specs
 
 
+def traffic_param_specs(cfg: dict) -> list[ParamSpec]:
+    """Default set plus the parameters road counts are most informative about:
+    weekend/holiday amplitudes, powder response and canyon road behaviour."""
+    return default_param_specs(cfg) + [
+        ParamSpec("segments.slc_locals.school_break", "log", 0.3),
+        ParamSpec("segments.ogden_locals.saturday", "log", 0.25),
+        ParamSpec("segments.ogden_locals.sunday", "log", 0.25),
+        ParamSpec("segments.ogden_locals.powder_participation", "log", 0.5),
+        ParamSpec("canyons.LCC.person_capacity", "log", 0.3),
+        ParamSpec("canyons.LCC.closure_delay_min", "log", 0.5),
+        ParamSpec("canyons.BCC.person_capacity", "log", 0.3),
+    ]
+
+
 def _get_default(cfg, path):
     try:
         return float(get_path(cfg, path))
@@ -90,6 +108,16 @@ def load_observations(path: Path | str = OBS_PATH) -> pd.DataFrame:
     if "weight" not in obs:
         obs["weight"] = 1.0
     obs["weight"] = obs["weight"].fillna(1.0)
+    return normalise_obs(obs)
+
+
+def normalise_obs(obs: pd.DataFrame) -> pd.DataFrame:
+    obs = obs.copy()
+    if "source" not in obs:
+        obs["source"] = ""
+    obs["source"] = obs["source"].fillna("").astype(str)
+    if "weight" not in obs:
+        obs["weight"] = 1.0
     return obs.reset_index(drop=True)
 
 
@@ -102,12 +130,18 @@ def model_values(res: pd.DataFrame, obs: pd.DataFrame, cfg: dict) -> np.ndarray:
     canyon["load"] = np.nan
     table = pd.concat([per_resort, canyon], ignore_index=True)
     m = obs[["date", "resort", "kind"]].merge(table, on=["date", "resort"], how="left")
-    return np.where(m["kind"].isin(["visitors", "canyon_vehicles"]), m["visitors"], m["load"]).astype(float)
+    use_visitors = m["kind"].isin(["visitors", "canyon_vehicles", "resort_vehicles"])
+    return np.where(use_visitors, m["visitors"], m["load"]).astype(float)
 
 
 def data_nll(obs: pd.DataFrame, x: np.ndarray) -> tuple[float, dict]:
+    """Each (kind, source) pair - e.g. one UDOT station, or your own ratings -
+    gets its own intercept/slope and its own noise level."""
     nll, info = 0.0, {}
-    for kind, g in obs.groupby("kind"):
+    if "source" not in obs:
+        obs = obs.assign(source="")
+    for (kind, source), g in obs.groupby(["kind", "source"]):
+        key = f"{kind}|{source}" if source else kind
         xi = x[g.index]
         ok = np.isfinite(xi)
         if ok.sum() < 3:
@@ -120,12 +154,14 @@ def data_nll(obs: pd.DataFrame, x: np.ndarray) -> tuple[float, dict]:
             W = np.sqrt(w)
             coef, *_ = np.linalg.lstsq(X * W[:, None], y * W, rcond=None)
             resid = y - X @ coef
-            info[kind] = {"intercept": float(coef[0]), "slope": float(coef[1])}
+            info[key] = {"intercept": float(coef[0]), "slope": float(coef[1])}
         sse = float((w * resid ** 2).sum()) + 1e-9
         n = float(w.sum())
         nll += 0.5 * n * math.log(sse / n)
-        info.setdefault(kind, {})["rmse"] = math.sqrt(sse / n)
-        info[kind]["n"] = int(ok.sum())
+        info.setdefault(key, {})["rmse"] = math.sqrt(sse / n)
+        info[key]["n"] = int(ok.sum())
+        if kind != "visitors" and ok.sum() > 2:
+            info[key]["r"] = float(np.corrcoef(xi, y)[0, 1])
     return nll, info
 
 
@@ -134,6 +170,7 @@ def fit(obs: pd.DataFrame, weather: pd.DataFrame, cfg: dict | None = None,
         specs: list[ParamSpec] | None = None, maxiter: int = 4000, verbose: bool = True):
     cfg = copy.deepcopy(cfg or load_config(use_calibrated=False))
     specs = specs or default_param_specs(cfg)
+    obs = normalise_obs(obs)
     # simulate each observed season from its start (so open status and snow
     # base evolve properly) up to its last observation - but skip summers
     obs_season = obs["date"].map(lambda d: season_of(d.date()))
@@ -174,8 +211,25 @@ def save_calibration(fitted: dict, info: dict, path: Path = CALIBRATED_PATH) -> 
     lines += [f'"{k}" = {v}' for k, v in fitted.items()]
     lines += ["", "[fit]"]
     for kind, d in info.items():
-        lines.append(f"{kind} = {{ " + ", ".join(f"{k} = {round(v, 4)}" for k, v in d.items()) + " }")
+        lines.append(f'"{kind}" = {{ ' + ", ".join(f"{k} = {round(v, 4)}" for k, v in d.items()) + " }")
     path.write_text("\n".join(lines) + "\n")
+
+
+def evaluate(obs: pd.DataFrame, weather: pd.DataFrame, cfg: dict) -> pd.DataFrame:
+    """How well model output tracks each observation source (correlations)."""
+    obs = normalise_obs(obs)
+    seasons = sorted(obs["date"].map(lambda d: season_of(d.date())).unique())
+    res = pd.concat([run_model(cfg, build_inputs(cfg, season_dates(s), weather)) for s in seasons])
+    x = model_values(res, obs, cfg)
+    rows = []
+    for (kind, source), g in obs.assign(model=x).groupby(["kind", "source"]):
+        g = g[np.isfinite(g["model"])]
+        if len(g) < 5:
+            continue
+        rows.append({"source": source or kind, "target": g["resort"].iloc[0], "n": len(g),
+                     "pearson_r": round(g["model"].corr(g["value"]), 3),
+                     "spearman_r": round(g["model"].rank().corr(g["value"].rank()), 3)})
+    return pd.DataFrame(rows)
 
 
 # -------------------------------------------------------- synthetic check

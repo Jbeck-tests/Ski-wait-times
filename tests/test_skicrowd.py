@@ -122,3 +122,39 @@ def test_fit_moves_toward_truth(cfg):
     spec = [ParamSpec("resorts.snowbasin.capacity_scale", "log", 0.5)]
     fitted, _, _ = fit(obs, w, cfg=cfg, specs=spec, verbose=False)
     assert fitted["resorts.snowbasin.capacity_scale"] < 0.8
+
+
+# ------------------------------------------------------------- udot / collect
+def test_udot_up_direction_and_observations():
+    from skicrowd import udot
+    dates = pd.date_range("2024-01-06", "2024-02-25")
+    rows = []
+    for d in dates:
+        for direction, am, pm in (("PDir", 400, 60), ("NDir", 50, 380)):
+            r = {"station": 317, "date": d, "direction": direction, "holiday": None}
+            for h in range(24):
+                r[f"Z{h:02d}00"] = am if 7 <= h <= 10 else pm if 15 <= h <= 17 else 20
+            rows.append(r)
+    h = pd.DataFrame(rows)
+    assert udot.up_direction(h) == {317: "PDir"}
+    d = udot.ski_daily(h)
+    obs = udot.to_observations(d)
+    assert (obs["kind"] == "canyon_vehicles").all() and (obs["resort"] == "LCC").all()
+    assert obs["value"].iloc[0] == 4 * 400 + 5 * 20
+
+
+def test_collect_parsing_roi_and_summary(tmp_path):
+    from skicrowd import collect
+    page = ('<h2 class="cams-section-title"><a><span>Snowbird</span></a></h2>'
+            '<img src="https://www.skiutah.com/files/blob/webcam/894457031?_ts=20270109170000" class="x" alt="Tram Maze"/>')
+    found = collect.resolve_skiutah(page)
+    hit = collect.match_cam({"section": "Snowbird", "title": "Tram Maze"}, found)
+    assert hit["url"].endswith("/894457031") and hit["ts"] == "20270109170000"
+    assert collect.in_roi(0.5, 0.5, [[0, 0], [1, 0], [1, 1], [0, 1]])
+    assert not collect.in_roi(0.5, 0.5, [[0, 0], [0.4, 0], [0.4, 0.4], [0, 0.4]])
+    times = pd.date_range("2027-01-09 16:30", periods=6, freq="20min", tz="UTC")  # 9:30-11:10 MST
+    pd.DataFrame({"image_time": times.astype(str), "image_ts": range(6), "camera": "snowbird:Tram Maze",
+                  "resort": "snowbird", "kind": "lift_line", "usable": 1, "people": [10, 20, 30, 40, 50, 60],
+                  "vehicles": 0}).to_csv(tmp_path / "webcam_counts.csv", index=False)
+    obs = collect.summarize(tmp_path)
+    assert len(obs) == 1 and obs["value"].iloc[0] == 35 and obs["kind"].iloc[0] == "webcam_count"

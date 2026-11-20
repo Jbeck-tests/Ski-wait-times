@@ -1,0 +1,170 @@
+# Webcams the collector reads. Frames come from Ski Utah's public webcam page
+# (one still image per camera, refreshed every few minutes). Cameras are found
+# by resort section + camera title, so if Ski Utah renumbers an image the
+# collector still finds it.
+#
+# kind:
+#   lift_line  people queued at a lift          -> counts people
+#   base       base area / plaza                -> counts people
+#   parking    parking lot                      -> counts vehicles
+#   road       canyon road / intersection       -> counts vehicles (red snake)
+#
+# roi (optional): polygon in 0-1 image coordinates [[x,y], ...]; only
+# detections whose centre falls inside count. Add these once in-season frames
+# show where the queue or lot actually is.
+
+[[cam]]
+resort = "snowbird"
+section = "Snowbird"
+title = "Tram Maze"
+kind = "lift_line"
+
+[[cam]]
+resort = "alta"
+section = "Alta Ski Area"
+title = "Albion Lot Entrance"        # UDOT cam at Alta, shows the Rustler lot
+kind = "parking"
+
+[[cam]]
+resort = "alta"
+section = "Alta Ski Area"
+title = "Albion Basin"
+kind = "base"
+
+[[cam]]
+resort = "brighton"
+section = "Brighton"
+title = "Main Parking Lot"
+kind = "parking"
+
+[[cam]]
+resort = "brighton"
+section = "Brighton"
+title = "Milly Express"
+kind = "lift_line"
+
+[[cam]]
+resort = "brighton"
+section = "Brighton"
+title = "Great Western"
+kind = "lift_line"
+
+[[cam]]
+resort = "brighton"
+section = "Brighton"
+title = "Majestic Lift"
+kind = "lift_line"
+
+[[cam]]
+resort = "solitude"
+section = "Solitude Mountain Resort"
+title = "Moonbeam Parking Lot"
+kind = "parking"
+
+[[cam]]
+resort = "solitude"
+section = "Solitude Mountain Resort"
+title = "Moonbeam Lift Line"
+kind = "lift_line"
+
+[[cam]]
+resort = "solitude"
+section = "Solitude Mountain Resort"
+title = "Summit Express Lift Line"
+kind = "lift_line"
+
+[[cam]]
+resort = "solitude"
+section = "Solitude Mountain Resort"
+title = "Powderhorn Lift Line"
+kind = "lift_line"
+
+[[cam]]
+resort = "solitude"
+section = "Solitude Mountain Resort"
+title = "Eagle Express Lift Line"
+kind = "lift_line"
+
+[[cam]]
+resort = "solitude"
+section = "Solitude Mountain Resort"
+title = "Apex Express Lift"
+kind = "lift_line"
+
+[[cam]]
+resort = "deer_valley"
+section = "Deer Valley Resort"
+title = "Snow Park Lodge"
+kind = "base"
+
+[[cam]]
+resort = "deer_valley"
+section = "Deer Valley Resort"
+title = "Silver Lake Lodge"
+kind = "base"
+
+[[cam]]
+resort = "deer_valley"
+section = "Deer Valley Resort"
+title = "Empire Express Chairlift"
+kind = "lift_line"
+
+[[cam]]
+resort = "deer_valley"
+section = "Deer Valley Resort"
+title = "Sterling Express Chairlift"
+kind = "lift_line"
+
+[[cam]]
+resort = "snowbasin"
+section = "Snowbasin Resort"
+title = "Earl's Plaza"
+kind = "base"
+
+[[cam]]
+resort = "snowbasin"
+section = "Snowbasin Resort"
+title = "Base of Wildcat Chair"
+kind = "lift_line"
+
+[[cam]]
+resort = "snowbasin"
+section = "Snowbasin Resort"
+title = "Strawberry Base Area"
+kind = "base"
+
+[[cam]]
+resort = "snowbasin"
+section = "Snowbasin Resort"
+title = "Needles"
+kind = "lift_line"
+
+[[cam]]
+resort = "LCC"
+section = "Alta Ski Area"
+title = "Little Cottonwood & Wasatch Blvd Intersection"
+kind = "road"
+
+[[cam]]
+resort = "LCC"
+section = "Alta Ski Area"
+title = "Mouth of Little Cottonwood - Parking Lot"
+kind = "parking"
+
+[[cam]]
+resort = "BCC"
+section = "Brighton"
+title = "Wasatch Blv & Fort Union"
+kind = "road"
+
+[[cam]]
+resort = "BCC"
+section = "Brighton"
+title = "Dogwood"
+kind = "road"
+
+[[cam]]
+resort = "snowbasin"
+section = "Snowbasin Resort"
+title = "SR-226 - Snowbasin Road"
+kind = "road"
