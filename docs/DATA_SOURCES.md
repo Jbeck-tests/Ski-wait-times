@@ -73,12 +73,23 @@ dataset page.
 ## 2. Live collector (GitHub Actions, `collector-data` branch)
 
 `.github/workflows/collect.yml` runs every 20 minutes during ski hours
-(7am–4pm MST), November through April. Each run does two things.
+(7am–5pm Mountain), November through April.
+
+**Self-scheduling.** GitHub's built-in cron never fired for this repo, so
+each run starts the next one: collect, wait for the next 20-minute slot,
+then dispatch the next run (`skicrowd/schedule.py`). Outside ski hours a
+run just waits and hands off, up to the 6-hour job limit, so the chain
+resumes at 7am. The chain stops after April. If it ever breaks, restart it
+from **Actions → Collect crowd signals → Run workflow**. The cron is kept
+as a backup and restarts the chain only if nothing else is running.
+
+Each collecting run does three things.
 
 1. **UDOT live canyon volume.** It logs UDOT's `CC_Volume` service, which
    reports net vehicles currently in Little and Big Cottonwood (up minus
    down). The daily peak between 8am and 2pm feeds calibration.
-2. **Webcams.** It reads the 26 cameras in `skicrowd/config/webcams.toml`
+2. **Resort status.** It logs Ski Utah's open/closed list.
+3. **Webcams.** It reads the 26 cameras in `skicrowd/config/webcams.toml`
    (lift lines, base areas, parking lots and canyon-road cams) from Ski
    Utah's public webcam page:
    - Frames are analysed in memory and never saved.
@@ -88,9 +99,8 @@ dataset page.
      snow on the lens are flagged unusable.
    - Frames that haven't refreshed since the last run are skipped.
 
-It also logs **resort status** from Ski Utah's snow report: open,
-"Opening <date>", TBA or closed. That builds a record of actual opening and
-closing dates for future backtests.
+The resort status log builds a record of actual opening and closing dates
+for future backtests.
 
 Data is committed to the `collector-data` branch:
 - `canyon_live.csv`

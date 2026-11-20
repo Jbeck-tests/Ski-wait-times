@@ -263,3 +263,23 @@ def test_collector_flags_frozen_frames(tmp_path, monkeypatch):
     collect.run(tmp_path, detector=Stub(), verbose=False)
     rows = pd.read_csv(tmp_path / "webcam_counts.csv")
     assert list(rows["usable"]) == [1, 0] and list(rows["frozen"]) == [0, 1]
+
+
+# ------------------------------------------------------- collector schedule
+def test_collector_chain_timing():
+    from zoneinfo import ZoneInfo
+    from skicrowd.schedule import MAX_WAIT_S, in_window, next_collection, wait_seconds
+    mt = ZoneInfo("America/Denver")
+    at = lambda *a: dt.datetime(*a, tzinfo=mt)  # noqa: E731
+    assert in_window(at(2026, 11, 21, 9, 30)) and not in_window(at(2026, 11, 21, 17, 0))
+    assert not in_window(at(2026, 7, 4, 10, 0))
+    # mid-day: next 20-minute slot
+    assert next_collection(at(2026, 11, 21, 9, 33)) == at(2026, 11, 21, 9, 40)
+    assert wait_seconds(at(2026, 11, 21, 9, 33)) == 7 * 60
+    # end of day hands off toward 7am, never longer than one job may run
+    assert next_collection(at(2026, 11, 21, 16, 50)) == at(2026, 11, 22, 7, 0)
+    assert wait_seconds(at(2026, 11, 21, 16, 50)) == MAX_WAIT_S
+    assert next_collection(at(2026, 11, 22, 3, 0)) == at(2026, 11, 22, 7, 0)
+    # season over after April 30
+    assert next_collection(at(2027, 4, 30, 16, 55)) is None
+    assert wait_seconds(at(2027, 5, 2, 10, 0)) is None

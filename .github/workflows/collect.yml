@@ -1,22 +1,49 @@
 name: Collect crowd signals
 
-# Every 20 minutes during ski hours (14-23 UTC = 7am-4pm MST / 8am-5pm MDT),
-# November through April. Results are committed to the `collector-data`
-# branch so the main branch history stays clean.
+# Self-scheduling: GitHub's cron never fired for this repo, so every run
+# starts the next one. A run collects (during ski hours, 7am-5pm Mountain,
+# Nov-Apr), waits for the next 20-minute slot, then dispatches the next run.
+# Outside ski hours a run only waits and hands off, so the chain resumes at
+# 7am. The cron below is kept as a backup: a scheduled run restarts the
+# chain only if no other run is active.
+#
+# To restart the chain: Actions -> Collect crowd signals -> Run workflow.
 on:
   schedule:
     - cron: "7,27,47 14-23 * 1-4,11,12 *"
   workflow_dispatch:
+    inputs:
+      force:
+        description: "Collect even outside ski hours"
+        type: boolean
+        default: true
 
 permissions:
   contents: write
+  actions: write        # lets a run dispatch the next one
 
 concurrency:
   group: collector
   cancel-in-progress: false
 
 jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      collect: ${{ steps.w.outputs.collect }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: w
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.force }}" = "true" ]; then
+            echo "collect=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "collect=$(python3 -m skicrowd.schedule window)" >> "$GITHUB_OUTPUT"
+          fi
+
   collect:
+    needs: gate
+    if: needs.gate.outputs.collect == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -66,3 +93,31 @@ jobs:
             git pull -q --rebase origin collector-data
           done
           exit 1
+
+  next:
+    # Runs even if collecting failed, so one bad run doesn't break the chain.
+    needs: [gate, collect]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for the next slot
+        id: wait
+        run: |
+          w=$(python3 -m skicrowd.schedule wait)
+          echo "wait=$w" >> "$GITHUB_OUTPUT"
+          if [ "$w" = "stop" ]; then echo "Ski season over; chain stops."; exit 0; fi
+          echo "Sleeping ${w}s"; sleep "$w"
+      - name: Start the next run
+        if: steps.wait.outputs.wait != 'stop'
+        run: |
+          # Only one chain: skip if another run is already queued or running.
+          others=$(gh run list -R "$GITHUB_REPOSITORY" --workflow collect.yml --limit 20 \
+                     --json databaseId,status \
+                     --jq "[.[] | select(.databaseId != ${GITHUB_RUN_ID}) | select(.status != \"completed\")] | length")
+          if [ "$others" != "0" ]; then echo "Another run is active ($others); not dispatching."; exit 0; fi
+          gh workflow run collect.yml -R "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME" -f force=false
+          echo "Dispatched next run."

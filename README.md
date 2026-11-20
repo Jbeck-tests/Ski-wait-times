@@ -130,7 +130,8 @@ skiing in season).
   also improved Brighton-only traffic from 0.64 to 0.68, though the model
   was never trained on that counter.
 * **Live collector (GitHub Actions).** `.github/workflows/collect.yml` runs
-  every 20 minutes during ski hours. It logs UDOT's live "vehicles currently
+  every 20 minutes during ski hours. It schedules itself: each run starts
+  the next, because GitHub's cron never fired for this repo. It logs UDOT's live "vehicles currently
   in the canyon" for Little and Big Cottonwood, and counts people and cars
   in 26 resort webcams (lift lines, base areas, lots, canyon roads). Results
   go to the `collector-data` branch. Train on them with
@@ -153,6 +154,7 @@ skicrowd/status.py           live open/closed status + announced opening dates
 skicrowd/intraday.py         time-of-day curves (UDOT hourly) + webcam refit
 skicrowd/udot.py             UDOT traffic-count importer + live canyon volume
 skicrowd/collect.py          webcam + live canyon collector (GitHub Actions)
+skicrowd/schedule.py         timing for the collector's self-scheduling chain
 skicrowd/config/webcams.toml cameras the collector reads
 data/weather_daily.csv       cleaned SNOTEL history (4 stations, 2016-17 onward)
 data/udot/                   UDOT hourly counts + daily ski signal
