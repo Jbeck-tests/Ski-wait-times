@@ -159,10 +159,14 @@ def run(out_dir: str | Path, detector: Detector | None = None, verbose: bool = T
 
     # 3) webcams
     counts_path = out / "webcam_counts.csv"
-    seen = set()
+    seen, prev_hashes = set(), {}
     if counts_path.exists():
         prev = pd.read_csv(counts_path, dtype=str)
         seen = set(zip(prev["camera"], prev["image_ts"]))
+        # image content per camera, to spot feeds whose timestamp updates
+        # but whose picture is frozen (e.g. a summer frame served in winter)
+        for cam_id, g in prev.groupby("camera"):
+            prev_hashes[cam_id] = set(g["image_sha1"].dropna())
     found = resolve_skiutah(_get(SKIUTAH_URL).decode("utf-8", "ignore"))
     detector = detector or Detector()
     rows = []
@@ -181,16 +185,19 @@ def run(out_dir: str | Path, detector: Detector | None = None, verbose: bool = T
             print(f"  ! fetch failed {cam_id}: {e}")
             continue
         q = image_quality(img)
-        usable = q["brightness"] >= 45 and q["sharpness"] >= 25
+        sha = hashlib.sha1(raw).hexdigest()[:12]
+        frozen = sha in prev_hashes.get(cam_id, set())
+        usable = q["brightness"] >= 45 and q["sharpness"] >= 25 and not frozen
         c = detector.count(img, cam.get("roi")) if usable else {"people": "", "vehicles": ""}
         image_time = dt.datetime.strptime(hit["ts"], "%Y%m%d%H%M%S").replace(tzinfo=dt.timezone.utc)
         rows.append({
             "collected_at": now.isoformat(), "image_time": image_time.isoformat(), "image_ts": hit["ts"],
             "camera": cam_id, "resort": cam["resort"], "kind": cam["kind"], "usable": int(usable),
-            **q, **c, "image_sha1": hashlib.sha1(raw).hexdigest()[:12],
+            **q, **c, "image_sha1": sha, "frozen": int(frozen),
         })
         if verbose:
-            print(f"  {cam_id:<55} {'ok ' if usable else 'bad'} people={c['people']} vehicles={c['vehicles']}")
+            flag = "ok " if usable else ("frozen" if frozen else "bad")
+            print(f"  {cam_id:<55} {flag} people={c['people']} vehicles={c['vehicles']}")
     n = _append(counts_path, rows, ["camera", "image_ts"])
     print(f"webcam_counts: +{n} rows")
 

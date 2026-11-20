@@ -60,6 +60,7 @@ resort = "solitude"
 section = "Solitude Mountain Resort"
 title = "Moonbeam Parking Lot"
 kind = "parking"
+# Nov 20 2026: frame showed a trail-map sign, not the lot. Recheck aim in season.
 
 [[cam]]
 resort = "solitude"
@@ -84,6 +85,8 @@ resort = "solitude"
 section = "Solitude Mountain Resort"
 title = "Eagle Express Lift Line"
 kind = "lift_line"
+# Nov 20 2026: frame looked frozen (bare summer ground); the collector now
+# flags frames whose picture never changes.
 
 [[cam]]
 resort = "solitude"

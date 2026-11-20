@@ -5,7 +5,7 @@ name: Collect crowd signals
 # branch so the main branch history stays clean.
 on:
   schedule:
-    - cron: "5,25,45 14-23 * 1-4,11,12 *"
+    - cron: "7,27,47 14-23 * 1-4,11,12 *"
   workflow_dispatch:
 
 permissions:

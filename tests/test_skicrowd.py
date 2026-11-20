@@ -237,3 +237,29 @@ def test_brighton_night_skiing_season(cfg):
     assert not _night_open(b, pd.Timestamp("2026-11-28"))   # before mid-December
     assert _night_open(b, pd.Timestamp("2027-01-13"))       # Wednesday in January
     assert not _night_open(b, pd.Timestamp("2027-01-17"))   # Sunday
+
+
+def test_collector_flags_frozen_frames(tmp_path, monkeypatch):
+    import io
+    from PIL import Image
+    from skicrowd import collect
+    buf = io.BytesIO()
+    Image.effect_noise((320, 180), 60).convert("RGB").save(buf, "JPEG")
+    raw = buf.getvalue()
+    page = ('<h2 class="cams-section-title"><a><span>Snowbird</span></a></h2>'
+            '<img src="https://www.skiutah.com/files/blob/webcam/1?_ts={ts}" class="x" alt="Tram Maze"/>')
+    state = {"ts": "20270109170000"}
+    monkeypatch.setattr(collect, "load_cams", lambda: [{"resort": "snowbird", "section": "Snowbird",
+                                                        "title": "Tram Maze", "kind": "lift_line"}])
+    monkeypatch.setattr(collect, "_get", lambda url, timeout=30: page.format(**state).encode() if "webcams" in url else raw)
+    monkeypatch.setattr(collect.udot, "fetch_live", lambda: (_ for _ in ()).throw(RuntimeError("offline")))
+    monkeypatch.setattr("skicrowd.status.fetch_status", lambda: (_ for _ in ()).throw(RuntimeError("offline")))
+
+    class Stub:
+        def count(self, img, roi=None):
+            return {"people": 3, "vehicles": 0}
+    collect.run(tmp_path, detector=Stub(), verbose=False)
+    state["ts"] = "20270109172000"               # new timestamp, identical picture
+    collect.run(tmp_path, detector=Stub(), verbose=False)
+    rows = pd.read_csv(tmp_path / "webcam_counts.csv")
+    assert list(rows["usable"]) == [1, 0] and list(rows["frozen"]) == [0, 1]
