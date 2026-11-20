@@ -96,6 +96,7 @@ footer { color: var(--muted); font-size: .82rem; max-width: 80ch; margin-top: 36
     <h1 id="ttl">__TITLE__</h1>
     <p class="lede">Each day of the season is simulated against the measured snow and temperature of every past winter on record.
       Colour shows how crowded the day is expected to be. The letters name the Ikon resort most likely to be the least busy. Tap a day for the full ranking.</p>
+    <p class="lede" id="statusNote" hidden></p>
   </header>
 
   <div class="controls">
@@ -213,5 +214,6 @@ function detail(d) {
 const today = iso(new Date());
 let current = live.find(d => d >= today && parse(d).getDay() === 6) || live.find(d => parse(d).getDay() === 6) || live[0];
 sel.addEventListener("change", () => { mode = sel.value; try { localStorage.setItem("colorBy", mode); } catch (e) {} render(); });
+if (DATA.statusNote) { const n = document.getElementById("statusNote"); n.textContent = DATA.statusNote; n.hidden = false; }
 render(); detail(current);
 </script>

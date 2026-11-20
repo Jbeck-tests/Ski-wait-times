@@ -17,10 +17,20 @@ It answers two questions:
 ```bash
 pip install -e .                       # numpy, pandas, scipy
 python -m skicrowd fetch               # SNOTEL snow history (already cached in data/)
+python -m skicrowd status              # which resorts are open / announced opening dates (Ski Utah)
 python -m skicrowd predict 2027-01-16  # rank resorts for a date
 python -m skicrowd calendar            # whole-season crowd calendar (HTML + CSV) in reports/
 python -m skicrowd backtest            # 10-season simulation + insights report
 ```
+
+**Open/closed days** for the current season come from Ski Utah's snow report:
+- A resort reported open is open.
+- "Opening Nov 27" means closed until then.
+- "TBA" means closed for now.
+
+`predict` and `calendar` refresh this automatically, and the GitHub
+collector logs it daily. Past seasons, and dates that are still TBA, fall
+back to typical opening dates gated on snow depth.
 
 `predict` picks the best data source available for the date:
 - **Within 16 days:** the Open-Meteo forecast (snow, temperature, wind).
@@ -117,6 +127,7 @@ skicrowd/weather.py          SNOTEL history + Open-Meteo forecast -> daily featu
 skicrowd/model.py            demand -> choice -> congestion equilibrium
 skicrowd/calibrate.py        MAP fitting to observations
 skicrowd/analysis.py         backtests, climatology, point predictions
+skicrowd/status.py           live open/closed status + announced opening dates
 skicrowd/udot.py             UDOT traffic-count importer + live canyon volume
 skicrowd/collect.py          webcam + live canyon collector (GitHub Actions)
 skicrowd/config/webcams.toml cameras the collector reads
@@ -135,6 +146,7 @@ tests/                       pytest suite
   than the absolute number.
 * It's a daily model. Arriving at opening still beats any model, especially
   on LCC powder days.
-* Open and close dates are typical dates gated by snow depth, and capacity
-  figures are approximate. Deer Valley's 2025-26 expansion is modelled as a
+* Open and close dates for past seasons are typical dates gated by snow
+  depth (the collector is now recording real ones), and capacity figures
+  are approximate. Deer Valley's 2025-26 expansion is modelled as a
   capacity step.

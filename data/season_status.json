@@ -1,0 +1,48 @@
+{
+  "source": "https://www.skiutah.com/snowreport",
+  "fetched_at": "2026-11-20T10:00-07:00",
+  "as_of": "2026-11-20",
+  "season": 2027,
+  "resorts": {
+    "alta": {
+      "status": "opening",
+      "date": "2026-11-25",
+      "raw": "Opening Nov 25"
+    },
+    "brighton": {
+      "status": "opening",
+      "date": "2026-11-24",
+      "raw": "Opening Nov 24"
+    },
+    "deer_valley": {
+      "status": "opening",
+      "date": "2026-12-05",
+      "raw": "Opening Dec 5"
+    },
+    "park_city": {
+      "status": "tba",
+      "date": null,
+      "raw": "Opening Day TBA"
+    },
+    "powder_mountain": {
+      "status": "opening",
+      "date": "2026-12-11",
+      "raw": "Opening Dec 11"
+    },
+    "snowbasin": {
+      "status": "opening",
+      "date": "2026-11-27",
+      "raw": "Opening Nov 27"
+    },
+    "snowbird": {
+      "status": "opening",
+      "date": "2026-11-27",
+      "raw": "Opening Nov 27"
+    },
+    "solitude": {
+      "status": "open",
+      "date": null,
+      "raw": "8\" / 29\""
+    }
+  }
+}

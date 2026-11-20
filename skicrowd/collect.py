@@ -144,7 +144,20 @@ def run(out_dir: str | Path, detector: Detector | None = None, verbose: bool = T
     except Exception as e:  # noqa: BLE001
         print(f"canyon_live failed: {e}")
 
-    # 2) webcams
+    # 2) resort operating status (builds a record of real opening/closing dates)
+    try:
+        from .status import fetch_status
+        st = fetch_status()
+        srows = [{"as_of": st["as_of"], "resort": r, "status": v["status"], "date": v.get("date") or "",
+                  "raw": v.get("raw", ""), "collected_at": now.isoformat()} for r, v in st["resorts"].items()]
+        n = _append(out / "resort_status.csv", srows, ["as_of", "resort", "status", "date"])
+        (out / "season_status.json").write_text(__import__("json").dumps(st, indent=2) + "\n")
+        if verbose:
+            print(f"resort_status: +{n} rows")
+    except Exception as e:  # noqa: BLE001
+        print(f"resort_status failed: {e}")
+
+    # 3) webcams
     counts_path = out / "webcam_counts.csv"
     seen = set()
     if counts_path.exists():

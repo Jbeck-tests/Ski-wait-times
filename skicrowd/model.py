@@ -126,7 +126,45 @@ def _open_and_terrain(cfg: dict, inp: ModelInputs) -> tuple[np.ndarray, np.ndarr
             is_open[idx, j] = ok
         full = max(70.0, thr + 30)
         terrain[:, j] = np.clip(0.35 + 0.65 * (base - thr) / (full - thr), 0.35, 1.0)
+    _apply_operating_status(cfg, inp, is_open, before_close={
+        r: order <= key(cfg["resorts"][r]["close_mmdd"]) for r in inp.resorts})
     return is_open, terrain
+
+
+def _apply_operating_status(cfg: dict, inp: ModelInputs, is_open: np.ndarray, before_close: dict) -> None:
+    """Override snow-based open/closed guesses with announced status
+    (skicrowd.status) for the season it was observed in."""
+    st = cfg.get("operating")
+    if not st:
+        return
+    season = int(st["season"])
+    as_of = np.datetime64(st["as_of"])
+    dates = inp.dates.to_numpy().astype("datetime64[D]")
+    in_season = inp.cal["season"].to_numpy() == season
+    if not in_season.any():
+        return
+    for j, r in enumerate(inp.resorts):
+        info = st["resorts"].get(r)
+        if not info:
+            continue
+        window = before_close[r]
+        col = is_open[:, j]
+        kind = info["status"]
+        if kind == "open":
+            m = in_season & (dates >= as_of)
+            col[m] = window[m]
+        elif kind == "opening" and info.get("date"):
+            od = np.datetime64(info["date"])
+            col[in_season & (dates < od)] = False
+            m = in_season & (dates >= od)
+            col[m] = window[m]
+        elif kind == "tba":
+            col[in_season & (dates <= as_of)] = False
+        elif kind == "closed":
+            col[in_season & (dates >= as_of)] = False
+        if info.get("closing"):
+            col[in_season & (dates > np.datetime64(info["closing"]))] = False
+        is_open[:, j] = col
 
 
 def run_model(cfg: dict, inp: ModelInputs, iters: int = 200) -> pd.DataFrame:

@@ -75,7 +75,13 @@ def write_calendar_html(clim: pd.DataFrame, cfg: dict, season: int, path: Path) 
     cal = calendar_frame(pd.DatetimeIndex(sorted(clim["date"].unique())))
     labels = {"holiday": "holiday", "holiday-week weekday": "school-break / holiday week"}
     flags = {d.strftime("%Y-%m-%d"): labels[t] for d, t in cal.apply(day_type, axis=1).items() if t in labels}
-    data = json.dumps({"names": names, "days": rows, "flags": flags}, separators=(",", ":"))
+    st = cfg.get("operating")
+    note = ""
+    if st and int(st["season"]) == season:
+        note = (f"Open/closed days follow the Ski Utah snow report as of "
+                f"{dt.date.fromisoformat(st['as_of']):%b %-d, %Y}; later dates use typical opening and "
+                f"closing dates and snow depth.")
+    data = json.dumps({"names": names, "days": rows, "flags": flags, "statusNote": note}, separators=(",", ":"))
     title = f"Crowd calendar {season - 1}\u2013{str(season)[2:]}"
     tpl = (Path(__file__).parent / "templates" / "calendar.html").read_text()
     out = tpl.replace("__TITLE__", html.escape(title)).replace("__DATA__", data)

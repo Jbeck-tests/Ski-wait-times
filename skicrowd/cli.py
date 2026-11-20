@@ -55,7 +55,9 @@ def cmd_backtest(args):
 def cmd_calendar(args):
     from .analysis import climatology
     from .report import write_calendar_html
+    from .status import ensure_fresh
     from .weather import load_daily_history
+    ensure_fresh()
     cfg = load_config()
     w = load_daily_history()
     target = args.season or season_of(dt.date.today())
@@ -71,7 +73,9 @@ def cmd_calendar(args):
 
 def cmd_predict(args):
     from .analysis import predict_day
+    from .status import ensure_fresh
     from .weather import fetch_forecast, load_daily_history
+    ensure_fresh()
     cfg = load_config()
     w = load_daily_history()
     date = dt.date.fromisoformat(args.date) if args.date else dt.date.today() + dt.timedelta(days=1)
@@ -199,6 +203,16 @@ def cmd_collect(args):
             print(obs.groupby("source").size().to_string())
 
 
+def cmd_status(args):
+    from .status import describe, ensure_fresh
+    st = ensure_fresh(max_age_hours=0 if args.refresh else 12)
+    if not st:
+        sys.exit("No resort status available.")
+    cfg = load_config()
+    print(f"Resort status (Ski Utah snow report, as of {st['as_of']}):")
+    print("\n".join("  " + ln for ln in describe(st, {r: c["name"] for r, c in cfg["resorts"].items()})))
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog="skicrowd", description="Utah Ikon resort crowd model")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -234,6 +248,10 @@ def main(argv=None):
     ca.add_argument("--collected", help="directory of collector data (a checkout of the collector-data branch)")
     ca.add_argument("--dry-run", action="store_true", help="report the fit without saving it")
     ca.set_defaults(fn=cmd_calibrate)
+
+    stp = sub.add_parser("status", help="show / refresh which resorts are open and announced opening dates")
+    stp.add_argument("--refresh", action="store_true")
+    stp.set_defaults(fn=cmd_status)
 
     ud = sub.add_parser("udot", help="UDOT traffic counts: download history or show live canyon volumes")
     ud.add_argument("action", choices=["fetch", "live"])

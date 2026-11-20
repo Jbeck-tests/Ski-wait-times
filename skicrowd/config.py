@@ -9,13 +9,18 @@ DEFAULT_PATH = Path(__file__).resolve().parent / "config" / "model.toml"
 CALIBRATED_PATH = Path(__file__).resolve().parent.parent / "data" / "calibrated_params.toml"
 
 
-def load_config(path: str | Path | None = None, use_calibrated: bool = True) -> dict:
+def load_config(path: str | Path | None = None, use_calibrated: bool = True, use_status: bool = True) -> dict:
     with open(path or DEFAULT_PATH, "rb") as f:
         cfg = tomllib.load(f)
     if use_calibrated and path is None and CALIBRATED_PATH.exists():
         with open(CALIBRATED_PATH, "rb") as f:
             overrides = tomllib.load(f).get("params", {})
         cfg = apply_overrides(cfg, overrides)
+    if use_status:
+        from .status import load_status
+        st = load_status()
+        if st:
+            cfg["operating"] = st
     return cfg
 
 

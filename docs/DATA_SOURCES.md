@@ -88,9 +88,15 @@ dataset page.
      snow on the lens are flagged unusable.
    - Frames that haven't refreshed since the last run are skipped.
 
+It also logs **resort status** from Ski Utah's snow report: open,
+"Opening <date>", TBA or closed. That builds a record of actual opening and
+closing dates for future backtests.
+
 Data is committed to the `collector-data` branch:
 - `canyon_live.csv`
 - `webcam_counts.csv`
+- `resort_status.csv`
+- `season_status.json`
 
 ### Using the collected data
 

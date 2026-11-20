@@ -158,3 +158,40 @@ def test_collect_parsing_roi_and_summary(tmp_path):
                   "vehicles": 0}).to_csv(tmp_path / "webcam_counts.csv", index=False)
     obs = collect.summarize(tmp_path)
     assert len(obs) == 1 and obs["value"].iloc[0] == 35 and obs["kind"].iloc[0] == "webcam_count"
+
+
+# ----------------------------------------------------------------- status
+SNOWREPORT_SNIPPET = """
+<li class="row"><div class="col title"><a href="https://www.skiutah.com/members/solitude/snowreport">Solitude</a></div>
+  <div class="col-2 value bold ">8"</div><div class="col-2 value">29"</div></li>
+<li class="row"><div class="col title"><a href="https://www.skiutah.com/members/snowbird/snowreport">Snowbird</a></div>
+  <div class="col-4 col-md-6 col-lg-4 override">Opening Nov 27</div></li>
+<li class="row"><div class="col title"><a href="https://www.skiutah.com/members/park-city-mountain/snowreport">Park City</a></div>
+  <div class="col-4 override">Opening Day TBA</div></li>
+<li class="row"><div class="col title"><a href="https://www.skiutah.com/members/deer-valley/snowreport">Deer Valley</a></div>
+  <div class="col-4 override">Opening Jan 3</div></li>
+"""
+
+
+def test_parse_snowreport():
+    from skicrowd.status import parse_snowreport
+    st = parse_snowreport(SNOWREPORT_SNIPPET, dt.date(2026, 11, 20))
+    assert st["solitude"]["status"] == "open"
+    assert st["snowbird"] == {"status": "opening", "date": "2026-11-27", "raw": "Opening Nov 27"}
+    assert st["park_city"]["status"] == "tba"
+    assert st["deer_valley"]["date"] == "2027-01-03"  # rolls into next year
+
+
+def test_operating_status_overrides_snow_guess(cfg):
+    from skicrowd.status import parse_snowreport
+    dates = pd.date_range("2026-11-15", "2026-12-10")
+    w = synthetic_weather(cfg, dates, base=90.0)   # deep snow: snow model alone would open everything
+    st = {"season": 2027, "as_of": "2026-11-20",
+          "resorts": parse_snowreport(SNOWREPORT_SNIPPET, dt.date(2026, 11, 20))}
+    c = dict(cfg, operating=st)
+    res = run_model(c, build_inputs(c, dates, w)).set_index(["date", "resort"])["open"]
+    assert res[(pd.Timestamp("2026-11-21"), "solitude")]
+    assert not res[(pd.Timestamp("2026-11-26"), "snowbird")]
+    assert res[(pd.Timestamp("2026-11-27"), "snowbird")]
+    assert not res[(pd.Timestamp("2026-12-10"), "deer_valley")]   # opens Jan 3
+    assert not res[(pd.Timestamp("2026-11-20"), "park_city")]     # TBA -> closed today
