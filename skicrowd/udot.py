@@ -114,7 +114,7 @@ def up_direction(hourly: pd.DataFrame) -> dict[int, str]:
     return out
 
 
-def ski_daily(hourly: pd.DataFrame | None = None) -> pd.DataFrame:
+def ski_daily(hourly: pd.DataFrame | None = None, out_path: Path | None = DAILY_PATH) -> pd.DataFrame:
     """One row per station-day: up-direction vehicles 05:00-13:59, with
     quality flags (sensor gaps, suspected all-morning road closures)."""
     if hourly is None:
@@ -139,7 +139,8 @@ def ski_daily(hourly: pd.DataFrame | None = None) -> pd.DataFrame:
     daily = daily.join(typ, on=["station", "m", "wk"])
     daily["low_outlier"] = daily["am_up"] < 0.35 * daily["typical"]
     daily = daily.drop(columns=["wk", "m"])
-    daily.to_csv(DAILY_PATH, index=False)
+    if out_path is not None:
+        daily.to_csv(out_path, index=False)
     return daily
 
 

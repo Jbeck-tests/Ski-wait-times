@@ -137,7 +137,7 @@ def test_udot_up_direction_and_observations():
             rows.append(r)
     h = pd.DataFrame(rows)
     assert udot.up_direction(h) == {317: "PDir"}
-    d = udot.ski_daily(h)
+    d = udot.ski_daily(h, out_path=None)
     obs = udot.to_observations(d)
     assert (obs["kind"] == "canyon_vehicles").all() and (obs["resort"] == "LCC").all()
     assert obs["value"].iloc[0] == 4 * 400 + 5 * 20

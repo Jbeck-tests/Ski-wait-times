@@ -1,0 +1,24 @@
+# Written by `python -m skicrowd calibrate`. Delete to revert to priors.
+[params]
+"segments.slc_locals.base" = 11099.89
+"segments.slc_locals.saturday" = 3.8005
+"segments.slc_locals.sunday" = 2.5606
+"segments.slc_locals.school_break" = 0.9967
+"segments.slc_locals.powder_participation" = 0.0437
+"segments.slc_locals.beta_powder" = 0.0364
+"segments.slc_locals.affinity.snowbasin" = 0.091
+"segments.ogden_locals.base" = 3407.237
+"segments.ogden_locals.saturday" = 3.1048
+"segments.ogden_locals.sunday" = 1.633
+"segments.ogden_locals.powder_participation" = 0.0472
+"segments.dest_slc.base" = 7926.4977
+"canyons.LCC.person_capacity" = 9693.1588
+"canyons.LCC.closure_delay_min" = 90.8832
+"canyons.BCC.person_capacity" = 6746.2763
+
+[fit]
+"canyon_vehicles|udot_317" = { intercept = 1442.1158, slope = 0.2423, rmse = 733.3481, n = 314, r = 0.7926 }
+"canyon_vehicles|udot_320" = { intercept = 1836.5615, slope = 0.0663, rmse = 610.42, n = 173, r = 0.4381 }
+"canyon_vehicles|udot_322" = { intercept = 2021.2319, slope = 0.2397, rmse = 699.0642, n = 422, r = 0.7291 }
+"canyon_vehicles|udot_609" = { intercept = 2071.6883, slope = 0.1029, rmse = 516.0915, n = 249, r = 0.6827 }
+"resort_vehicles|udot_822" = { intercept = 1087.8105, slope = 0.1813, rmse = 205.8605, n = 38, r = 0.6925 }

@@ -63,68 +63,50 @@ The full write-up is in [docs/METHODOLOGY.md](docs/METHODOLOGY.md).
 5. **Training.** `calibrate` fits the model's parameters to real crowd
    observations by MAP estimation (see below).
 
-## What 10 seasons of simulation say
+## What the model says (trained on real UDOT traffic counts)
 
-From `reports/backtest_report.md`. These numbers are modelled from the
-starting estimates, before any calibration.
+From `reports/backtest_report.md`: 10 seasons of real snow, run through the
+model after training on 2022–2025 canyon traffic counts.
 
-* **Snowbasin is the default quiet pick.** It was least busy on 93% of plain
-  weekdays, with a weekday crowd index of about 37 against 54–69 elsewhere.
-* **On Saturdays, think Deer Valley.** It was least busy on about 54% of
-  Saturdays and 42% of holidays. Ticket limits, skier-only rules and
-  destination guests on changeover day keep it calmer than the
-  local-heavy Cottonwoods.
-* **Sundays beat Saturdays everywhere,** by roughly 5–20 index points.
-* **Fridays and Mondays are the busiest weekdays.** Tuesday and Wednesday
-  are the quietest.
-* **Powder weekends:** Big Cottonwood (Brighton, Solitude) gets hit
-  hardest, because it absorbs the overflow when Little Cottonwood's road is
-  congested or closed. Deer Valley was the least-busy Ikon resort on about
-  60% of powder weekends. Snowbasin, the usual quiet pick, was least busy
-  on only 25%.
-* **Brighton is the most crowded of the six** on about 78% of core-season
-  days: close to town, cheap season pass, small footprint.
-* **Early season is crowded everywhere.** November and December run
-  roughly 30–70% higher than February because few runs are open. The
-  quietest stretch is late March to mid-April on weekdays.
-* **The worst days** are Christmas week, MLK and Presidents weekends, and
-  powder Saturdays in thin-snow years.
+* **Weekdays: Snowbasin.** It was least busy on 81% of plain weekdays, with
+  a weekday crowd index of about 50 against 60–76 elsewhere. Tuesday and
+  Wednesday are the quietest days everywhere; Fridays are noticeably busier.
+* **Saturdays: Deer Valley or Snowbird, not Snowbasin.** Trappers Loop
+  counts show a big Ogden-area weekend surge, so Snowbasin's Saturday index
+  (about 121) is among the worst. Deer Valley and Snowbird were each least
+  busy on about 36% of Saturdays. On holiday weekends it's Deer Valley at
+  49%.
+* **Powder days: Snowbird,** least busy on 46% of powder weekdays and 49% of
+  powder weekends. The catch: the Little Cottonwood road is the bottleneck
+  (traffic counts are *flat* on 8"+ days). The mountain stays relatively
+  calm because the road meters people in, so you pay in canyon delay.
+  `predict` shows the expected delay.
+* **Brighton is the most crowded** of the six on about two-thirds of days.
+* **School breaks matter much less than assumed.** Utah's Christmas and
+  spring breaks barely move canyon traffic beyond the holidays themselves.
+* **Early season** runs 30–50% busier than February, because there are few
+  runs open. The quietest stretch is weekdays from late March to mid-April.
 
-## Training it on real data
+## Real data
 
-The model starts from public-information estimates in
-`skicrowd/config/model.toml`, and every number there is labelled as an
-estimate. No Utah resort publishes daily skier counts, so the model gets
-sharper as you feed it real evidence:
+* **UDOT traffic counts (history).** `python -m skicrowd udot fetch` pulls
+  hourly vehicle counts from UDOT's public count stations at the mouths of
+  Little and Big Cottonwood, the Brighton Loop, Trappers Loop and Ogden
+  Canyon (Jan 2022–Mar 2025). Then `python -m skicrowd calibrate --udot`
+  trains on them. On the held-out 2024-25 season, training raised the
+  correlation with actual Little Cottonwood traffic from 0.80 to 0.86. It
+  also improved Brighton-only traffic from 0.64 to 0.68, though the model
+  was never trained on that counter.
+* **Live collector (GitHub Actions).** `.github/workflows/collect.yml` runs
+  every 20 minutes during ski hours. It logs UDOT's live "vehicles currently
+  in the canyon" for Little and Big Cottonwood, and counts people and cars
+  in 26 resort webcams (lift lines, base areas, lots, canyon roads). Results
+  go to the `collector-data` branch. Train on them with
+  `python -m skicrowd calibrate --udot --collected collector-data`.
+* **Your own days:**
+  `python -m skicrowd log 2027-01-09 brighton crowd_rating 8`
 
-```bash
-python -m skicrowd log 2027-01-09 brighton crowd_rating 8 --notes "Crest 15 min by 10am"
-python -m skicrowd log 2027-01-09 LCC canyon_vehicles 6200
-python -m skicrowd calibrate           # fits ~22 parameters, writes data/calibrated_params.toml
-python -m skicrowd calibrate --synthetic-demo   # proves the fitter recovers a known truth
-```
-
-Supported evidence:
-
-| Kind | What it is |
-|---|---|
-| `crowd_rating` | Your own 1–10 rating |
-| `wait_min` | Lift wait in minutes |
-| `parking_full_hour` | When reservations or lots sold out |
-| `canyon_vehicles` | UDOT SR-210 / SR-190 counts |
-| `visitors` | Actual skier counts |
-
-Each subjective or proxy measure gets its own scale. The fitter only needs
-the *ordering* to be informative.
-
-**Highest-value next step:** get UDOT daily traffic counts for SR-210 and
-SR-190 for past seasons. That is the closest public proxy for real
-Cottonwood crowds, and it would turn "trained on prior seasons" from
-simulated into measured.
-
-In a controlled test (hidden "true" world, 400 noisy ratings, held-out days),
-calibration raised least-busy accuracy from **72% to 93%** and rank
-correlation from **0.67 to 0.95**.
+Details and caveats are in [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md).
 
 ## Project layout
 
@@ -135,15 +117,22 @@ skicrowd/weather.py          SNOTEL history + Open-Meteo forecast -> daily featu
 skicrowd/model.py            demand -> choice -> congestion equilibrium
 skicrowd/calibrate.py        MAP fitting to observations
 skicrowd/analysis.py         backtests, climatology, point predictions
+skicrowd/udot.py             UDOT traffic-count importer + live canyon volume
+skicrowd/collect.py          webcam + live canyon collector (GitHub Actions)
+skicrowd/config/webcams.toml cameras the collector reads
 data/weather_daily.csv       cleaned SNOTEL history (4 stations, 2016-17 onward)
+data/udot/                   UDOT hourly counts + daily ski signal
+data/calibrated_params.toml  parameters trained on UDOT counts (delete to revert to priors)
 reports/                     generated backtest report and season calendar
 tests/                       pytest suite
 ```
 
 ## Limitations
 
-* Until it is calibrated, the absolute crowd index is an informed estimate.
-  Trust the ranking more than the number.
+* Road counts see canyons, not individual resorts. Splits within a canyon
+  (Alta vs Snowbird, Brighton vs Solitude) and Deer Valley still rest
+  mostly on priors until webcam data accumulates. Trust the ranking more
+  than the absolute number.
 * It's a daily model. Arriving at opening still beats any model, especially
   on LCC powder days.
 * Open and close dates are typical dates gated by snow depth, and capacity

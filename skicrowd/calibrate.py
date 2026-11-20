@@ -73,13 +73,29 @@ def default_param_specs(cfg: dict) -> list[ParamSpec]:
 
 
 def traffic_param_specs(cfg: dict) -> list[ParamSpec]:
-    """Default set plus the parameters road counts are most informative about:
-    weekend/holiday amplitudes, powder response and canyon road behaviour."""
-    return default_param_specs(cfg) + [
+    """Parameters road counts can actually identify.
+
+    Counters see canyon totals, not individual resorts, and none of them
+    measures Park City ski traffic. So this set covers demand levels,
+    calendar and powder response, the Snowbasin-vs-Cottonwoods split and
+    canyon road behaviour. Resort capacities, within-canyon preferences and
+    Park City visitors stay at their priors until per-resort data (webcams,
+    your own logs) can inform them; letting the optimiser tune them against
+    canyon totals just overfits.
+    """
+    return [
+        ParamSpec("segments.slc_locals.base", "log", 0.4),
+        ParamSpec("segments.slc_locals.saturday", "log", 0.25),
+        ParamSpec("segments.slc_locals.sunday", "log", 0.25),
         ParamSpec("segments.slc_locals.school_break", "log", 0.3),
+        ParamSpec("segments.slc_locals.powder_participation", "log", 0.5),
+        ParamSpec("segments.slc_locals.beta_powder", "log", 0.5),
+        ParamSpec("segments.slc_locals.affinity.snowbasin", "lin", 0.5),
+        ParamSpec("segments.ogden_locals.base", "log", 0.4),
         ParamSpec("segments.ogden_locals.saturday", "log", 0.25),
         ParamSpec("segments.ogden_locals.sunday", "log", 0.25),
         ParamSpec("segments.ogden_locals.powder_participation", "log", 0.5),
+        ParamSpec("segments.dest_slc.base", "log", 0.4),
         ParamSpec("canyons.LCC.person_capacity", "log", 0.3),
         ParamSpec("canyons.LCC.closure_delay_min", "log", 0.5),
         ParamSpec("canyons.BCC.person_capacity", "log", 0.3),
@@ -160,7 +176,7 @@ def data_nll(obs: pd.DataFrame, x: np.ndarray) -> tuple[float, dict]:
         nll += 0.5 * n * math.log(sse / n)
         info.setdefault(key, {})["rmse"] = math.sqrt(sse / n)
         info[key]["n"] = int(ok.sum())
-        if kind != "visitors" and ok.sum() > 2:
+        if kind != "visitors" and ok.sum() > 2 and xi.std() > 0 and y.std() > 0:
             info[key]["r"] = float(np.corrcoef(xi, y)[0, 1])
     return nll, info
 
