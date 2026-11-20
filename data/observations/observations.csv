@@ -1,0 +1,8 @@
+date,resort,kind,value,weight,notes
+# Add one row per observation (or use: python -m skicrowd log DATE RESORT KIND VALUE).
+# resort: alta snowbird brighton solitude deer_valley snowbasin  (or LCC / BCC for canyon_vehicles)
+# kind:   crowd_rating (1-10) | wait_min | parking_full_hour (8.75 = 8:45am) | canyon_vehicles | visitors
+# Examples (delete the leading '# ' to use):
+# 2027-01-09,brighton,crowd_rating,8,1,Crest 15 min lines by 10am
+# 2027-01-09,snowbasin,wait_min,4,1,Needles gondola
+# 2027-01-09,alta,parking_full_hour,8.25,1,reservations gone by Thursday

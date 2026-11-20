@@ -1,0 +1,217 @@
+<title>Utah Ikon Crowd Calendar</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: a trail-sign header, a sticky "colour by" control, month grids that
+   wrap 1-3 across, and a day detail panel that sits beside (desktop) or below (phone). */
+:root {
+  --bg: #f4f7f9;            /* packed-powder white, cool bias */
+  --surface: #ffffff;
+  --ink: #17222b;
+  --muted: #5b6b78;
+  --line: #d6dee5;
+  --accent: #1f5f8b;        /* Wasatch winter sky */
+  --closed: #e7ecf0;
+  --b0: #d7efe6; --b0-fg: #12392d;   /* quiet */
+  --b1: #f5e3a6; --b1-fg: #4a3a05;   /* moderate */
+  --b2: #f2b07e; --b2-fg: #4d2208;   /* busy */
+  --b3: #c4486a; --b3-fg: #ffffff;   /* packed */
+  --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f161c; --surface: #16212a; --ink: #e5edf3; --muted: #93a4b2; --line: #2a3945;
+  --accent: #7fb8e0; --closed: #1c2832;
+  --b0: #1f4a3d; --b0-fg: #d4f3e7; --b1: #5a4b16; --b1-fg: #fbefc5;
+  --b2: #7a3d1c; --b2-fg: #ffe1cc; --b3: #9b2f50; --b3-fg: #ffe9ef; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f161c; --surface: #16212a; --ink: #e5edf3; --muted: #93a4b2; --line: #2a3945;
+  --accent: #7fb8e0; --closed: #1c2832;
+  --b0: #1f4a3d; --b0-fg: #d4f3e7; --b1: #5a4b16; --b1-fg: #fbefc5;
+  --b2: #7a3d1c; --b2-fg: #ffe1cc; --b3: #9b2f50; --b3-fg: #ffe9ef; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: .01em; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1; text-transform: uppercase; }
+.eyebrow { font-family: var(--display); font-weight: 600; text-transform: uppercase; letter-spacing: .12em;
+  color: var(--accent); font-size: .95rem; }
+.lede { color: var(--muted); max-width: 64ch; margin: 10px 0 0; }
+header { display: grid; gap: 4px; margin-bottom: 20px; }
+
+.controls { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.controls label { font-weight: 600; font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+select:focus-visible, .day:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .82rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 28px; margin-top: 20px; align-items: start; }
+@media (max-width: 900px) { .main { grid-template-columns: minmax(0, 1fr); } }
+.months { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 22px 20px; }
+.month h3 { font-size: 1.35rem; text-transform: uppercase; margin-bottom: 6px; }
+.grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+.dow { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); text-align: center; padding-bottom: 2px; }
+.day { aspect-ratio: 1 / 1; max-width: 100%; border: 0; border-radius: 5px; padding: 3px 2px; cursor: pointer;
+  display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+  font: inherit; font-variant-numeric: tabular-nums; position: relative; min-width: 0; }
+.day .n { font-size: .78rem; font-weight: 600; line-height: 1; align-self: flex-start; padding-left: 2px; }
+.day .pick { font-family: var(--display); font-weight: 600; font-size: .78rem; letter-spacing: .03em; line-height: 1; }
+.day.h::after { content: ""; position: absolute; top: 4px; right: 4px; width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: .7; }
+.day.sel { outline: 2px solid var(--ink); outline-offset: 1px; }
+.day.off { background: var(--closed); color: var(--muted); cursor: default; }
+.blank { aspect-ratio: 1 / 1; }
+.q0 { background: var(--b0); color: var(--b0-fg); } .q1 { background: var(--b1); color: var(--b1-fg); }
+.q2 { background: var(--b2); color: var(--b2-fg); } .q3 { background: var(--b3); color: var(--b3-fg); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 70px); }
+@media (max-width: 900px) { .panel { position: static; } }
+.panel h2 { font-size: 1.6rem; text-transform: uppercase; line-height: 1.05; }
+.panel .sub { color: var(--muted); font-size: .85rem; margin: 2px 0 14px; }
+.rows { display: grid; gap: 12px; }
+.row { display: grid; grid-template-columns: 96px minmax(0, 1fr) 44px; gap: 4px 10px; align-items: center; font-size: .88rem; }
+.row .name { font-weight: 600; }
+.row .meta { grid-column: 2 / 4; color: var(--muted); font-size: .76rem; margin-top: -3px; }
+.row .val { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.track { position: relative; height: 12px; background: var(--closed); border-radius: 6px; overflow: hidden; }
+.range { position: absolute; top: 0; bottom: 0; opacity: .45; }
+.mean { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--ink); }
+.tick100 { position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--muted); opacity: .6; }
+.best { display: inline-block; font-family: var(--display); text-transform: uppercase; letter-spacing: .06em; font-size: .75rem;
+  font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--accent); color: var(--surface); margin-left: 4px; }
+.note { color: var(--muted); font-size: .8rem; margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px; }
+footer { color: var(--muted); font-size: .82rem; max-width: 80ch; margin-top: 36px; display: grid; gap: 6px; }
+@media (max-width: 420px) { .day .pick { font-size: .66rem; } .day .n { font-size: .68rem; } .row { grid-template-columns: 84px minmax(0, 1fr) 40px; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Alta · Snowbird · Brighton · Solitude · Deer Valley · Snowbasin</div>
+    <h1 id="ttl">__TITLE__</h1>
+    <p class="lede">Each day of the season is simulated against the measured snow and temperature of every past winter on record.
+      Colour shows how crowded the day is expected to be. The letters name the Ikon resort most likely to be the least busy. Tap a day for the full ranking.</p>
+  </header>
+
+  <div class="controls">
+    <div><label for="colorBy">Colour by</label>&nbsp;
+      <select id="colorBy"></select></div>
+    <div class="legend" aria-label="Crowd index bands">
+      <span><i class="sw q0"></i>Quiet &lt;50</span><span><i class="sw q1"></i>Moderate 50–80</span>
+      <span><i class="sw q2"></i>Busy 80–110</span><span><i class="sw q3"></i>Packed 110+</span>
+      <span><i class="sw" style="background:var(--closed)"></i>Closed</span>
+      <span>● holiday / school break</span>
+    </div>
+    <div class="legend" aria-label="Resort abbreviations">
+      <span><b>BASIN</b> Snowbasin</span><span><b>DV</b> Deer Valley</span><span><b>BIRD</b> Snowbird</span>
+      <span><b>ALTA</b> Alta</span><span><b>SOL</b> Solitude</span><span><b>BRI</b> Brighton</span>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="months" id="months"></div>
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </div>
+
+  <footer>
+    <div><strong>Crowd index</strong> is skiers on the mountain relative to its comfortable capacity; 100 means at capacity.
+      These are model estimates driven by the calendar and historical weather, not counted visitors. The ranking between resorts is more reliable than the absolute number.</div>
+    <div>Inside 16 days, run <code>python -m skicrowd predict YYYY-MM-DD</code> to use the actual forecast and recent snowfall instead of history.</div>
+  </footer>
+</div>
+
+<script>
+const DATA = __DATA__;
+const ABBR = { alta: "ALTA", snowbird: "BIRD", brighton: "BRI", solitude: "SOL", deer_valley: "DV", snowbasin: "BASIN" };
+const resorts = Object.keys(DATA.names);
+const days = DATA.days;
+const dates = Object.keys(days).sort();
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DOWS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const band = c => c == null ? -1 : c < 50 ? 0 : c < 80 ? 1 : c < 110 ? 2 : 3;
+const LABEL = ["Quiet", "Moderate", "Busy", "Packed"];
+
+function openResorts(d) { return resorts.filter(r => days[d][r] && days[d][r][2] >= 0.5 && days[d][r][0] != null); }
+function pick(d) {
+  const o = openResorts(d); if (!o.length) return null;
+  return o.reduce((a, b) => (days[d][b][1] > days[d][a][1] || (days[d][b][1] === days[d][a][1] && days[d][b][0] < days[d][a][0])) ? b : a);
+}
+function value(d, mode) {
+  const o = openResorts(d); if (!o.length) return null;
+  if (mode === "best") return Math.min(...o.map(r => days[d][r][0]));
+  if (mode === "avg") return o.reduce((s, r) => s + days[d][r][0], 0) / o.length;
+  return o.includes(mode) ? days[d][mode][0] : null;
+}
+
+const sel = document.getElementById("colorBy");
+[["best", "Least-busy pick"], ["avg", "Average of open Ikon resorts"], ...resorts.map(r => [r, DATA.names[r]])]
+  .forEach(([v, t]) => { const o = document.createElement("option"); o.value = v; o.textContent = t; sel.appendChild(o); });
+let mode = "best";
+try { const m = localStorage.getItem("colorBy"); if (m && [...sel.options].some(o => o.value === m)) mode = m; } catch (e) {}
+sel.value = mode;
+
+const parse = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const iso = dt => `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+const live = dates.filter(d => openResorts(d).length > 0);
+const first = parse(live[0]), last = parse(live[live.length - 1]);
+
+function render() {
+  const host = document.getElementById("months"); host.innerHTML = "";
+  for (let m = new Date(first.getFullYear(), first.getMonth(), 1); m <= last; m = new Date(m.getFullYear(), m.getMonth() + 1, 1)) {
+    const box = document.createElement("section"); box.className = "month";
+    box.innerHTML = `<h3>${MONTHS[m.getMonth()]} ${m.getFullYear()}</h3>`;
+    const g = document.createElement("div"); g.className = "grid";
+    DOWS.forEach(w => { const e = document.createElement("div"); e.className = "dow"; e.textContent = w[0]; g.appendChild(e); });
+    const lead = (m.getDay() + 6) % 7;
+    for (let i = 0; i < lead; i++) { const b = document.createElement("div"); b.className = "blank"; g.appendChild(b); }
+    const nDays = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+    for (let i = 1; i <= nDays; i++) {
+      const d = iso(new Date(m.getFullYear(), m.getMonth(), i));
+      const btn = document.createElement("button"); btn.type = "button";
+      const v = days[d] ? value(d, mode) : null;
+      const p = days[d] ? pick(d) : null;
+      const b = band(v);
+      btn.className = "day " + (b < 0 ? "off" : "q" + b) + (DATA.flags[d] ? " h" : "") + (d === current ? " sel" : "");
+      btn.innerHTML = `<span class="n">${i}</span><span class="pick">${p && b >= 0 ? ABBR[p] : ""}</span>`;
+      btn.setAttribute("aria-label", `${d}: ${b < 0 ? "closed" : LABEL[b] + ", crowd " + Math.round(v)}${p ? ", best bet " + DATA.names[p] : ""}`);
+      if (b >= 0) btn.addEventListener("click", () => { current = d; render(); detail(d); });
+      else btn.disabled = true;
+      g.appendChild(btn);
+    }
+    box.appendChild(g); host.appendChild(box);
+  }
+}
+
+function detail(d) {
+  const dt = parse(d), o = resorts.filter(r => days[d][r] && days[d][r][0] != null)
+    .sort((a, b) => days[d][a][0] - days[d][b][0]);
+  const best = pick(d), max = 170, pct = v => Math.max(0, Math.min(100, v / max * 100));
+  const flag = DATA.flags[d] ? ` · ${DATA.flags[d]}` : "";
+  let h = `<h2>${DOWS[(dt.getDay() + 6) % 7]} ${dt.getDate()} ${MONTHS[dt.getMonth()]} ${dt.getFullYear()}</h2>
+    <div class="sub">Ranked quietest first${flag}</div><div class="rows">`;
+  for (const r of o) {
+    const [c, pl, po, lo, hi] = days[d][r], b = band(c);
+    h += `<div class="row"><span class="name">${DATA.names[r]}</span>
+      <div class="track" title="Typical range across past winters: ${Math.round(lo)}–${Math.round(hi)}">
+        <div class="range q${band(hi)}" style="left:${pct(lo)}%;width:${Math.max(2, pct(hi) - pct(lo))}%"></div>
+        <div class="tick100" style="left:${pct(100)}%"></div>
+        <div class="mean" style="left:calc(${pct(c)}% - 1px)"></div></div>
+      <span class="val">${Math.round(c)}</span>
+      <span class="meta">${LABEL[b]} · least busy in ${Math.round(pl * 100)}% of past winters${po < 0.95 ? ` · open in ${Math.round(po * 100)}%` : ""}${r === best ? '<span class="best">Best bet</span>' : ""}</span></div>`;
+  }
+  const closed = resorts.filter(r => !o.includes(r));
+  h += `</div><div class="note">Bar: thick mark = expected crowd index, shaded span = 10th–90th percentile across past winters, thin line = 100 (at capacity).${closed.length ? " Not expected open: " + closed.map(r => DATA.names[r]).join(", ") + "." : ""}</div>`;
+  document.getElementById("panel").innerHTML = h;
+}
+
+// open on the first weekend day from today (or the season's first Saturday)
+const today = iso(new Date());
+let current = live.find(d => d >= today && parse(d).getDay() === 6) || live.find(d => parse(d).getDay() === 6) || live[0];
+sel.addEventListener("change", () => { mode = sel.value; try { localStorage.setItem("colorBy", mode); } catch (e) {} render(); });
+render(); detail(current);
+</script>

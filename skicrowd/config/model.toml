@@ -1,0 +1,385 @@
+# ---------------------------------------------------------------------------
+# skicrowd model configuration
+#
+# Every number in this file is an ESTIMATE assembled from public information
+# (resort stats, USFS master-plan style capacity figures, typical drive
+# times, widely reported crowd patterns). None of it is official attendance
+# data — no Utah resort publishes daily skier counts. Treat these values as
+# priors: `skicrowd calibrate` re-fits the important ones against real
+# observations (your own logs, wait times, UDOT canyon traffic counts, etc.).
+# ---------------------------------------------------------------------------
+
+[meta]
+timezone = "America/Denver"
+# Seasons are labelled by the year they end: 2025 == the 2024-25 season.
+history_first_season = 2017
+history_last_season = 2026
+
+# ---------------------------------------------------------------------------
+# Resorts. `ikon = true` resorts are the ones ranked for you. The others are
+# modelled because they compete for the same skiers (if Park City Mountain
+# did not exist, Deer Valley would be far busier).
+#
+# capacity      = comfortable skiers-at-one-time style capacity (people/day
+#                 the mountain absorbs before lift lines grow fast).
+# hard_cap      = practical daily ceiling from parking reservations or
+#                 ticket limits; excess demand is pushed to other resorts.
+# snowmaking    = lowers the natural-snow depth needed to open.
+# powder_bonus  = extra pull on powder days (reputation effect).
+# canyon        = shared access road that can congest or close.
+# station       = SNOTEL station used for snow/temperature history.
+# ---------------------------------------------------------------------------
+
+[resorts.alta]
+name = "Alta"
+ikon = true
+canyon = "LCC"
+station = "766:UT:SNTL"          # Snowbird SNOTEL (2.7 km); Atwater only since 2022
+capacity = 6500
+hard_cap = 8500
+open_mmdd = "11-22"
+close_mmdd = "04-19"
+open_depth_in = 30
+snowmaking = false
+powder_bonus = 0.45
+
+[resorts.snowbird]
+name = "Snowbird"
+ikon = true
+canyon = "LCC"
+station = "766:UT:SNTL"
+capacity = 9500
+hard_cap = 12000
+open_mmdd = "11-20"
+close_mmdd = "05-25"
+open_depth_in = 24
+snowmaking = true
+powder_bonus = 0.40
+
+[resorts.brighton]
+name = "Brighton"
+ikon = true
+canyon = "BCC"
+station = "366:UT:SNTL"
+capacity = 5800
+hard_cap = 8000
+open_mmdd = "11-15"
+close_mmdd = "04-19"
+open_depth_in = 22
+snowmaking = true
+powder_bonus = 0.20
+
+[resorts.solitude]
+name = "Solitude"
+ikon = true
+canyon = "BCC"
+station = "366:UT:SNTL"
+capacity = 5500
+hard_cap = 7000
+open_mmdd = "11-22"
+close_mmdd = "04-12"
+open_depth_in = 28
+snowmaking = true
+powder_bonus = 0.20
+
+[resorts.deer_valley]
+name = "Deer Valley"
+ikon = true
+canyon = "PC"
+station = "814:UT:SNTL"          # Thaynes Canyon
+capacity = 11000
+# Expanded Excellence (East Village) adds terrain + lifts from 2025-26 on.
+capacity_by_season = { 2026 = 13500, 2027 = 14000 }
+hard_cap = 12000                  # Deer Valley limits daily ticket sales
+hard_cap_by_season = { 2026 = 14500, 2027 = 15000 }
+open_mmdd = "12-06"
+close_mmdd = "04-19"
+open_depth_in = 20
+snowmaking = true
+powder_bonus = 0.05
+
+[resorts.snowbasin]
+name = "Snowbasin"
+ikon = true
+canyon = "OGDEN"
+station = "332:UT:SNTL"          # Ben Lomond Peak (closest long-record SNOTEL)
+capacity = 9000
+hard_cap = 13000
+open_mmdd = "11-27"
+close_mmdd = "04-12"
+open_depth_in = 24
+snowmaking = true
+powder_bonus = 0.10
+
+[resorts.park_city]
+name = "Park City Mountain (Epic)"
+ikon = false
+canyon = "PC"
+station = "814:UT:SNTL"
+capacity = 18000
+hard_cap = 26000
+open_mmdd = "11-21"
+close_mmdd = "04-12"
+open_depth_in = 20
+snowmaking = true
+powder_bonus = 0.05
+
+[resorts.powder_mountain]
+name = "Powder Mountain"
+ikon = false
+canyon = "OGDEN"
+station = "332:UT:SNTL"
+capacity = 4500
+hard_cap = 5500
+open_mmdd = "12-05"
+close_mmdd = "04-06"
+open_depth_in = 30
+snowmaking = false
+powder_bonus = 0.25
+
+# ---------------------------------------------------------------------------
+# Skier segments. `base` = intending skiers on a plain mid-season weekday.
+# Calendar multipliers scale that up/down (weekends, holidays, school breaks).
+# `travel_min` = free-flow drive (or shuttle) minutes to each resort.
+# `affinity` = log-preference: season-pass ownership, loyalty, ski-only rules,
+#              brand. 0 = neutral. Unlisted resorts get `affinity_default`.
+# ---------------------------------------------------------------------------
+
+[segments.slc_locals]
+powder_canyons = ["LCC", "BCC"]   # where this group watches snow totals
+label = "Salt Lake / Utah County locals"
+kind = "local"
+base = 9500
+saturday = 2.8
+sunday = 2.1                     # Utah Sundays are notably lighter than Saturdays
+weekday_factors = [1.05, 0.93, 0.93, 1.0, 1.2]   # Mon..Fri (long-weekend Fridays)
+school_break = 1.9
+powder_participation = 0.055     # +5.5% intending skiers per inch of new snow
+powder_participation_cap = 1.9
+beta_powder = 0.060              # choice sensitivity to resort-level powder (per inch)
+beta_travel = 1.6                # utility per hour of travel
+home_utility = -2.0              # outside option ("not today")
+affinity_default = -0.5
+[segments.slc_locals.travel_min]
+alta = 40
+snowbird = 37
+brighton = 45
+solitude = 40
+deer_valley = 45
+snowbasin = 60
+park_city = 40
+powder_mountain = 80
+[segments.slc_locals.affinity]
+alta = 0.85
+snowbird = 1.05
+brighton = 1.25
+solitude = 0.35
+deer_valley = -0.35
+snowbasin = 0.15
+park_city = 0.45
+powder_mountain = -0.4
+
+[segments.ogden_locals]
+powder_canyons = ["OGDEN"]   # where this group watches snow totals
+label = "Ogden / Davis / Weber locals"
+kind = "local"
+base = 2300
+saturday = 2.8
+sunday = 2.0
+weekday_factors = [1.05, 0.93, 0.93, 1.0, 1.2]
+school_break = 1.8
+powder_participation = 0.05
+powder_participation_cap = 1.8
+beta_powder = 0.05
+beta_travel = 1.6
+home_utility = -2.0
+affinity_default = -0.3
+[segments.ogden_locals.travel_min]
+alta = 70
+snowbird = 67
+brighton = 75
+solitude = 70
+deer_valley = 65
+snowbasin = 28
+park_city = 60
+powder_mountain = 35
+[segments.ogden_locals.affinity]
+snowbasin = 1.5
+powder_mountain = 0.9
+snowbird = 0.2
+alta = 0.1
+brighton = 0.0
+
+[segments.pc_locals]
+powder_canyons = ["PC"]   # where this group watches snow totals
+label = "Park City / Summit / Wasatch County locals"
+kind = "local"
+base = 2600
+saturday = 2.0
+sunday = 1.8
+weekday_factors = [1.05, 0.95, 0.95, 1.0, 1.15]
+school_break = 1.5
+powder_participation = 0.045
+powder_participation_cap = 1.7
+beta_powder = 0.05
+beta_travel = 1.6
+home_utility = -2.0
+affinity_default = -0.6
+[segments.pc_locals.travel_min]
+alta = 55
+snowbird = 55
+brighton = 60
+solitude = 55
+deer_valley = 10
+snowbasin = 60
+park_city = 8
+powder_mountain = 75
+[segments.pc_locals.affinity]
+deer_valley = 0.9
+park_city = 1.4
+snowbird = 0.0
+alta = -0.1
+
+[segments.dest_parkcity]
+powder_canyons = ["PC"]   # where this group watches snow totals
+label = "Destination visitors lodged in Park City"
+kind = "destination"
+base = 9000
+saturday = 0.82                  # Saturday is a travel/changeover day
+sunday = 0.95
+school_break = 1.0               # destination timing handled by dest calendar
+powder_participation = 0.01
+powder_participation_cap = 1.15
+beta_powder = 0.030
+beta_travel = 1.3
+home_utility = -2.5
+affinity_default = -1.0
+[segments.dest_parkcity.travel_min]
+alta = 55
+snowbird = 55
+brighton = 60
+solitude = 55
+deer_valley = 10
+snowbasin = 60
+park_city = 8
+powder_mountain = 80
+[segments.dest_parkcity.affinity]
+deer_valley = 1.0
+park_city = 1.45
+snowbird = -0.6
+alta = -0.7
+
+[segments.dest_slc]
+powder_canyons = ["LCC", "BCC"]   # where this group watches snow totals
+label = "Destination visitors lodged in SLC / Cottonwoods (Ikon-heavy)"
+kind = "destination"
+base = 5200
+saturday = 0.85
+sunday = 0.95
+school_break = 1.0
+powder_participation = 0.01
+powder_participation_cap = 1.15
+beta_powder = 0.045
+beta_travel = 1.2
+home_utility = -2.5
+affinity_default = -0.3
+[segments.dest_slc.travel_min]
+alta = 35
+snowbird = 32
+brighton = 40
+solitude = 35
+deer_valley = 45
+snowbasin = 55
+park_city = 40
+powder_mountain = 80
+[segments.dest_slc.affinity]
+alta = 0.8
+snowbird = 1.1
+brighton = 0.25
+solitude = 0.45
+deer_valley = 0.15
+snowbasin = 0.1
+park_city = 0.15
+
+# ---------------------------------------------------------------------------
+# Global behaviour
+# ---------------------------------------------------------------------------
+[behaviour]
+beta_crowd = 1.1          # utility penalty per unit of load (1.0 == at capacity)
+cold_temp_f = 10          # ski-hours mean temp below this suppresses locals
+cold_factor = 0.82
+very_cold_temp_f = 0
+very_cold_factor = 0.62
+rain_factor = 0.8         # warm precip day
+thin_base_in = 36         # below this base depth locals are less keen
+thin_base_factor = 0.75
+wind_gust_mph = 45        # forecast-only: high wind holds lifts
+wind_capacity_factor = 0.8
+wind_participation_factor = 0.85
+cap_shadow_step = 0.6     # how hard a hard cap pushes demand away
+# SNOTEL gauges under-read what resorts report (wind undercatch, lower
+# elevation). Skiers react to the snow report, so scale station snow up.
+snow_report_factor = 1.25
+# How strongly a group's skiing drops when the resorts it normally uses are
+# closed (1 = proportionally; 0 = everyone just goes elsewhere).
+pass_lockin_local = 0.9
+pass_lockin_destination = 0.5
+
+# Seasonal enthusiasm curve for locals (month -> multiplier)
+[behaviour.local_month_factor]
+11 = 1.15
+12 = 1.10
+1 = 1.0
+2 = 1.0
+3 = 0.92
+4 = 0.6
+5 = 0.3
+
+# ---------------------------------------------------------------------------
+# Canyon roads. Morning person-capacity before the "red snake" forms, a
+# BPR-style congestion curve, plus storm closures (avalanche control /
+# interlodge) driven by 24h snowfall at the canyon's station.
+# ---------------------------------------------------------------------------
+[canyons.LCC]
+station = "766:UT:SNTL"
+free_flow_min = 20
+person_capacity = 13000
+car_share = 0.85
+bpr_alpha = 1.0
+bpr_beta = 4.0
+closure_snow_in = 14
+closure_spread_in = 4
+closure_delay_min = 60
+
+[canyons.BCC]
+station = "366:UT:SNTL"
+free_flow_min = 22
+person_capacity = 12500
+car_share = 0.88
+bpr_alpha = 0.8
+bpr_beta = 4.0
+closure_snow_in = 18
+closure_spread_in = 4
+closure_delay_min = 35
+
+[canyons.PC]
+station = "814:UT:SNTL"
+free_flow_min = 0
+person_capacity = 60000
+car_share = 0.7
+bpr_alpha = 0.3
+bpr_beta = 4.0
+closure_snow_in = 99
+closure_spread_in = 4
+closure_delay_min = 0
+
+[canyons.OGDEN]
+station = "332:UT:SNTL"
+free_flow_min = 0
+person_capacity = 30000
+car_share = 0.95
+bpr_alpha = 0.3
+bpr_beta = 4.0
+closure_snow_in = 22
+closure_spread_in = 5
+closure_delay_min = 25
