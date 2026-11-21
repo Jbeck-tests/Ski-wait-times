@@ -99,9 +99,10 @@ jobs:
           exit 1
 
   next:
-    # Runs even if collecting failed, so one bad run doesn't break the chain.
+    # Runs even if collecting failed (so one bad run doesn't break the chain),
+    # but not when the run is cancelled.
     needs: [gate, collect]
-    if: always()
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 360
     env:
