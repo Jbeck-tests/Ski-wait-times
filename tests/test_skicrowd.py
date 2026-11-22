@@ -295,6 +295,8 @@ FIX = __import__("pathlib").Path(__file__).parent / "fixtures"
     ("deer_valley", 33, set()),                                       # pre-season
     ("alta", 5, set()),
     ("snowbasin", 13, set()),
+    ("snowbird", 14, set()),        # page text from the GitHub collector run
+    ("brighton", 8, set()),         # icons only; "0 of 8 open" -> all closed
 ])
 def test_lift_pages_parse(resort, n_lifts, expect_open):
     from skicrowd.lifts import parse
@@ -302,6 +304,13 @@ def test_lift_pages_parse(resort, n_lifts, expect_open):
     assert len(lifts) == n_lifts
     assert {x.lift for x in lifts if x.status == "open"} == expect_open
     assert all(x.status in {"open", "closed", "hold", "scheduled"} for x in lifts)
+
+
+def test_brighton_mixed_day_is_unknown_not_guessed():
+    from skicrowd.lifts import parse
+    import re
+    text = re.sub(r"(Lifts Open\s*\n)0(\s*\n)", r"\g<1>3\2", (FIX / "lifts_brighton.txt").read_text(), count=1)
+    assert {x.status for x in parse("brighton", text)} == {"unknown"}
 
 
 def test_lift_matching_and_closed_lift_counts_dropped(tmp_path):

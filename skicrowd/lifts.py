@@ -25,11 +25,10 @@ PAGES = {
     "deer_valley": ("https://www.deervalley.com/explore-the-mountain/mountain-report", r"^LIFTS$", r"^TRAILS$"),
     "alta": ("https://www.alta.com/lift-terrain-status", r"^Mountain environments change daily", r"(?i)terrain status dashboard"),
     "snowbasin": ("https://www.snowbasin.com/the-mountain/mountain-report/", r"^Lift Name", r"^Trails$"),
-    # Snowbird and Brighton load their lists from data servers this sandbox
-    # can't reach, so these markers are best guesses verified from the first
-    # collector runs (an unparsed page is saved to debug/ for fixing).
-    "snowbird": ("https://www.snowbird.com/the-mountain/mountain-report/lift-trail-report/", r"(?i)^lifts?( status)?$", r"(?i)^(trails?|runs?)( status)?$"),
-    "brighton": ("https://www.brightonresort.com/conditions", r"(?i)^lift status$", r"(?i)^(trail status|trails|runs)$"),
+    # Snowbird's table rows read "<name>" then "<type> <status>".
+    "snowbird": ("https://www.snowbird.com/the-mountain/mountain-report/lift-trail-report/", r"^Lift Status Type", r"(?i)^(gad valley|terrain & gates)$"),
+    # Brighton shows each lift's status as an icon; see parse_brighton().
+    "brighton": ("https://www.brightonresort.com/conditions", r"(?i)^show legend$", r"(?i)^trail status$"),
 }
 
 STATUS = {
@@ -39,6 +38,7 @@ STATUS = {
     "wind hold": "hold", "weather hold": "hold", "delayed": "hold",
     "scheduled": "scheduled", "expected": "scheduled", "opening soon": "scheduled",
 }
+TYPE_PREFIX = re.compile(r"(?i)^(tram|gondola|double|triple|quad|six|carpet|conveyor|chair|surface|t-bar)\s+")
 LIFT_TYPES = re.compile(r"(?i)^(tram|gondola|(detachable|fixed[- ]grip)?\s*chair\s*lift|chairlift|chair|surface( lift)?|"
                         r"conveyor( lift)?|high[- ]speed (quad|six)|quad|triple|double|t-bar|rope tow)$")
 NOT_A_NAME = re.compile(r"(?i)(\d{1,2}:\d{2}|[—–]|^@|opens daily|grooming status|^show (closed|open)|lift name|"
@@ -49,7 +49,7 @@ NOT_A_NAME = re.compile(r"(?i)(\d{1,2}:\d{2}|[—–]|^@|opens daily|grooming st
 class Lift:
     resort: str
     lift: str
-    status: str      # open / closed / hold / scheduled / other
+    status: str      # open / closed / hold / scheduled / unknown
     raw: str
 
 
@@ -64,7 +64,35 @@ def _title(name: str) -> str:
     return " ".join(w if re.fullmatch(r"[IVX]+", w) else w.capitalize() for w in name.split())
 
 
+def _status_of(line: str) -> str | None:
+    key = line.lower()
+    if key in STATUS:
+        return STATUS[key]
+    stripped = TYPE_PREFIX.sub("", line).lower()      # "Tram Closed for the season"
+    return STATUS.get(stripped) if stripped != key else None
+
+
+def parse_brighton(text: str) -> list[Lift]:
+    """Brighton draws each lift's status as an icon, so the text only has the
+    names and a summary ('Lifts Open 0 of 8'). All-open and all-closed are
+    unambiguous; mixed days are marked unknown until the icons are decoded."""
+    _, start_re, end_re = PAGES["brighton"]
+    lines = [x for x in (_norm(y) for y in text.split("\n")) if x]
+    joined = "\n".join(lines)
+    m = re.search(r"Lifts Open\n(\d+)\nof (\d+)", joined)
+    start = next((i for i, x in enumerate(lines) if re.search(start_re, x)), None)
+    if m is None or start is None:
+        return []
+    end = next((i for i in range(start + 1, len(lines)) if re.search(end_re, lines[i])), len(lines))
+    names = [x for x in lines[start + 1:end] if re.search(r"[A-Za-z]", x) and len(x) <= 40]
+    n_open, total = int(m.group(1)), int(m.group(2))
+    status = "closed" if n_open == 0 else "open" if n_open == total else "unknown"
+    return [Lift("brighton", n, status, f"{n_open} of {total} open") for n in names]
+
+
 def parse(resort: str, text: str) -> list[Lift]:
+    if resort == "brighton":
+        return parse_brighton(text)
     _, start_re, end_re = PAGES[resort]
     lines = [_norm(x) for x in text.split("\n")]
     lines = [x for x in lines if x]
@@ -74,10 +102,10 @@ def parse(resort: str, text: str) -> list[Lift]:
     end = next((i for i in range(start + 1, len(lines)) if end_re and re.search(end_re, lines[i])), len(lines))
     out, seen, pending = [], set(), None
     for x in lines[start + 1:end]:
-        key = x.lower()
-        if key in STATUS:
+        st = _status_of(x)
+        if st:
             if pending and pending.lower() not in seen:
-                out.append(Lift(resort, _title(pending), STATUS[key], x))
+                out.append(Lift(resort, _title(pending), st, x))
                 seen.add(pending.lower())
             pending = None
         elif re.search(r"[A-Za-z]", x) and not NOT_A_NAME.search(x) and not LIFT_TYPES.match(x) and len(x) <= 40:
@@ -102,9 +130,11 @@ def fetch(resorts=tuple(PAGES), debug_dir: Path | None = None, timeout_ms: int =
                 page.wait_for_timeout(2500)
                 text = page.evaluate("() => document.body ? document.body.innerText : ''")
                 lifts = parse(r, text)
-                if not lifts and debug_dir is not None:
+                if debug_dir is not None and (not lifts or any(x.status == "unknown" for x in lifts)):
                     debug_dir.mkdir(parents=True, exist_ok=True)
                     (debug_dir / f"lifts_{r}.txt").write_text(text)
+                    # keep the markup too, so icon-based statuses can be decoded
+                    (debug_dir / f"lifts_{r}.html").write_text(page.content())
                 results += lifts
             except Exception as e:  # noqa: BLE001
                 print(f"  ! lift status failed for {r}: {e}")
