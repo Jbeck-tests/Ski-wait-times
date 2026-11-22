@@ -95,6 +95,14 @@ title = "Apex Express Lift"
 kind = "lift_line"
 
 [[cam]]
+resort = "solitude"
+section = "Solitude Mountain Resort"
+title = "Link Lift Line"
+kind = "lift_line"
+# Added Nov 22 2026 after an on-mountain report that Link's line empties
+# after 3pm. Its feed looked stale in May; the frozen-frame check guards it.
+
+[[cam]]
 resort = "deer_valley"
 section = "Deer Valley Resort"
 title = "Snow Park Lodge"
