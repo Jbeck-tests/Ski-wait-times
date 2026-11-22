@@ -49,7 +49,7 @@ jobs:
     needs: gate
     if: needs.gate.outputs.collect == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -61,6 +61,15 @@ jobs:
 
       - name: Install
         run: pip install -r requirements-collector.txt
+
+      - name: Cache browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-1.63.0-chromium
+
+      - name: Install browser (for lift-status pages)
+        run: python -m playwright install --with-deps chromium
 
       - name: Cache detector weights
         uses: actions/cache@v4

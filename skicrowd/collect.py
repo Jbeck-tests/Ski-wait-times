@@ -24,6 +24,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from . import lifts as lift_status
 from . import udot
 
 CAM_CONFIG = Path(__file__).resolve().parent / "config" / "webcams.toml"
@@ -157,7 +158,21 @@ def run(out_dir: str | Path, detector: Detector | None = None, verbose: bool = T
     except Exception as e:  # noqa: BLE001
         print(f"resort_status failed: {e}")
 
-    # 3) webcams
+    # 3) lift open/closed status (rendered public lift-status pages)
+    lift_rows = []
+    try:
+        lift_rows = lift_status.rows(lift_status.fetch(debug_dir=out / "debug"), now)
+        n = _append(out / "lift_status.csv", lift_rows, ["collected_at", "resort", "lift"])
+        if verbose:
+            counts = {}
+            for x in lift_rows:
+                o, t = counts.get(x["resort"], (0, 0))
+                counts[x["resort"]] = (o + (x["status"] == "open"), t + 1)
+            print("lift_status: +%d rows  " % n + ", ".join(f"{r} {o}/{t} open" for r, (o, t) in counts.items()))
+    except Exception as e:  # noqa: BLE001
+        print(f"lift_status failed: {e}")
+
+    # 4) webcams
     counts_path = out / "webcam_counts.csv"
     seen, prev_hashes = set(), {}
     if counts_path.exists():
@@ -194,6 +209,7 @@ def run(out_dir: str | Path, detector: Detector | None = None, verbose: bool = T
             "collected_at": now.isoformat(), "image_time": image_time.isoformat(), "image_ts": hit["ts"],
             "camera": cam_id, "resort": cam["resort"], "kind": cam["kind"], "usable": int(usable),
             **q, **c, "image_sha1": sha, "frozen": int(frozen),
+            "lift_open": lift_status.is_open(lift_rows, cam["resort"], cam.get("lift")),
         })
         if verbose:
             flag = "ok " if usable else ("frozen" if frozen else "bad")
@@ -213,6 +229,8 @@ def summarize(data_dir: str | Path, start_hour: float = 9.0, end_hour: float = 1
     if wc.exists():
         w = pd.read_csv(wc)
         w = w[w["usable"] == 1].copy()
+        if "lift_open" in w:   # a "line" at a closed lift is just people walking past
+            w = w[~((w["kind"] == "lift_line") & (pd.to_numeric(w["lift_open"], errors="coerce") == 0))]
         t = pd.to_datetime(w["image_time"], utc=True).dt.tz_convert(MT)
         w["date"] = t.dt.tz_localize(None).dt.normalize()
         hr = t.dt.hour + t.dt.minute / 60
@@ -223,7 +241,7 @@ def summarize(data_dir: str | Path, start_hour: float = 9.0, end_hour: float = 1
         obs.append(pd.DataFrame({
             "date": g["date"], "resort": g["resort"],
             "kind": np.where(g["resort"].str.isupper(), "canyon_vehicles", "webcam_count"),
-            "value": g["value"], "weight": 0.5, "source": "cam_" + g["camera"].str.replace(r"[^a-z0-9]+", "_", regex=True),
+            "value": g["value"], "weight": 0.5, "source": "cam_" + g["camera"].str.lower().str.replace(r"[^a-z0-9]+", "_", regex=True),
             "notes": "webcam detections, mean 9:00-12:30",
         }))
     cl = d / "canyon_live.csv"

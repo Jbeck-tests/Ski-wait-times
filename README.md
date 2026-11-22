@@ -18,6 +18,7 @@ It answers two questions:
 pip install -e .                       # numpy, pandas, scipy
 python -m skicrowd fetch               # SNOTEL snow history (already cached in data/)
 python -m skicrowd status              # which resorts are open / announced opening dates (Ski Utah)
+python -m skicrowd lifts               # which lifts are running right now at each resort
 python -m skicrowd predict 2027-01-16  # rank resorts for a date
 python -m skicrowd calendar            # whole-season crowd calendar (HTML + CSV) in reports/
 python -m skicrowd backtest            # 10-season simulation + insights report
@@ -151,6 +152,7 @@ skicrowd/model.py            demand -> choice -> congestion equilibrium
 skicrowd/calibrate.py        MAP fitting to observations
 skicrowd/analysis.py         backtests, climatology, point predictions
 skicrowd/status.py           live open/closed status + announced opening dates
+skicrowd/lifts.py            per-lift open/closed status from resorts' public pages
 skicrowd/intraday.py         time-of-day curves (UDOT hourly) + webcam refit
 skicrowd/udot.py             UDOT traffic-count importer + live canyon volume
 skicrowd/collect.py          webcam + live canyon collector (GitHub Actions)

@@ -9,6 +9,10 @@
 #   parking    parking lot                      -> counts vehicles
 #   road       canyon road / intersection       -> counts vehicles (red snake)
 #
+# lift (optional): the lift this camera's queue belongs to, as named on the
+# resort's lift-status page. Counts taken while that lift is closed are kept
+# in the log but ignored for training.
+#
 # roi (optional): polygon in 0-1 image coordinates [[x,y], ...]; only
 # detections whose centre falls inside count. Add these once in-season frames
 # show where the queue or lot actually is.
@@ -18,6 +22,7 @@ resort = "snowbird"
 section = "Snowbird"
 title = "Tram Maze"
 kind = "lift_line"
+lift = "Tram"
 
 [[cam]]
 resort = "alta"
@@ -42,18 +47,21 @@ resort = "brighton"
 section = "Brighton"
 title = "Milly Express"
 kind = "lift_line"
+lift = "Milly Express"
 
 [[cam]]
 resort = "brighton"
 section = "Brighton"
 title = "Great Western"
 kind = "lift_line"
+lift = "Great Western"
 
 [[cam]]
 resort = "brighton"
 section = "Brighton"
 title = "Majestic Lift"
 kind = "lift_line"
+lift = "Majestic"
 
 [[cam]]
 resort = "solitude"
@@ -67,24 +75,28 @@ resort = "solitude"
 section = "Solitude Mountain Resort"
 title = "Moonbeam Lift Line"
 kind = "lift_line"
+lift = "Moonbeam Express"
 
 [[cam]]
 resort = "solitude"
 section = "Solitude Mountain Resort"
 title = "Summit Express Lift Line"
 kind = "lift_line"
+lift = "Summit Express"
 
 [[cam]]
 resort = "solitude"
 section = "Solitude Mountain Resort"
 title = "Powderhorn Lift Line"
 kind = "lift_line"
+lift = "Powderhorn II"
 
 [[cam]]
 resort = "solitude"
 section = "Solitude Mountain Resort"
 title = "Eagle Express Lift Line"
 kind = "lift_line"
+lift = "Eagle Express"
 # Nov 20 2026: frame looked frozen (bare summer ground); the collector now
 # flags frames whose picture never changes.
 
@@ -93,12 +105,14 @@ resort = "solitude"
 section = "Solitude Mountain Resort"
 title = "Apex Express Lift"
 kind = "lift_line"
+lift = "Apex Express"
 
 [[cam]]
 resort = "solitude"
 section = "Solitude Mountain Resort"
 title = "Link Lift Line"
 kind = "lift_line"
+lift = "Link"
 # Added Nov 22 2026 after an on-mountain report that Link's line empties
 # after 3pm. Its feed looked stale in May; the frozen-frame check guards it.
 
@@ -119,12 +133,14 @@ resort = "deer_valley"
 section = "Deer Valley Resort"
 title = "Empire Express Chairlift"
 kind = "lift_line"
+lift = "Empire Express"
 
 [[cam]]
 resort = "deer_valley"
 section = "Deer Valley Resort"
 title = "Sterling Express Chairlift"
 kind = "lift_line"
+lift = "Sterling Express"
 
 [[cam]]
 resort = "snowbasin"
@@ -137,6 +153,7 @@ resort = "snowbasin"
 section = "Snowbasin Resort"
 title = "Base of Wildcat Chair"
 kind = "lift_line"
+lift = "Wildcat Express"
 
 [[cam]]
 resort = "snowbasin"
@@ -149,6 +166,7 @@ resort = "snowbasin"
 section = "Snowbasin Resort"
 title = "Needles"
 kind = "lift_line"
+lift = "Needles Gondola"
 
 [[cam]]
 resort = "LCC"

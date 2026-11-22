@@ -89,7 +89,16 @@ Each collecting run does three things.
    reports net vehicles currently in Little and Big Cottonwood (up minus
    down). The daily peak between 8am and 2pm feeds calibration.
 2. **Resort status.** It logs Ski Utah's open/closed list.
-3. **Webcams.** It reads the 26 cameras in `skicrowd/config/webcams.toml`
+3. **Lift status.** It loads each resort's public lift-status page in a
+   headless browser, reads which lifts are open (`skicrowd/lifts.py`), and
+   logs it to `lift_status.csv`. Each lift-line camera is linked to its lift
+   (`lift =` in `webcams.toml`), so counts taken while the lift is closed are
+   ignored. Without this, a few skiers walking past a closed lift look like
+   a short line. Snowbird's and Brighton's lists load from data servers this
+   sandbox can't reach, so their parsers are confirmed from collector runs;
+   a page that can't be parsed is saved to `debug/` for fixing. Check
+   anytime with `python -m skicrowd lifts`.
+4. **Webcams.** It reads the 26 cameras in `skicrowd/config/webcams.toml`
    (lift lines, base areas, parking lots and canyon-road cams) from Ski
    Utah's public webcam page:
    - Frames are analysed in memory and never saved.
@@ -104,7 +113,8 @@ for future backtests.
 
 Data is committed to the `collector-data` branch:
 - `canyon_live.csv`
-- `webcam_counts.csv`
+- `webcam_counts.csv` (now with `lift_open` per camera)
+- `lift_status.csv`
 - `resort_status.csv`
 - `season_status.json`
 

@@ -254,6 +254,7 @@ def test_collector_flags_frozen_frames(tmp_path, monkeypatch):
     monkeypatch.setattr(collect, "_get", lambda url, timeout=30: page.format(**state).encode() if "webcams" in url else raw)
     monkeypatch.setattr(collect.udot, "fetch_live", lambda: (_ for _ in ()).throw(RuntimeError("offline")))
     monkeypatch.setattr("skicrowd.status.fetch_status", lambda: (_ for _ in ()).throw(RuntimeError("offline")))
+    monkeypatch.setattr(collect.lift_status, "fetch", lambda **kw: [])   # tests never hit live sites
 
     class Stub:
         def count(self, img, roi=None):
@@ -283,3 +284,39 @@ def test_collector_chain_timing():
     # season over after April 30
     assert next_collection(at(2027, 4, 30, 16, 55)) is None
     assert wait_seconds(at(2027, 5, 2, 10, 0)) is None
+
+
+# --------------------------------------------------------------- lift status
+FIX = __import__("pathlib").Path(__file__).parent / "fixtures"
+
+
+@pytest.mark.parametrize("resort,n_lifts,expect_open", [
+    ("solitude", 10, {"Link", "Moonbeam Express", "Magic Carpet"}),   # Nov 22 2026: 3 of 10 running
+    ("deer_valley", 33, set()),                                       # pre-season
+    ("alta", 5, set()),
+    ("snowbasin", 13, set()),
+])
+def test_lift_pages_parse(resort, n_lifts, expect_open):
+    from skicrowd.lifts import parse
+    lifts = parse(resort, (FIX / f"lifts_{resort}.txt").read_text())
+    assert len(lifts) == n_lifts
+    assert {x.lift for x in lifts if x.status == "open"} == expect_open
+    assert all(x.status in {"open", "closed", "hold", "scheduled"} for x in lifts)
+
+
+def test_lift_matching_and_closed_lift_counts_dropped(tmp_path):
+    from skicrowd import collect, lifts
+    rows = [{"resort": "solitude", "lift": "Moonbeam Express", "status": "open"},
+            {"resort": "solitude", "lift": "Apex Express", "status": "closed"},
+            {"resort": "snowbird", "lift": "Aerial Tram", "status": "open"}]
+    assert lifts.is_open(rows, "solitude", "Moonbeam Express") == 1
+    assert lifts.is_open(rows, "solitude", "Apex Express") == 0
+    assert lifts.is_open(rows, "snowbird", "Tram") == 1          # whole-word match
+    assert lifts.is_open(rows, "solitude", "Summit Express") == ""
+    times = pd.date_range("2027-01-09 16:30", periods=4, freq="20min", tz="UTC")
+    pd.DataFrame({"image_time": list(times.astype(str)) * 2, "image_ts": range(8),
+                  "camera": ["solitude:Moonbeam Lift Line"] * 4 + ["solitude:Apex Express Lift"] * 4,
+                  "resort": "solitude", "kind": "lift_line", "usable": 1, "people": [40] * 4 + [8] * 4,
+                  "vehicles": 0, "lift_open": [1] * 4 + [0] * 4}).to_csv(tmp_path / "webcam_counts.csv", index=False)
+    obs = collect.summarize(tmp_path)
+    assert list(obs["source"]) == ["cam_solitude_moonbeam_lift_line"]   # Apex (closed) dropped

@@ -254,6 +254,19 @@ def cmd_intraday(args):
             print("Not enough lift-line webcam data yet; keeping the current time-of-day settings.")
 
 
+def cmd_lifts(args):
+    from . import lifts
+    found = lifts.fetch(resorts=tuple(args.resort) if args.resort else tuple(lifts.PAGES))
+    cfg = load_config()
+    for r in dict.fromkeys(x.resort for x in found):
+        rl = [x for x in found if x.resort == r]
+        op = [x.lift for x in rl if x.status == "open"]
+        print(f"{cfg['resorts'][r]['name']}: {len(op)}/{len(rl)} open" + (f" - {', '.join(op)}" if op else ""))
+    missing = [r for r in (args.resort or lifts.PAGES) if r not in {x.resort for x in found}]
+    if missing:
+        print("no lift list parsed for:", ", ".join(missing))
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog="skicrowd", description="Utah Ikon resort crowd model")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -294,6 +307,10 @@ def main(argv=None):
     it.add_argument("action", choices=["build", "fit"])
     it.add_argument("--data", default="collector-data", help="collector data directory for `fit`")
     it.set_defaults(fn=cmd_intraday)
+
+    lf = sub.add_parser("lifts", help="current lift open/closed status from each resort's page")
+    lf.add_argument("resort", nargs="*", help="resort keys (default: all six)")
+    lf.set_defaults(fn=cmd_lifts)
 
     stp = sub.add_parser("status", help="show / refresh which resorts are open and announced opening dates")
     stp.add_argument("--refresh", action="store_true")
