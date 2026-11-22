@@ -1,7 +1,7 @@
 {
   "source": "https://www.skiutah.com/snowreport",
-  "fetched_at": "2026-11-21T16:40-07:00",
-  "as_of": "2026-11-21",
+  "fetched_at": "2026-11-22T07:00-07:00",
+  "as_of": "2026-11-22",
   "season": 2027,
   "resorts": {
     "alta": {
@@ -42,7 +42,7 @@
     "solitude": {
       "status": "open",
       "date": null,
-      "raw": "9\" / 35\""
+      "raw": "0\" / 32\""
     }
   }
 }
