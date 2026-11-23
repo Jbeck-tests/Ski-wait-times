@@ -15,7 +15,7 @@ Things To Do
 Plan & Discover
 Host An Event
 Open conditions trails menu
-6"
+0"
 Snow
 Home
 Conditions
@@ -31,17 +31,17 @@ LIVE CAMS
 UPHILL TRAVEL
 SNOW CONDITIONS
 Brighton
-6"
+0"
 
 Snow 24 Hrs.
 
 Snow Overnight
 
-6"
+0"
 
 Snow 48 Hrs.
 
-12"
+0"
 
 Snow 7 Days
 
@@ -56,16 +56,16 @@ Base Depth
 28"
 LIFT STATUS
 
-Last updated: Sunday 07:07 AM
+Last updated: Monday 12:08 PM
 
 Lifts Open
-0
+2
 
 of 8
 
 Lifts Closed
 
-8 of 8
+6 of 8
 
 Show legend
 
@@ -75,9 +75,13 @@ Crest 6
 
 Explorer
 
+Closes 4:00 PM
+
 Great Western Express
 
 Majestic
+
+Closes 4:00 PM
 
 Milly Express
 
@@ -87,16 +91,16 @@ Snake Creek
 
 TRAIL STATUS
 
-Last updated: Sunday 07:07 AM
+Last updated: Monday 12:08 PM
 
 Trails Open
-0
+1
 
 of 76
 
 Trails Groomed
 
-24
+25
 
 Terrain Parks Open
 
@@ -287,7 +291,7 @@ Parking Lot
 
 PARKING & LOT STATUS
 
-Last updated: Sunday 07:07 AM
+Last updated: Monday 12:08 PM
 
 Main Lot
 No Reservations Required Today
@@ -308,7 +312,7 @@ Milly Express
 ROAD CONDITIONS
 SR-190 Big Cottonwood Canyon Mouth to Spruces
 
-Last updated: Saturday 11:12 PM
+Last updated: Monday 05:13 AM
 
 Conditions
 Dry
@@ -322,7 +326,7 @@ Ride the Ski Bus
 Route 972 Map & Bus Schedule
 UPHILL TRAVEL
 
-Last updated: Sunday 07:07 AM
+Last updated: Monday 12:08 PM
 
 Uphill Travel Status
 
