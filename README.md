@@ -12,6 +12,27 @@ It answers two questions:
   simulating every day of the last 10 seasons against the snow that actually
   fell.
 
+## Live dashboard
+
+**https://jbeck-tests.github.io/Ski-wait-times/** (GitHub Pages, rebuilt by
+the collector every 20 minutes from 7am to 5pm Mountain).
+
+* **Today:** the quietest resort right now; cars in Little and Big
+  Cottonwood (measured by UDOT) with a chart of the day so far; and a card
+  per open resort with lifts running, estimated cars at that resort, the
+  latest lift-line webcam counts and the expected crowd hour by hour.
+* **This week:** expected peak crowd for each resort for the next 7 days.
+  Tap a day for its hour-by-hour curve.
+* **Season:** the full-season calendar.
+
+Cars at a single resort are an **estimate**: the canyon's measured total is
+split between the canyon's open resorts by the model's expected share. "Crowd
+now" is the model's estimate for the hour, scaled by how live canyon traffic
+compares with what the model expected by this time of day. Deer Valley and
+Snowbasin have no live counter, so they show the model alone.
+
+Build it locally with `python -m skicrowd dashboard --data collector-data --out site`.
+
 ## Quick start
 
 ```bash
@@ -157,6 +178,8 @@ skicrowd/intraday.py         time-of-day curves (UDOT hourly) + webcam refit
 skicrowd/udot.py             UDOT traffic-count importer + live canyon volume
 skicrowd/collect.py          webcam + live canyon collector (GitHub Actions)
 skicrowd/schedule.py         timing for the collector's self-scheduling chain
+skicrowd/dashboard.py        live dashboard data + site (GitHub Pages)
+skicrowd/templates/          dashboard and calendar pages
 skicrowd/config/webcams.toml cameras the collector reads
 data/weather_daily.csv       cleaned SNOTEL history (4 stations, 2016-17 onward)
 data/udot/                   UDOT hourly counts + daily ski signal

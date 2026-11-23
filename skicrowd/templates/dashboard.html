@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ikon Crowd Watch</title>
+<meta name="description" content="Live crowd estimates for Utah's Ikon resorts: canyon traffic, lifts open, lift lines and the week ahead.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: sticky header with tabs; "Today" = verdict, canyon traffic, resort cards; "Week" = resort x day grid. */
+:root {
+  color-scheme: light;
+  --bg: #f3f6f8; --surface: #ffffff; --ink: #14202a; --muted: #5a6a77; --faint: #8a98a3; --line: #d9e1e7;
+  --accent: #1f5f8b;
+  --lcc: #2a78d6; --bcc: #eb6834;                                 /* categorical slots 1-2 */
+  --quiet: #0ca30c; --moderate: #fab219; --busy: #ec835a; --packed: #d03b3b;  /* status palette */
+  --quiet-bg: #dcf2dc; --moderate-bg: #fdf0cf; --busy-bg: #fbe3d9; --packed-bg: #f7d9d9;
+  --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  color-scheme: dark; --bg: #0f151a; --surface: #17212a; --ink: #e8eef3; --muted: #9aabb8; --faint: #6f808d; --line: #2a3843;
+  --accent: #7fb8e0; --lcc: #3987e5; --bcc: #d95926;
+  --quiet-bg: #173a20; --moderate-bg: #3d3313; --busy-bg: #43261a; --packed-bg: #47191b; } }
+:root[data-theme="dark"] {
+  color-scheme: dark; --bg: #0f151a; --surface: #17212a; --ink: #e8eef3; --muted: #9aabb8; --faint: #6f808d; --line: #2a3843;
+  --accent: #7fb8e0; --lcc: #3987e5; --bcc: #d95926;
+  --quiet-bg: #173a20; --moderate-bg: #3d3313; --busy-bg: #43261a; --packed-bg: #47191b; }
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--body); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 0 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; margin: 0; letter-spacing: .01em; text-wrap: balance; }
+header.top .wrap { padding-bottom: 0; }
+header.top { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+  padding-top: max(10px, env(safe-area-inset-top, 0px)); }
+.toprow { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; padding-bottom: 8px; }
+h1 { font-size: 1.9rem; text-transform: uppercase; line-height: 1; }
+.updated { color: var(--muted); font-size: .85rem; display: flex; align-items: center; gap: 8px; }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-size: .72rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .06em; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); }
+.pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--quiet); }
+.pill.stale .dot { background: var(--busy); }
+nav.tabs { display: flex; gap: 4px; }
+nav.tabs a, nav.tabs button { font: 600 .9rem var(--body); color: var(--muted); background: none; border: 0; cursor: pointer;
+  padding: 8px 12px 10px; border-bottom: 3px solid transparent; text-decoration: none; }
+nav.tabs [aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+nav.tabs :focus-visible, button:focus-visible, .cell:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.section { margin-top: 20px; }
+.section > h2 { font-size: 1.25rem; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.verdict { display: grid; gap: 4px; }
+.verdict .big { font-family: var(--display); font-size: clamp(1.6rem, 5vw, 2.3rem); font-weight: 700; line-height: 1.05; }
+.verdict p { margin: 0; color: var(--muted); max-width: 70ch; }
+
+.level { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: .8rem; padding: 2px 8px; border-radius: 6px; }
+.level::before { content: ""; width: 9px; height: 9px; border-radius: 2px; background: currentColor; }
+.l-quiet { background: var(--quiet-bg); } .l-quiet::before { background: var(--quiet); }
+.l-moderate { background: var(--moderate-bg); } .l-moderate::before { background: var(--moderate); }
+.l-busy { background: var(--busy-bg); } .l-busy::before { background: var(--busy); }
+.l-packed { background: var(--packed-bg); } .l-packed::before { background: var(--packed); }
+.l-closed { background: transparent; color: var(--faint); border: 1px dashed var(--line); } .l-closed::before { display: none; }
+
+.canyons { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.canyon-nums { display: flex; flex-wrap: wrap; gap: 8px 28px; }
+.num { display: grid; }
+.num .k { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.num .k i { width: 12px; height: 3px; border-radius: 2px; display: inline-block; }
+.num .v { font-family: var(--display); font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.num .s { font-size: .8rem; color: var(--muted); }
+.chart { position: relative; width: 100%; overflow: hidden; }
+.chart svg { display: block; width: 100%; height: auto; }
+.chart text { font: 11px var(--body); fill: var(--muted); }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+  padding: 6px 8px; font-size: .78rem; box-shadow: 0 2px 8px rgba(0,0,0,.12); white-space: nowrap; }
+.note { color: var(--muted); font-size: .8rem; margin: 8px 0 0; max-width: 80ch; }
+
+.resorts { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.resort { display: grid; gap: 10px; align-content: start; }
+.resort.closed { opacity: .75; }
+.rhead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.rhead h3 { font-size: 1.45rem; text-transform: uppercase; }
+.rhead .sub { color: var(--muted); font-size: .8rem; text-align: right; }
+.now { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.now .v { font-family: var(--display); font-size: 2.4rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: .86rem; }
+.kv dt { color: var(--muted); } .kv dd { margin: 0; font-variant-numeric: tabular-nums; min-width: 0; }
+.tag { font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); margin-left: 4px; }
+.strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
+.strip .h { font-size: .66rem; color: var(--muted); text-align: center; text-transform: uppercase; }
+.strip .c { font-size: .72rem; text-align: center; border-radius: 3px; padding: 2px 0; font-variant-numeric: tabular-nums; }
+.strip .c { border-bottom: 3px solid transparent; }
+.strip .c.l-quiet { border-bottom-color: var(--quiet); } .strip .c.l-moderate { border-bottom-color: var(--moderate); }
+.strip .c.l-busy { border-bottom-color: var(--busy); } .strip .c.l-packed { border-bottom-color: var(--packed); }
+.strip .c.now { box-shadow: inset 0 0 0 2px var(--ink); font-weight: 700; }
+.c.l-quiet, .c.l-moderate, .c.l-busy, .c.l-packed { padding-left: 0; }
+.c.l-quiet::before, .c.l-moderate::before, .c.l-busy::before, .c.l-packed::before, .cell::before { display: none; }
+.lifts-open { color: var(--muted); font-size: .8rem; }
+.closedlist { margin-top: 12px; color: var(--muted); font-size: .86rem; display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.closedlist strong { color: var(--ink); font-weight: 600; }
+.days { display: grid; gap: 6px; }
+.day { display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: 8px; align-items: start; padding: 6px 0; border-top: 1px solid var(--line); }
+.day:first-child { border-top: 0; }
+.day .dl { font-weight: 600; font-size: .85rem; line-height: 1.2; } .day .dl span { display: block; color: var(--muted); font-weight: 400; font-size: .75rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.chip { border: 0; border-radius: 6px; padding: 5px 8px; font: 500 .82rem var(--body); color: var(--ink); cursor: pointer; border-left: 4px solid transparent; }
+.chip b { font-variant-numeric: tabular-nums; margin-left: 4px; }
+.chip.best { box-shadow: inset 0 0 0 2px var(--ink); }
+.chip.l-quiet { border-left-color: var(--quiet); } .chip.l-moderate { border-left-color: var(--moderate); }
+.chip.l-busy { border-left-color: var(--busy); } .chip.l-packed { border-left-color: var(--packed); }
+.chip::before { display: none; }
+.none-open { color: var(--faint); font-size: .82rem; padding: 5px 0; }
+@media (min-width: 760px) { .days { display: none; } }
+@media (max-width: 759px) { .weekwrap { display: none; } }
+
+.weekwrap { overflow-x: auto; }
+table.week { border-collapse: separate; border-spacing: 3px; min-width: 560px; width: 100%; font-variant-numeric: tabular-nums; }
+table.week th { font-size: .75rem; color: var(--muted); font-weight: 600; text-align: center; padding: 2px; }
+table.week th.rn { text-align: left; font-family: var(--display); font-size: 1rem; color: var(--ink); text-transform: uppercase; white-space: nowrap; }
+.cell { display: block; width: 100%; border: 0; border-radius: 6px; padding: 8px 2px; font: 600 .95rem var(--body); text-align: center; cursor: pointer; color: var(--ink); }
+.cell.best { box-shadow: inset 0 0 0 2px var(--ink); }
+.cell.none { background: transparent; color: var(--faint); border: 1px dashed var(--line); cursor: default; font-weight: 400; font-size: .75rem; }
+#weekDetail { margin-top: 12px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .78rem; color: var(--muted); margin-top: 10px; }
+footer { color: var(--muted); font-size: .8rem; margin-top: 32px; display: grid; gap: 6px; max-width: 85ch; }
+[hidden] { display: none !important; }
+@media (max-width: 420px) { .resorts { grid-template-columns: minmax(0, 1fr); } h1 { font-size: 1.55rem; } }
+@media (prefers-reduced-motion: no-preference) { .card { transition: border-color .2s; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="toprow">
+    <h1>Ikon Crowd Watch</h1>
+    <div class="updated"><span class="pill" id="live"><span class="dot"></span><span id="liveTxt">Live</span></span><span id="updated">Loading…</span></div>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-today" aria-selected="true" aria-controls="today">Today</button>
+    <button role="tab" id="tab-week" aria-selected="false" aria-controls="week">This week</button>
+    <a href="calendar.html" role="tab" aria-selected="false">Season</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section id="today" role="tabpanel" aria-labelledby="tab-today">
+    <div class="section"><div class="card verdict" id="verdict"><div class="big">Loading live data…</div></div></div>
+
+    <div class="section">
+      <h2>Cars up the canyons</h2>
+      <div class="card canyons">
+        <div class="canyon-nums" id="canyonNums"></div>
+        <div class="chart" id="canyonChart"></div>
+        <p class="note">Measured by UDOT: vehicles that have gone up minus come down since last night. Includes backcountry skiers and residents, not just resort skiers.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Resorts right now</h2>
+      <div class="resorts" id="resorts"></div>
+      <div class="closedlist" id="closedList"></div>
+      <div class="legend" aria-label="Crowd levels">
+        <span class="level l-quiet">Quiet &lt;50</span><span class="level l-moderate">Moderate 50–80</span>
+        <span class="level l-busy">Busy 80–110</span><span class="level l-packed">Packed 110+</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="week" role="tabpanel" aria-labelledby="tab-week" hidden>
+    <div class="section">
+      <h2>Expected crowds this week</h2>
+      <div class="card">
+        <div class="weekwrap"><table class="week" id="weekTable"></table></div>
+        <div class="days" id="weekDays"></div>
+        <div id="weekDetail"></div>
+        <p class="note">Each cell is the day's peak crowd index (100 = at comfortable capacity). Outlined = quietest resort that day. Tap one for the hour-by-hour estimate. Near-term days use the weather forecast when it's available; later days use measured snowpack and history.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div><strong>How to read it.</strong> Crowd index: 100 means the resort is at comfortable capacity. "Crowd now" is the model's estimate for this hour, adjusted to live canyon traffic where UDOT counts it (Alta, Snowbird, Brighton, Solitude). Cars at a resort are estimated by splitting the canyon's measured total between the resorts that are open. Lift-line counts come from public webcams and only count lifts that are running.</div>
+    <div>Sources: UDOT live canyon volumes, resort lift-status pages, Ski Utah webcams and snow report, USDA SNOTEL. Estimates, not official counts.</div>
+  </footer>
+</main>
+
+<script>
+const LEVELS = [[50, "quiet", "Quiet"], [80, "moderate", "Moderate"], [110, "busy", "Busy"], [1e9, "packed", "Packed"]];
+const lvl = v => v == null ? ["closed", "Closed"] : (LEVELS.find(([m]) => v < m) || LEVELS[3]).slice(1);
+const hl = h => (h % 12 || 12) + (h < 12 ? "a" : "p");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let DATA = null, weekSel = null;
+
+function levelChip(v, extra = "") {
+  const [k, t] = lvl(v);
+  return `<span class="level l-${k} ${extra}">${t}</span>`;
+}
+
+function renderVerdict(d) {
+  const el = document.getElementById("verdict");
+  const b = d.best_now && d.resorts[d.best_now];
+  const open = d.order.filter(r => d.resorts[r].crowd_now != null);
+  if (!b) {
+    const nxt = d.week.find(w => w.best);
+    el.innerHTML = `<div class="big">No Ikon resorts open right now</div>` +
+      (nxt ? `<p>Next: ${esc(nxt.dow)} ${esc(nxt.label)}, quietest expected at ${esc(d.resorts[nxt.best]?.name || nxt.best)}.</p>` : "");
+    return;
+  }
+  if (open.length === 1) {
+    el.innerHTML = `<div class="big">Only Ikon resort open: ${esc(b.name)} <span style="white-space:nowrap">${b.crowd_now} ${levelChip(b.crowd_now)}</span></div>
+      <p>Based on ${b.nowcast_ratio != null ? "model adjusted to live canyon traffic" : "model estimate (no live counter there)"}.</p>`;
+    return;
+  }
+  const others = open.filter(r => r !== d.best_now).map(r => `${d.resorts[r].name} ${d.resorts[r].crowd_now}`).join(" · ");
+  const how = b.nowcast_ratio != null ? "model adjusted to live canyon traffic" : "model estimate (no live counter there)";
+  el.innerHTML = `<div class="big">Quietest now: ${esc(b.name)} <span style="white-space:nowrap">${b.crowd_now} ${levelChip(b.crowd_now)}</span></div>
+    <p>${others ? "Others: " + esc(others) + ". " : ""}Based on ${how}.</p>`;
+}
+
+function renderCanyons(d) {
+  const nums = document.getElementById("canyonNums");
+  const cs = ["LCC", "BCC"].filter(c => d.canyons[c]);
+  nums.innerHTML = cs.length ? cs.map(c => {
+    const x = d.canyons[c];
+    return `<div class="num"><span class="k"><i style="background:var(--${c.toLowerCase()})"></i>${esc(x.name)}</span>
+      <span class="v">${x.latest.toLocaleString()}</span><span class="s">cars at ${esc(x.latest_time)} · peak ${x.peak.toLocaleString()}</span></div>`;
+  }).join("") : `<div class="num"><span class="s">No canyon counts yet today.</span></div>`;
+  drawCanyonChart(d, cs);
+}
+
+function drawCanyonChart(d, cs) {
+  const host = document.getElementById("canyonChart");
+  if (!cs.length) { host.innerHTML = ""; return; }
+  const W = Math.max(300, Math.round(host.clientWidth || 720)), H = W < 500 ? 200 : 240, L = 44, R = 84, T = 10, B = 26;
+  const toH = s => { const [h, m] = s.split(":").map(Number); return h + m / 60; };
+  const x0 = 6, x1 = 17.5;
+  const all = cs.flatMap(c => d.canyons[c].series.map(p => p[1]));
+  let ymax = Math.max(500, ...all); const step = ymax > 2000 ? 1000 : 500; ymax = Math.ceil(ymax / step) * step;
+  const X = h => L + (Math.min(Math.max(h, x0), x1) - x0) / (x1 - x0) * (W - L - R);
+  const Y = v => T + (1 - v / ymax) * (H - T - B);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cars in the canyons today">`;
+  for (let v = 0; v <= ymax; v += step) s += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${v.toLocaleString()}</text>`;
+  for (let h = 7; h <= 17; h += (W < 500 ? 3 : 2)) s += `<text x="${X(h)}" y="${H - 6}" text-anchor="middle">${hl(h)}</text>`;
+  cs.forEach(c => {
+    const pts = d.canyons[c].series.map(([t, v]) => `${X(toH(t)).toFixed(1)},${Y(v).toFixed(1)}`);
+    const last = d.canyons[c].series.at(-1);
+    s += `<polyline points="${pts.join(" ")}" fill="none" stroke="var(--${c.toLowerCase()})" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    s += `<circle cx="${X(toH(last[0]))}" cy="${Y(last[1])}" r="4" fill="var(--${c.toLowerCase()})" stroke="var(--surface)" stroke-width="2"/>`;
+    s += `<text x="${X(toH(last[0])) + 8}" y="${Y(last[1]) + 4}" style="fill:var(--ink);font-weight:600">${c === "LCC" ? "Little Cott." : "Big Cott."}</text>`;
+  });
+  s += `<line id="xh" x1="0" x2="0" y1="${T}" y2="${H - B}" stroke="var(--faint)" stroke-width="1" visibility="hidden"/>`;
+  s += `<rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="transparent" id="hit"/></svg><div class="tip" id="ctip" hidden></div>`;
+  host.innerHTML = s;
+  const svg = host.querySelector("svg"), tip = host.querySelector("#ctip"), xh = host.querySelector("#xh");
+  const move = ev => {
+    const r = svg.getBoundingClientRect(), px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left;
+    const h = x0 + ((px * W / r.width) - L) / (W - L - R) * (x1 - x0);
+    const rows = cs.map(c => {
+      const ser = d.canyons[c].series; let best = ser[0];
+      ser.forEach(p => { if (Math.abs(toH(p[0]) - h) < Math.abs(toH(best[0]) - h)) best = p; });
+      return [c, best];
+    });
+    const t = rows[0][1][0]; xh.setAttribute("x1", X(toH(t))); xh.setAttribute("x2", X(toH(t))); xh.setAttribute("visibility", "visible");
+    const [th, tm] = t.split(":").map(Number);
+    tip.innerHTML = `<strong>${th % 12 || 12}:${String(tm).padStart(2, "0")} ${th < 12 ? "am" : "pm"}</strong><br>` +
+      rows.map(([c, p]) => `${c === "LCC" ? "Little Cottonwood" : "Big Cottonwood"}: ${p[1].toLocaleString()}`).join("<br>");
+    tip.hidden = false;
+    const tx = X(toH(t)) * r.width / W; tip.style.left = Math.min(Math.max(tx - 80, 0), r.width - 170) + "px"; tip.style.top = "4px";
+  };
+  const hit = host.querySelector("#hit");
+  hit.addEventListener("mousemove", move); hit.addEventListener("touchstart", move, { passive: true }); hit.addEventListener("touchmove", move, { passive: true });
+  hit.addEventListener("mouseleave", () => { tip.hidden = true; xh.setAttribute("visibility", "hidden"); });
+}
+
+function hourStrip(hourly, nowHour, hours) {
+  if (!hourly || hourly.every(v => v == null)) return "";
+  return `<div class="strip" aria-label="Expected crowd by hour">${hours.map(h => `<span class="h">${hl(h)}</span>`).join("")}` +
+    hourly.map((v, i) => v == null ? `<span class="c"></span>` :
+      `<span class="c l-${lvl(v)[0]} ${hours[i] === nowHour ? "now" : ""}" title="${hl(hours[i])}: ${v}">${v}</span>`).join("") + `</div>`;
+}
+
+function renderResorts(d) {
+  const today = d.week[0];
+  const closed = d.order.filter(r => !d.resorts[r].open_today);
+  document.getElementById("closedList").innerHTML = closed.length ? `<strong>Not open today:</strong>` + closed.map(r => {
+    const st = d.resorts[r].status || {};
+    const when = st.status === "opening" && st.date ? "opens " + new Date(st.date + "T12:00").toLocaleDateString(undefined, { month: "short", day: "numeric" }) : st.status === "tba" ? "opening TBA" : "closed";
+    return `<span>${esc(d.resorts[r].name)} · ${when}</span>`;
+  }).join("") : "";
+  document.getElementById("resorts").innerHTML = d.order.filter(r => d.resorts[r].open_today).map(r => {
+    const x = d.resorts[r], st = x.status || {};
+    let sub = "";
+    if (x.lifts) sub = `${x.lifts.open}/${x.lifts.total} lifts open` + (x.lifts.unknown ? ` (${x.lifts.unknown} unconfirmed)` : "") + ` · ${x.lifts.as_of}`;
+    if (!x.open_today) sub = st.status === "opening" && st.date ? `Opens ${new Date(st.date + "T12:00").toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : st.status === "tba" ? "Opening TBA" : "Closed";
+    const rows = [];
+    if (x.est_cars != null) rows.push(`<dt>Cars here</dt><dd>~${x.est_cars.toLocaleString()} <span class="tag">estimated</span></dd>`);
+    if (x.nowcast_ratio != null) rows.push(`<dt>vs. expected</dt><dd>${Math.round(x.nowcast_ratio * 100)}% of the traffic the model expected by now</dd>`);
+    if (x.lifts && x.lifts.open_lifts.length) rows.push(`<dt>Running</dt><dd>${esc(x.lifts.open_lifts.join(", "))}</dd>`);
+    const lines = x.cams.filter(c => c.kind === "lift_line" && c.lift_open !== false);
+    lines.forEach(c => rows.push(`<dt>${esc(c.title.replace(/ Lift Line| Lift| Chairlift/g, ""))} line</dt><dd>${c.latest} people <span class="tag">${esc(c.time)}</span></dd>`));
+    const lots = x.cams.filter(c => c.kind === "parking");
+    lots.forEach(c => rows.push(`<dt>${esc(c.title)}</dt><dd>${c.latest} cars in view <span class="tag">${esc(c.time)}</span></dd>`));
+    const hourly = today && today.resorts[r] ? today.resorts[r].hourly : null;
+    return `<article class="card resort ${x.open_today ? "" : "closed"}">
+      <div class="rhead"><h3>${esc(x.name)}</h3><span class="sub">${esc(sub)}</span></div>
+      ${x.open_today ? `<div class="now"><span class="v">${x.crowd_now ?? "–"}</span>${levelChip(x.crowd_now)}<span class="tag">${x.nowcast_ratio != null ? "live-adjusted" : "model"}</span></div>` : ""}
+      ${rows.length ? `<dl class="kv">${rows.join("")}</dl>` : ""}
+      ${x.open_today ? hourStrip(hourly, d.now_hour, d.hours) : ""}
+    </article>`;
+  }).join("");
+}
+
+function renderWeek(d) {
+  const t = document.getElementById("weekTable");
+  const rs = d.order;
+  let h = `<thead><tr><th></th>${d.week.map(w => `<th>${esc(w.dow)}<br>${esc(w.label)}</th>`).join("")}</tr></thead><tbody>`;
+  rs.forEach(r => {
+    h += `<tr><th class="rn" scope="row">${esc(d.resorts[r].name)}</th>`;
+    d.week.forEach((w, i) => {
+      const x = w.resorts[r];
+      if (!x || x.crowd == null) { h += `<td><span class="cell none">closed</span></td>`; return; }
+      const [k, label] = lvl(x.crowd);
+      h += `<td><button class="cell l-${k} ${w.best === r ? "best" : ""}" data-r="${r}" data-i="${i}" aria-label="${esc(d.resorts[r].name)} ${esc(w.dow)}: ${x.crowd}, ${label}${w.best === r ? ", quietest" : ""}">${x.crowd}</button></td>`;
+    });
+    h += `</tr>`;
+  });
+  t.innerHTML = h + `</tbody>`;
+  document.getElementById("weekDays").innerHTML = d.week.map((w, i) => {
+    const open = rs.filter(r => w.resorts[r] && w.resorts[r].crowd != null).sort((a, b) => w.resorts[a].crowd - w.resorts[b].crowd);
+    return `<div class="day"><div class="dl">${esc(w.dow)}<span>${esc(w.label)}</span></div><div class="chips">` +
+      (open.length ? open.map(r => { const v = w.resorts[r].crowd, [k, label] = lvl(v);
+        return `<button class="chip l-${k} ${w.best === r ? "best" : ""}" data-r="${r}" data-i="${i}" aria-label="${esc(d.resorts[r].name)} ${esc(w.dow)}: ${v}, ${label}">${esc(d.resorts[r].name)}<b>${v}</b></button>`; }).join("")
+        : `<span class="none-open">No Ikon resorts open</span>`) + `</div></div>`;
+  }).join("");
+  document.querySelectorAll("#week button.cell, #week button.chip").forEach(b => b.addEventListener("click", () => { weekSel = [b.dataset.r, +b.dataset.i]; weekDetail(d); }));
+  if (!weekSel) { const w = d.week.findIndex(x => x.best); if (w >= 0) weekSel = [d.week[w].best, w]; }
+  weekDetail(d);
+}
+
+function weekDetail(d) {
+  const el = document.getElementById("weekDetail");
+  if (!weekSel) { el.innerHTML = ""; return; }
+  const [r, i] = weekSel, w = d.week[i], x = w.resorts[r];
+  if (!x) { el.innerHTML = ""; return; }
+  const peak = x.hourly.reduce((a, v, j) => v != null && (a < 0 || v > x.hourly[a]) ? j : a, -1);
+  let lo = -1; x.hourly.forEach((v, j) => { if (v != null && (lo < 0 || v < x.hourly[lo])) lo = j; });
+  el.innerHTML = `<h3 style="font-size:1.1rem;text-transform:uppercase">${esc(d.resorts[r].name)} · ${esc(w.dow)} ${esc(w.label)}</h3>
+    <p class="note" style="margin:2px 0 8px">Busiest around ${hl(d.hours[peak])}, quietest around ${hl(d.hours[lo])}. ${w.mode === "forecast" ? "Uses the weather forecast." : "No forecast yet for this day; based on measured snowpack and history."}</p>
+    ${hourStrip(x.hourly, null, d.hours)}`;
+}
+
+function setLive(d) {
+  const age = (Date.now() - new Date(d.generated_at).getTime()) / 60000;
+  const ski = d.now_hour != null;
+  document.getElementById("updated").textContent = "Updated " + d.generated_label;
+  const stale = ski && age > 45;
+  document.getElementById("live").classList.toggle("stale", stale);
+  document.getElementById("liveTxt").textContent = stale ? "Delayed" : ski ? "Live" : "Off-hours";
+}
+
+async function load() {
+  try {
+    const r = await fetch("data.json?t=" + Date.now(), { cache: "no-store" });
+    DATA = await r.json();
+    renderVerdict(DATA); renderCanyons(DATA); renderResorts(DATA); renderWeek(DATA); setLive(DATA);
+  } catch (e) {
+    document.getElementById("verdict").innerHTML = `<div class="big">Couldn't load the latest data</div><p>It will retry in a few minutes.</p>`;
+  }
+}
+
+function showTab(which) {
+  ["today", "week"].forEach(t => {
+    document.getElementById(t).hidden = t !== which;
+    document.getElementById("tab-" + t).setAttribute("aria-selected", String(t === which));
+  });
+  if (which === "today" && DATA) renderCanyons(DATA);
+  if (location.hash !== "#" + which) history.replaceState(null, "", which === "today" ? location.pathname : "#week");
+}
+document.getElementById("tab-today").addEventListener("click", () => showTab("today"));
+document.getElementById("tab-week").addEventListener("click", () => showTab("week"));
+showTab(location.hash === "#week" ? "week" : "today");
+load();
+setInterval(load, 5 * 60 * 1000);
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => DATA && renderCanyons(DATA), 150); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden) load(); });
+</script>
+</body>
+</html>

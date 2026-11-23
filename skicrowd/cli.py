@@ -267,6 +267,46 @@ def cmd_lifts(args):
         print("no lift list parsed for:", ", ".join(missing))
 
 
+def cmd_dashboard(args):
+    """Rebuild the live dashboard site from collector data (run by the collector)."""
+    import shutil
+    from . import dashboard
+    from .analysis import climatology
+    from .report import write_calendar_html
+    from .weather import build_daily_history, fetch_forecast, load_daily_history
+    data = Path(args.data)
+    if (data / "season_status.json").exists():
+        shutil.copy(data / "season_status.json", ROOT / "data" / "season_status.json")
+    cfg = load_config()
+    now = dashboard.parse_now(args.now)
+    cur = season_of(now.date())
+    if not args.offline:
+        try:
+            build_daily_history(cfg, [cur], refresh=True, verbose=False)
+        except Exception as e:  # noqa: BLE001
+            print(f"(snowpack refresh failed: {e}; using cached history)")
+    w = load_daily_history()
+    fc = None
+    if not args.offline:
+        try:
+            fc = fetch_forecast(list(cfg["resorts"]))
+        except Exception as e:  # noqa: BLE001
+            print(f"(forecast unavailable: {e}; week view uses measured snowpack)")
+    site = dashboard.build(cfg, w, data, now=now, forecast=fc)
+    cal_html = None
+    if not args.no_calendar:
+        analogs = _seasons(cfg)
+        clim, hr = climatology(cfg, w, cur, analogs, with_hourly=True)
+        tmp = Path(args.out) / "_calendar_tmp.html"
+        Path(args.out).mkdir(parents=True, exist_ok=True)
+        cal_html = write_calendar_html(clim, cfg, cur, hourly=hr, path=tmp).read_text()
+        tmp.unlink()
+    out = dashboard.write_site(site, Path(args.out), calendar_html=cal_html)
+    best = site["best_now"]
+    print(f"Wrote {out}/index.html + data.json ({site['generated_label']}; "
+          f"quietest now: {site['resorts'][best]['name'] if best else 'none open'})")
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog="skicrowd", description="Utah Ikon resort crowd model")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -325,6 +365,14 @@ def main(argv=None):
     co.add_argument("--out", default="collector-data", help="output directory for `run`")
     co.add_argument("--data", default="collector-data", help="collected data directory for `summarize`")
     co.set_defaults(fn=cmd_collect)
+
+    db = sub.add_parser("dashboard", help="build the live dashboard site (data.json + pages) from collector data")
+    db.add_argument("--data", default="collector-data", help="collector data directory")
+    db.add_argument("--out", default="site", help="output directory")
+    db.add_argument("--now", help="pretend it is this time (YYYY-MM-DDTHH:MM, Mountain) - for testing")
+    db.add_argument("--offline", action="store_true", help="skip the snowpack refresh and forecast download")
+    db.add_argument("--no-calendar", action="store_true", help="skip the season calendar page")
+    db.set_defaults(fn=cmd_dashboard)
 
     lg = sub.add_parser("log", help="record a crowd observation for training")
     lg.add_argument("date")

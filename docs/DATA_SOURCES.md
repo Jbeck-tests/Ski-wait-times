@@ -83,7 +83,7 @@ resumes at 7am. The chain stops after April. If it ever breaks, restart it
 from **Actions → Collect crowd signals → Run workflow**. The cron is kept
 as a backup and restarts the chain only if nothing else is running.
 
-Each collecting run does three things.
+Each collecting run does four things, then rebuilds the dashboard.
 
 1. **UDOT live canyon volume.** It logs UDOT's `CC_Volume` service, which
    reports net vehicles currently in Little and Big Cottonwood (up minus
@@ -107,6 +107,10 @@ Each collecting run does three things.
    - Each frame gets brightness and sharpness checks, so night, fog and
      snow on the lens are flagged unusable.
    - Frames that haven't refreshed since the last run are skipped.
+
+5. **Dashboard.** `python -m skicrowd dashboard` turns the latest data into
+   `site/data.json` and publishes the site to GitHub Pages (the `deploy`
+   job). This needs **Settings → Pages → Source: GitHub Actions** once.
 
 The resort status log builds a record of actual opening and closing dates
 for future backtests.

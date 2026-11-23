@@ -7,6 +7,9 @@ name: Collect crowd signals
 # 7am. The cron below is kept as a backup: a scheduled run restarts the
 # chain only if no other run is active.
 #
+# Each collecting run also rebuilds the live dashboard and publishes it to
+# GitHub Pages (job `deploy`); `next` doesn't wait for it.
+#
 # To restart the chain: Actions -> Collect crowd signals -> Run workflow.
 on:
   schedule:
@@ -25,6 +28,8 @@ on:
 permissions:
   contents: write
   actions: write        # lets a run dispatch the next one
+  pages: write          # publish the dashboard (GitHub Pages)
+  id-token: write
 
 concurrency:
   group: collector
@@ -106,6 +111,25 @@ jobs:
             git pull -q --rebase origin collector-data
           done
           exit 1
+
+      - name: Build dashboard
+        run: python -m skicrowd dashboard --data collector-data --out site
+
+      - name: Upload dashboard
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    # Publishes the dashboard. Needs Settings -> Pages -> Source: GitHub Actions.
+    needs: collect
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.d.outputs.page_url }}
+    steps:
+      - id: d
+        uses: actions/deploy-pages@v4
 
   next:
     # Runs even if collecting failed (so one bad run doesn't break the chain),

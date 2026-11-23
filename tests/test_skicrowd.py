@@ -329,3 +329,57 @@ def test_lift_matching_and_closed_lift_counts_dropped(tmp_path):
                   "vehicles": 0, "lift_open": [1] * 4 + [0] * 4}).to_csv(tmp_path / "webcam_counts.csv", index=False)
     obs = collect.summarize(tmp_path)
     assert list(obs["source"]) == ["cam_solitude_moonbeam_lift_line"]   # Apex (closed) dropped
+
+
+# ------------------------------------------------------------------ dashboard
+def test_nowcast_compares_live_cars_with_model_expectation():
+    import tomllib
+    from skicrowd import dashboard
+    from skicrowd.config import CALIBRATED_PATH
+    fit_ = tomllib.loads(CALIBRATED_PATH.read_text())["fit"]["canyon_vehicles|udot_322"]
+    visitors, t = 9000.0, 11.0
+    expected = (fit_["intercept"] + fit_["slope"] * visitors) * dashboard._profile_share("BCC", "weekend", "normal", t)
+    assert dashboard.nowcast(round(expected), visitors, "BCC", "weekend", "normal", t) == pytest.approx(1.0, abs=0.01)
+    assert dashboard.nowcast(round(expected * 1.3), visitors, "BCC", "weekend", "normal", t) == pytest.approx(1.3, abs=0.01)
+    assert dashboard.nowcast(round(expected * 5), visitors, "BCC", "weekend", "normal", t) == 1.8      # clipped
+    assert dashboard.nowcast(500, visitors, "BCC", "weekend", "normal", 7.0) is None                     # too early
+
+
+def test_dashboard_build_splits_canyon_cars_and_writes_site(tmp_path):
+    from skicrowd import dashboard
+    cfg = load_config(use_calibrated=True, use_status=False)
+    day = dt.date(2027, 1, 16)                                           # a Saturday mid-season
+    w = synthetic_weather(cfg, pd.date_range("2026-10-01", day, freq="D"))
+    now = dt.datetime(2027, 1, 16, 10, 40, tzinfo=dashboard.MT)
+    utc = lambda h, m: dt.datetime(2027, 1, 16, h, m, tzinfo=dashboard.MT).astimezone(dt.timezone.utc).isoformat()
+    pd.DataFrame([{"observed_at": utc(h, 0), "canyon": c, "net_vehicles_in_canyon": v * (h - 6),
+                   "collected_at": utc(h, 5)} for h in (7, 8, 9, 10, 11) for c, v in (("LCC", 400), ("BCC", 350))]
+                 ).to_csv(tmp_path / "canyon_live.csv", index=False)
+    pd.DataFrame([{"collected_at": utc(10, 30), "resort": "solitude", "lift": n, "status": s, "raw": s}
+                  for n, s in (("Moonbeam Express", "open"), ("Apex Express", "closed"))]
+                 ).to_csv(tmp_path / "lift_status.csv", index=False)
+    pd.DataFrame([{"collected_at": utc(10, 30), "image_time": utc(10, 25), "image_ts": "", "camera": "solitude:Moonbeam Lift Line",
+                   "resort": "solitude", "kind": "lift_line", "usable": 1, "brightness": 120, "sharpness": 900,
+                   "people": 42, "vehicles": 0, "image_sha1": "x", "frozen": "", "lift_open": 1}]
+                 ).to_csv(tmp_path / "webcam_counts.csv", index=False)
+
+    site = dashboard.build(cfg, w, tmp_path, now=now)
+    r = site["resorts"]
+    # LCC at 10:00 measured 1,600 cars (the 11:00 reading is in the future and ignored)
+    assert site["canyons"]["LCC"]["latest"] == 1600
+    lcc = [k for k in r if r[k]["canyon"] == "LCC" and r[k]["open_today"]]
+    assert sum(r[k]["est_cars"] for k in lcc) == pytest.approx(1600, abs=len(lcc))
+    assert r["solitude"]["lifts"]["open"] == 1 and r["solitude"]["cams"][0]["latest"] == 42
+    for k in ("deer_valley", "snowbasin"):                               # no live counter: model only
+        assert r[k]["nowcast_ratio"] is None and r[k]["est_cars"] is None
+    assert len(site["week"]) == 7 and site["now_hour"] == 10
+    open_now = {k: v["crowd_now"] for k, v in r.items() if v["crowd_now"] is not None}
+    assert site["best_now"] == min(open_now, key=open_now.get)
+    out = dashboard.write_site(site, tmp_path / "site", calendar_html="<p>cal</p>")
+    assert (out / "index.html").exists() and (out / "calendar.html").read_text().startswith("<!doctype html>")
+    assert json_roundtrip(out / "data.json")["today"] == "2027-01-16"
+
+
+def json_roundtrip(path):
+    import json
+    return json.loads(path.read_text())
