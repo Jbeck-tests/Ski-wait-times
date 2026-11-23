@@ -1,7 +1,7 @@
 {
   "source": "https://www.skiutah.com/snowreport",
-  "fetched_at": "2026-11-22T16:40-07:00",
-  "as_of": "2026-11-22",
+  "fetched_at": "2026-11-23T07:01-07:00",
+  "as_of": "2026-11-23",
   "season": 2027,
   "resorts": {
     "alta": {
@@ -20,9 +20,9 @@
       "raw": "Opening Dec 5"
     },
     "park_city": {
-      "status": "tba",
-      "date": null,
-      "raw": "Opening Day TBA"
+      "status": "opening",
+      "date": "2026-11-25",
+      "raw": "Opening Nov 25"
     },
     "powder_mountain": {
       "status": "opening",
@@ -42,7 +42,7 @@
     "solitude": {
       "status": "open",
       "date": null,
-      "raw": "0\" / 32\""
+      "raw": "0\" / 30\""
     }
   }
 }
