@@ -3751,3 +3751,55 @@ collected_at,resort,lift,status,raw
 2026-11-23T22:41:12+00:00,brighton,Milly Express,unknown,1 of 8 open
 2026-11-23T22:41:12+00:00,brighton,Porcupine,unknown,1 of 8 open
 2026-11-23T22:41:12+00:00,brighton,Snake Creek,unknown,1 of 8 open
+2026-11-23T23:01:04+00:00,solitude,Link,scheduled,SCHEDULED
+2026-11-23T23:01:04+00:00,solitude,Moonbeam Express,scheduled,SCHEDULED
+2026-11-23T23:01:04+00:00,solitude,Magic Carpet,scheduled,SCHEDULED
+2026-11-23T23:01:04+00:00,solitude,Soli Parks Tow,closed,CLOSED
+2026-11-23T23:01:04+00:00,solitude,Eagle Express,closed,CLOSED
+2026-11-23T23:01:04+00:00,solitude,Powderhorn II,closed,CLOSED
+2026-11-23T23:01:04+00:00,solitude,Apex Express,scheduled,SCHEDULED
+2026-11-23T23:01:04+00:00,solitude,Sunrise,closed,CLOSED
+2026-11-23T23:01:04+00:00,solitude,Summit Express,closed,CLOSED
+2026-11-23T23:01:04+00:00,solitude,Honeycomb Return,closed,CLOSED
+2026-11-23T23:01:04+00:00,alta,Sunnyside,closed,Closed
+2026-11-23T23:01:04+00:00,alta,Supreme,closed,Closed
+2026-11-23T23:01:04+00:00,alta,Sugarloaf,closed,Closed
+2026-11-23T23:01:04+00:00,alta,Collins,closed,Closed
+2026-11-23T23:01:04+00:00,alta,Wildcat,closed,Closed
+2026-11-23T23:01:04+00:00,snowbasin,Allen Peak Tram,closed,Lift Closed
+2026-11-23T23:01:04+00:00,snowbasin,Needles Gondola,closed,Lift Closed
+2026-11-23T23:01:04+00:00,snowbasin,Strawberry Gondola,closed,Lift Closed
+2026-11-23T23:01:04+00:00,snowbasin,DeMoisy Express,closed,Lift Closed
+2026-11-23T23:01:04+00:00,snowbasin,John Paul Express,closed,Lift Closed
+2026-11-23T23:01:04+00:00,snowbasin,Littlecat Express,closed,Lift Closed
+2026-11-23T23:01:04+00:00,snowbasin,Middle Bowl Express,closed,Lift Closed
+2026-11-23T23:01:04+00:00,snowbasin,Wildcat Express,closed,Lift Closed
+2026-11-23T23:01:04+00:00,snowbasin,Becker,closed,Lift Closed
+2026-11-23T23:01:04+00:00,snowbasin,Porcupine,closed,Lift Closed
+2026-11-23T23:01:04+00:00,snowbasin,Grizzly Carpet,closed,Lift Closed
+2026-11-23T23:01:04+00:00,snowbasin,Wildflower Carpet,closed,Lift Closed
+2026-11-23T23:01:04+00:00,snowbasin,Wildcat Handle Tow,closed,Lift Closed
+2026-11-23T23:01:04+00:00,snowbird,Aerial Tram,closed,Tram Closed for the season
+2026-11-23T23:01:04+00:00,snowbird,Baby Thunder,closed,Double Closed for the season
+2026-11-23T23:01:04+00:00,snowbird,Baby Thunder Conveyor,closed,Carpet Closed for the season
+2026-11-23T23:01:04+00:00,snowbird,Baldy,closed,Quad Closed for the season
+2026-11-23T23:01:04+00:00,snowbird,Chickadee,closed,Quad Closed for the season
+2026-11-23T23:01:04+00:00,snowbird,Chickadee Conveyor,closed,Carpet Closed for the season
+2026-11-23T23:01:04+00:00,snowbird,Gad 2,closed,Quad Closed for the season
+2026-11-23T23:01:04+00:00,snowbird,Gadzoom,closed,Quad Closed for the season
+2026-11-23T23:01:04+00:00,snowbird,Little Cloud,closed,Quad Closed for the season
+2026-11-23T23:01:04+00:00,snowbird,Mid-Gad,closed,Double Closed for the season
+2026-11-23T23:01:04+00:00,snowbird,Mineral Basin,closed,Quad Closed for the season
+2026-11-23T23:01:04+00:00,snowbird,Peruvian,closed,Quad Closed for the season
+2026-11-23T23:01:04+00:00,snowbird,Peruvian Tunnel,closed,Carpet Closed for the season
+2026-11-23T23:01:04+00:00,snowbird,Wilbere,closed,Quad Closed for the season
+2026-11-23T23:01:04+00:00,brighton,Caterpillar,closed,0 of 8 open
+2026-11-23T23:01:04+00:00,brighton,Crest 6,closed,0 of 8 open
+2026-11-23T23:01:04+00:00,brighton,Closes 12:00 PM,closed,0 of 8 open
+2026-11-23T23:01:04+00:00,brighton,Explorer,closed,0 of 8 open
+2026-11-23T23:01:04+00:00,brighton,9:00 AM - 4:00 PM,closed,0 of 8 open
+2026-11-23T23:01:04+00:00,brighton,Great Western Express,closed,0 of 8 open
+2026-11-23T23:01:04+00:00,brighton,Majestic,closed,0 of 8 open
+2026-11-23T23:01:04+00:00,brighton,Milly Express,closed,0 of 8 open
+2026-11-23T23:01:04+00:00,brighton,Porcupine,closed,0 of 8 open
+2026-11-23T23:01:04+00:00,brighton,Snake Creek,closed,0 of 8 open
