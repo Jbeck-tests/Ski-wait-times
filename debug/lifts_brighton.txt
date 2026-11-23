@@ -56,10 +56,10 @@ Base Depth
 28"
 LIFT STATUS
 
-Last updated: Monday 12:08 PM
+Last updated: Monday 02:17 PM
 
 Lifts Open
-2
+1
 
 of 8
 
@@ -91,7 +91,7 @@ Snake Creek
 
 TRAIL STATUS
 
-Last updated: Monday 12:08 PM
+Last updated: Monday 02:17 PM
 
 Trails Open
 1
@@ -291,7 +291,7 @@ Parking Lot
 
 PARKING & LOT STATUS
 
-Last updated: Monday 12:08 PM
+Last updated: Monday 02:17 PM
 
 Main Lot
 No Reservations Required Today
@@ -312,7 +312,7 @@ Milly Express
 ROAD CONDITIONS
 SR-190 Big Cottonwood Canyon Mouth to Spruces
 
-Last updated: Monday 05:19 AM
+Last updated: Monday 06:43 AM
 
 Conditions
 Dry
@@ -326,7 +326,7 @@ Ride the Ski Bus
 Route 972 Map & Bus Schedule
 UPHILL TRAVEL
 
-Last updated: Monday 12:08 PM
+Last updated: Monday 02:17 PM
 
 Uphill Travel Status
 
