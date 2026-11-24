@@ -23,6 +23,13 @@ the collector every 20 minutes from 7am to 5pm Mountain).
   latest lift-line webcam counts and the expected crowd hour by hour.
 * **This week:** expected peak crowd for each resort for the next 7 days.
   Tap a day for its hour-by-hour curve.
+* **Past days:** every day the collector has seen, with peak cars in each
+  canyon and a measured crowd index per resort; days you skied
+  (`data/my_days.csv`: date, resort, arrive, leave, notes) get their own
+  cards with the canyon curve and your time there shaded. The Today chart can
+  overlay any past day (dashed), and tapping a day in This week shows its
+  expected peak cars and the closest of your days. Days before this season
+  (back to Jan 2022) are rebuilt from UDOT's hourly counts.
 * **Season:** the full-season calendar.
 * **Resort maps** (`map.html?r=solitude`, linked from each card): the
   resort's official trail map (shown from Ski Utah, not copied) with running
@@ -193,6 +200,7 @@ skicrowd/maps.py             fetch lift/run geometry from OpenStreetMap (maps.ym
 skicrowd/resort_maps.py      build per-resort maps + which runs each lift serves
 skicrowd/mapdata/            the built maps (ODbL, (c) OpenStreetMap contributors)
 skicrowd/companion.py        join lifts, runs, cameras and map for each resort
+skicrowd/history.py          past days measured, compared with upcoming days
 skicrowd/config/webcams.toml cameras the collector reads
 data/weather_daily.csv       cleaned SNOTEL history (4 stations, 2016-17 onward)
 data/udot/                   UDOT hourly counts + daily ski signal

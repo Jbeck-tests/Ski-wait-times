@@ -284,9 +284,12 @@ def build(cfg: dict, weather: pd.DataFrame, data_dir: Path, now: dt.datetime | N
 
     # model for today and the week
     week, today_rows, today_hourly, mode_today = [], None, None, None
+    week_frames = []
     for k in range(week_days):
         d = today + dt.timedelta(days=k)
         day, mode, hr = predict_day(cfg, weather, d, forecast=forecast)
+        if {"visitors", "new_24"} <= set(day.columns):
+            week_frames.append(day[["date", "resort", "visitors", "new_24"]])
         day = day[day["resort"].isin(ikon)]
         if k == 0:
             today_rows, today_hourly, mode_today = day.set_index("resort"), hr, mode
@@ -373,7 +376,15 @@ def build(cfg: dict, weather: pd.DataFrame, data_dir: Path, now: dt.datetime | N
             resorts[r]["lifts"].pop("rows", None)
 
     open_now = {r: v["crowd_now"] for r, v in resorts.items() if v["crowd_now"] is not None}
+    from . import history
+    try:
+        hist = history.build(cfg, weather, data_dir, now=now, week=week,
+                             model_week=pd.concat(week_frames, ignore_index=True) if week_frames else None)
+    except Exception as e:  # noqa: BLE001  history is extra; never sink the dashboard
+        print(f"  ! history failed: {e}")
+        hist = None
     return {
+        "_history": hist,
         "generated_at": now.isoformat(timespec="minutes"),
         "generated_label": now.strftime("%a %b %-d, %-I:%M %p"),
         "today": today.isoformat(), "model_mode_today": mode_today,
@@ -388,6 +399,9 @@ def write_site(data: dict, out: Path, calendar_html: str | None = None) -> Path:
     out.mkdir(parents=True, exist_ok=True)
     data = dict(data)
     views = data.pop("_views", {})
+    hist = data.pop("_history", None)
+    if hist is not None:
+        (out / "history.json").write_text(json.dumps(hist, separators=(",", ":")))
     (out / "resorts").mkdir(exist_ok=True)
     for r, v in views.items():
         (out / "resorts" / f"{r}.json").write_text(json.dumps(v, separators=(",", ":")))

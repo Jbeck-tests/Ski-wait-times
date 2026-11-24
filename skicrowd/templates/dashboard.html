@@ -138,6 +138,20 @@ table.week th.rn { text-align: left; font-family: var(--display); font-size: 1re
 .cell.best { box-shadow: inset 0 0 0 2px var(--ink); }
 .cell.none { background: transparent; color: var(--faint); border: 1px dashed var(--line); cursor: default; font-weight: 400; font-size: .75rem; }
 #weekDetail { margin-top: 12px; }
+.cmprow { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); }
+.cmprow select { font: 500 .85rem var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; max-width: 100%; }
+.pastgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.pastcard { display: grid; gap: 8px; align-content: start; }
+.pastcard .stats { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .86rem; }
+.pastcard .stats b { font-family: var(--display); font-size: 1.4rem; display: block; line-height: 1.1; }
+.pasttable td, .pasttable th { font-size: .85rem; }
+.pasttable tr.row { cursor: pointer; }
+.pasttable tr.row:hover td { background: var(--bg); }
+.pasttable td.pn { text-align: right; font-variant-numeric: tabular-nums; padding: 4px 8px; white-space: nowrap; }
+.pasttable td.pd { white-space: nowrap; padding: 4px 8px; font-weight: 600; }
+.pasttable .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.likebox { margin-top: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: .88rem; display: grid; gap: 3px; }
+@media (max-width: 420px) { .pastgrid { grid-template-columns: minmax(0, 1fr); } }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .78rem; color: var(--muted); margin-top: 10px; }
 footer { color: var(--muted); font-size: .8rem; margin-top: 32px; display: grid; gap: 6px; max-width: 85ch; }
 [hidden] { display: none !important; }
@@ -154,6 +168,7 @@ footer { color: var(--muted); font-size: .8rem; margin-top: 32px; display: grid;
   <nav class="tabs" role="tablist">
     <button role="tab" id="tab-today" aria-selected="true" aria-controls="today">Today</button>
     <button role="tab" id="tab-week" aria-selected="false" aria-controls="week">This week</button>
+    <button role="tab" id="tab-past" aria-selected="false" aria-controls="past">Past days</button>
     <a href="calendar.html" role="tab" aria-selected="false">Season</a>
   </nav>
 </div></header>
@@ -166,7 +181,9 @@ footer { color: var(--muted); font-size: .8rem; margin-top: 32px; display: grid;
       <h2>Cars up the canyons</h2>
       <div class="card canyons">
         <div class="canyon-nums" id="canyonNums"></div>
+        <div class="cmprow" id="cmpRow" hidden><label for="cmpSel">Compare with</label> <select id="cmpSel"></select></div>
         <div class="chart" id="canyonChart"></div>
+        <p class="note" id="cmpNote" style="margin:0"></p>
         <div id="splitNotes" style="display:grid;gap:4px"></div>
         <p class="note">Measured by UDOT: vehicles that have gone up minus come down since last night. Includes backcountry skiers and residents, not just resort skiers.</p>
       </div>
@@ -195,6 +212,21 @@ footer { color: var(--muted); font-size: .8rem; margin-top: 32px; display: grid;
     </div>
   </section>
 
+  <section id="past" role="tabpanel" aria-labelledby="tab-past" hidden>
+    <div class="section">
+      <h2>Your days</h2>
+      <div class="pastgrid" id="myDays"></div>
+    </div>
+    <div class="section">
+      <h2>Every day so far</h2>
+      <div class="card">
+        <div class="weekwrap"><table class="week pasttable" id="pastTable"></table></div>
+        <div id="pastDetail"></div>
+        <p class="note">Peak = most cars in the canyon between 8am and 2pm. Crowd is the day's peak index, scaled by how the canyon's measured traffic compared with what the model expected (Deer Valley and Snowbasin: model only). ★ = a day you skied. Days you skied before this season (back to Jan 2022) use UDOT's hourly counts.</p>
+      </div>
+    </div>
+  </section>
+
   <footer>
     <div><strong>How to read it.</strong> Crowd index: 100 means the resort is at comfortable capacity. "Crowd now" is the model's estimate for this hour, adjusted to live canyon traffic where UDOT counts it (Alta, Snowbird, Brighton, Solitude). Cars at a resort are estimated by splitting the canyon's measured total between the resorts that are open. Lift-line counts come from public webcams and only count lifts that are running.</div>
     <div>Sources: UDOT live canyon volumes, resort lift-status pages, Ski Utah webcams and snow report, USDA SNOTEL. Estimates, not official counts.</div>
@@ -206,7 +238,7 @@ const LEVELS = [[50, "quiet", "Quiet"], [80, "moderate", "Moderate"], [110, "bus
 const lvl = v => v == null ? ["closed", "Closed"] : (LEVELS.find(([m]) => v < m) || LEVELS[3]).slice(1);
 const hl = h => (h % 12 || 12) + (h < 12 ? "a" : "p");
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-let DATA = null, weekSel = null;
+let DATA = null, weekSel = null, HIST = null, CMP = undefined;
 
 function levelChip(v, extra = "") {
   const [k, t] = lvl(v);
@@ -262,46 +294,67 @@ function splitNote(d, c) {
     `Webcam adjustment is still learning what normal looks like at this hour: ${sp.days} of ${sp.needed} days.`;
 }
 
+const CNAME = { LCC: "Little Cottonwood", BCC: "Big Cottonwood" };
+const toH = s => { const [h, m] = s.split(":").map(Number); return h + m / 60; };
+const tlabel = t => { const [h, m] = t.split(":").map(Number); return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h < 12 ? "am" : "pm"}`; };
+
 function drawCanyonChart(d, cs) {
-  const host = document.getElementById("canyonChart");
+  const series = Object.fromEntries(cs.map(c => [c, d.canyons[c].series]));
+  const day = CMP && HIST ? HIST.days.find(x => x.date === CMP) : null;
+  const compare = day ? Object.fromEntries(cs.filter(c => day.canyons[c]).map(c => [c, day.canyons[c].series])) : null;
+  drawChart(document.getElementById("canyonChart"), series, { compare, compareLabel: day ? `${day.dow} ${day.label}` : "" });
+  const note = document.getElementById("cmpNote");
+  if (!day) { note.textContent = ""; return; }
+  const bits = cs.filter(c => day.canyons[c] && d.canyons[c]).map(c => {
+    const then = day.canyons[c].peak, now = d.canyons[c].peak;
+    return `${CNAME[c]}: ${now.toLocaleString()} so far today vs ${then.toLocaleString()} peak on ${day.dow} ${day.label}`;
+  });
+  note.innerHTML = `Dashed = ${esc(day.dow)} ${esc(day.label)}${day.mine ? " (you skied " + esc(DATA.resorts[day.mine.resort]?.name || day.mine.resort) + ")" : ""}. ${esc(bits.join(" · "))}.`;
+}
+
+// series: {LCC: [[HH:MM, cars]...], BCC: ...}; opts.compare: same shape, drawn dashed; opts.shade: [h0, h1]
+function drawChart(host, series, opts = {}) {
+  const cs = ["LCC", "BCC"].filter(c => series[c] && series[c].length);
   if (!cs.length) { host.innerHTML = ""; return; }
-  const W = Math.max(300, Math.round(host.clientWidth || 720)), H = W < 500 ? 200 : 240, L = 44, R = 84, T = 10, B = 26;
-  const toH = s => { const [h, m] = s.split(":").map(Number); return h + m / 60; };
+  const cmp = opts.compare || {};
+  const W = Math.max(280, Math.round(host.clientWidth || 720)), H = W < 500 ? 190 : 230, L = 44, R = 84, T = 10, B = 26;
   const x0 = 6, x1 = 17.5;
-  const all = cs.flatMap(c => d.canyons[c].series.map(p => p[1]));
+  const all = [...cs.flatMap(c => series[c].map(p => p[1])), ...Object.values(cmp).flatMap(v => v.map(p => p[1]))];
   let ymax = Math.max(500, ...all); const step = ymax > 2000 ? 1000 : 500; ymax = Math.ceil(ymax / step) * step;
   const X = h => L + (Math.min(Math.max(h, x0), x1) - x0) / (x1 - x0) * (W - L - R);
   const Y = v => T + (1 - v / ymax) * (H - T - B);
-  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cars in the canyons today">`;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cars in the canyons">`;
+  if (opts.shade) s += `<rect x="${X(opts.shade[0])}" y="${T}" width="${Math.max(2, X(opts.shade[1]) - X(opts.shade[0]))}" height="${H - T - B}" fill="var(--quiet-bg)"/>` +
+    `<text x="${X(opts.shade[0]) + 4}" y="${T + 12}" style="fill:var(--muted)">you were there</text>`;
   for (let v = 0; v <= ymax; v += step) s += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${v.toLocaleString()}</text>`;
   for (let h = 7; h <= 17; h += (W < 500 ? 3 : 2)) s += `<text x="${X(h)}" y="${H - 6}" text-anchor="middle">${hl(h)}</text>`;
+  Object.entries(cmp).forEach(([c, ser]) => {
+    if (!ser.length) return;
+    s += `<polyline points="${ser.map(([t, v]) => `${X(toH(t)).toFixed(1)},${Y(v).toFixed(1)}`).join(" ")}" fill="none" stroke="var(--${c.toLowerCase()})" stroke-width="1.5" stroke-dasharray="5 4" opacity="0.75"/>`;
+  });
   cs.forEach(c => {
-    const pts = d.canyons[c].series.map(([t, v]) => `${X(toH(t)).toFixed(1)},${Y(v).toFixed(1)}`);
-    const last = d.canyons[c].series.at(-1);
+    const pts = series[c].map(([t, v]) => `${X(toH(t)).toFixed(1)},${Y(v).toFixed(1)}`);
+    const last = series[c].at(-1);
     s += `<polyline points="${pts.join(" ")}" fill="none" stroke="var(--${c.toLowerCase()})" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
     s += `<circle cx="${X(toH(last[0]))}" cy="${Y(last[1])}" r="4" fill="var(--${c.toLowerCase()})" stroke="var(--surface)" stroke-width="2"/>`;
     s += `<text x="${X(toH(last[0])) + 8}" y="${Y(last[1]) + 4}" style="fill:var(--ink);font-weight:600">${c === "LCC" ? "Little Cott." : "Big Cott."}</text>`;
   });
-  s += `<line id="xh" x1="0" x2="0" y1="${T}" y2="${H - B}" stroke="var(--faint)" stroke-width="1" visibility="hidden"/>`;
-  s += `<rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="transparent" id="hit"/></svg><div class="tip" id="ctip" hidden></div>`;
+  s += `<line class="xh" x1="0" x2="0" y1="${T}" y2="${H - B}" stroke="var(--faint)" stroke-width="1" visibility="hidden"/>`;
+  s += `<rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="transparent" class="hit"/></svg><div class="tip" hidden></div>`;
   host.innerHTML = s;
-  const svg = host.querySelector("svg"), tip = host.querySelector("#ctip"), xh = host.querySelector("#xh");
+  const svg = host.querySelector("svg"), tip = host.querySelector(".tip"), xh = host.querySelector(".xh");
+  const near = (ser, h) => ser.reduce((b, p) => Math.abs(toH(p[0]) - h) < Math.abs(toH(b[0]) - h) ? p : b, ser[0]);
   const move = ev => {
     const r = svg.getBoundingClientRect(), px = (ev.touches ? ev.touches[0].clientX : ev.clientX) - r.left;
     const h = x0 + ((px * W / r.width) - L) / (W - L - R) * (x1 - x0);
-    const rows = cs.map(c => {
-      const ser = d.canyons[c].series; let best = ser[0];
-      ser.forEach(p => { if (Math.abs(toH(p[0]) - h) < Math.abs(toH(best[0]) - h)) best = p; });
-      return [c, best];
-    });
-    const t = rows[0][1][0]; xh.setAttribute("x1", X(toH(t))); xh.setAttribute("x2", X(toH(t))); xh.setAttribute("visibility", "visible");
-    const [th, tm] = t.split(":").map(Number);
-    tip.innerHTML = `<strong>${th % 12 || 12}:${String(tm).padStart(2, "0")} ${th < 12 ? "am" : "pm"}</strong><br>` +
-      rows.map(([c, p]) => `${c === "LCC" ? "Little Cottonwood" : "Big Cottonwood"}: ${p[1].toLocaleString()}`).join("<br>");
+    const t = near(series[cs[0]], h)[0];
+    xh.setAttribute("x1", X(toH(t))); xh.setAttribute("x2", X(toH(t))); xh.setAttribute("visibility", "visible");
+    tip.innerHTML = `<strong>${tlabel(t)}</strong><br>` + cs.map(c => `${CNAME[c]}: ${near(series[c], toH(t))[1].toLocaleString()}` +
+      (cmp[c] && cmp[c].length ? ` <span style="color:var(--muted)">(${opts.compareLabel}: ${near(cmp[c], toH(t))[1].toLocaleString()})</span>` : "")).join("<br>");
     tip.hidden = false;
-    const tx = X(toH(t)) * r.width / W; tip.style.left = Math.min(Math.max(tx - 80, 0), r.width - 170) + "px"; tip.style.top = "4px";
+    const tx = X(toH(t)) * r.width / W; tip.style.left = Math.min(Math.max(tx - 80, 0), Math.max(0, r.width - 230)) + "px"; tip.style.top = "4px";
   };
-  const hit = host.querySelector("#hit");
+  const hit = host.querySelector(".hit");
   hit.addEventListener("mousemove", move); hit.addEventListener("touchstart", move, { passive: true }); hit.addEventListener("touchmove", move, { passive: true });
   hit.addEventListener("mouseleave", () => { tip.hidden = true; xh.setAttribute("visibility", "hidden"); });
 }
@@ -399,7 +452,83 @@ function weekDetail(d) {
   let lo = -1; x.hourly.forEach((v, j) => { if (v != null && (lo < 0 || v < x.hourly[lo])) lo = j; });
   el.innerHTML = `<h3 style="font-size:1.1rem;text-transform:uppercase">${esc(d.resorts[r].name)} · ${esc(w.dow)} ${esc(w.label)}</h3>
     <p class="note" style="margin:2px 0 8px">Busiest around ${hl(d.hours[peak])}, quietest around ${hl(d.hours[lo])}. ${w.mode === "forecast" ? "Uses the weather forecast." : "No forecast yet for this day; based on measured snowpack and history."}</p>
-    ${hourStrip(x.hourly, null, d.hours)}`;
+    ${hourStrip(x.hourly, null, d.hours)}${likeBox(d, r, i)}`;
+}
+
+// ---- past days
+function pastStats(day, r) {
+  const x = day.resorts[r], c = DATA.resorts[r]?.canyon;
+  const cy = c && day.canyons[c];
+  const out = [];
+  if (x) out.push(`<div><span class="tag">Crowd</span><b>${x.crowd}</b> ${levelChip(x.crowd)}${x.measured ? "" : ' <span class="tag">model</span>'}</div>`);
+  if (cy && cy.peak) out.push(`<div><span class="tag">${CNAME[c]} peak</span><b>${cy.peak.toLocaleString()}</b> cars at ${tlabel(cy.peak_time)}</div>`);
+  return out.join("");
+}
+
+function pastCard(day, focus) {
+  const r = focus || (day.mine && day.mine.resort) || Object.keys(day.resorts)[0];
+  const name = r ? (DATA.resorts[r]?.name || r) : "";
+  const lines = Object.entries(day.lines || {}).filter(([, v]) => !r || v.resort === r)
+    .map(([cam, v]) => `${esc(cam.replace(/ Lift Line| Lift| Chairlift/g, ""))}: peak ${v.peak}${v.at_11 != null ? `, ${v.at_11} at 11am` : ""}`).join(" · ");
+  const m = day.mine;
+  const shade = m && m.arrive ? [toH(m.arrive), toH(m.leave || "16:00")] : null;
+  const others = Object.entries(day.resorts).filter(([k]) => k !== r).map(([k, v]) => `${esc(DATA.resorts[k]?.name || k)} ${v.crowd}`).join(" · ");
+  const id = "pc-" + day.date + "-" + (focus || "");
+  setTimeout(() => {
+    const host = document.getElementById(id);
+    if (host) drawChart(host, Object.fromEntries(Object.entries(day.canyons).map(([c, v]) => [c, v.series])), { shade });
+  });
+  return `<article class="card pastcard">
+    <div class="rhead"><h3>${esc(day.dow)} ${esc(day.label)}</h3><span class="sub">${m ? "★ " : ""}${esc(name)}${m && m.arrive ? ` · ${esc(tlabel(m.arrive))}–${esc(tlabel(m.leave || "16:00"))}` : ""}</span></div>
+    <div class="stats">${pastStats(day, r)}</div>
+    ${m && m.notes ? `<p class="note" style="margin:0">${esc(m.notes)}</p>` : ""}
+    ${lines ? `<p class="note" style="margin:0">Lift lines (webcam): ${lines}</p>` : ""}
+    ${others ? `<p class="note" style="margin:0">Also open: ${others}</p>` : ""}
+    <div class="chart" id="${id}"></div>
+    ${day.source === "udot" ? '<p class="note" style="margin:0">Rebuilt from UDOT hourly counts at the canyon mouth, a different counter from this season\'s live feed: compare the crowd index rather than raw car numbers.</p>' : ""}
+  </article>`;
+}
+
+function renderPast() {
+  const mine = document.getElementById("myDays"), tbl = document.getElementById("pastTable");
+  if (!HIST || !HIST.days.length) { mine.innerHTML = `<p class="note">No past days yet.</p>`; tbl.innerHTML = ""; return; }
+  const my = HIST.days.filter(x => x.mine);
+  mine.innerHTML = my.length ? my.map(x => pastCard(x)).join("") : `<p class="note">No days marked yet.</p>`;
+  const rs = DATA.order;
+  tbl.innerHTML = `<thead><tr><th></th><th>Big Cott.</th><th>Little Cott.</th><th style="text-align:left">Crowd at each resort</th></tr></thead><tbody>` +
+    HIST.days.map(x => `<tr class="row" data-d="${x.date}"><td class="pd">${x.mine ? "★ " : ""}${esc(x.dow)} ${esc(x.label)}</td>` +
+      ["BCC", "LCC"].map(c => `<td class="pn">${x.canyons[c]?.peak ? x.canyons[c].peak.toLocaleString() : "–"}</td>`).join("") +
+      `<td><div class="chips">${rs.filter(r => x.resorts[r]).map(r => `<span class="level l-${lvl(x.resorts[r].crowd)[0]}">${esc(DATA.resorts[r].name)} ${x.resorts[r].crowd}</span>`).join("")}</div></td></tr>`).join("") + `</tbody>`;
+  tbl.querySelectorAll("tr.row").forEach(tr => tr.addEventListener("click", () => {
+    document.getElementById("pastDetail").innerHTML = pastCard(HIST.days.find(x => x.date === tr.dataset.d));
+  }));
+}
+
+function renderCompareSelect() {
+  const row = document.getElementById("cmpRow"), sel = document.getElementById("cmpSel");
+  if (!HIST || !HIST.days.length) { row.hidden = true; return; }
+  row.hidden = false;
+  const opt = x => `<option value="${x.date}">${x.mine ? "★ " : ""}${esc(x.dow)} ${esc(x.label)}${x.mine ? " (you, " + esc(DATA.resorts[x.mine.resort]?.name || "") + ")" : ""}</option>`;
+  sel.innerHTML = `<option value="">nothing</option>` + HIST.days.filter(x => x.mine).map(opt).join("") + HIST.days.filter(x => !x.mine).map(opt).join("");
+  if (CMP === undefined) {
+    let saved = null; try { saved = localStorage.getItem("cmpDay"); } catch (e) {}
+    CMP = saved !== null && (saved === "" || HIST.days.some(x => x.date === saved)) ? saved : (HIST.days.find(x => x.mine)?.date || "");
+  }
+  sel.value = CMP;
+}
+
+function likeBox(d, r, i) {
+  if (!HIST) return "";
+  const u = HIST.upcoming.find(x => x.date === d.week[i].date); if (!u) return "";
+  const c = d.resorts[r].canyon, exp = u.canyons[c], lk = (u.like || {})[r] || {};
+  const day = k => HIST.days.find(x => x.date === lk[k]?.date);
+  const bits = [];
+  if (exp) bits.push(`Expected ${CNAME[c]} peak: about <strong>${exp.toLocaleString()}</strong> cars`);
+  const md = day("mine"), ad = day("any");
+  const desc = x => `${esc(x.dow)} ${esc(x.label)}: ${esc(d.resorts[r].name)} ${x.resorts[r].crowd}${x.canyons[c]?.peak ? `, ${x.canyons[c].peak.toLocaleString()} cars at peak` : ""}`;
+  if (md) bits.push(`Closest of your days: <strong>${desc(md)}</strong>`);
+  if (ad && (!md || ad.date !== md.date)) bits.push(`Closest day so far: ${desc(ad)}`);
+  return bits.length ? `<div class="likebox">${bits.map(b => `<div>${b}</div>`).join("")}</div>` : "";
 }
 
 function mountainNow() {
@@ -428,23 +557,32 @@ async function load() {
   try {
     const r = await fetch("data.json?t=" + Date.now(), { cache: "no-store" });
     DATA = await r.json();
+    try { HIST = await (await fetch("history.json?t=" + Date.now(), { cache: "no-store" })).json(); } catch (e) { HIST = null; }
+    renderCompareSelect();
     renderVerdict(DATA); renderCanyons(DATA); renderResorts(DATA); renderWeek(DATA); setLive(DATA);
+    if (!document.getElementById("past").hidden) renderPast();
   } catch (e) {
     document.getElementById("verdict").innerHTML = `<div class="big">Couldn't load the latest data</div><p>It will retry in a few minutes.</p>`;
   }
 }
 
 function showTab(which) {
-  ["today", "week"].forEach(t => {
+  ["today", "week", "past"].forEach(t => {
     document.getElementById(t).hidden = t !== which;
     document.getElementById("tab-" + t).setAttribute("aria-selected", String(t === which));
   });
   if (which === "today" && DATA) renderCanyons(DATA);
-  if (location.hash !== "#" + which) history.replaceState(null, "", which === "today" ? location.pathname : "#week");
+  if (which === "past" && DATA) renderPast();
+  if (location.hash !== "#" + which) history.replaceState(null, "", which === "today" ? location.pathname : "#" + which);
 }
 document.getElementById("tab-today").addEventListener("click", () => showTab("today"));
 document.getElementById("tab-week").addEventListener("click", () => showTab("week"));
-showTab(location.hash === "#week" ? "week" : "today");
+document.getElementById("tab-past").addEventListener("click", () => showTab("past"));
+document.getElementById("cmpSel").addEventListener("change", e => {
+  CMP = e.target.value; try { localStorage.setItem("cmpDay", CMP); } catch (err) {}
+  if (DATA) renderCanyons(DATA);
+});
+showTab(["#week", "#past"].includes(location.hash) ? location.hash.slice(1) : "today");
 load();
 setInterval(load, 5 * 60 * 1000);
 let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => DATA && renderCanyons(DATA), 150); });

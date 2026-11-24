@@ -543,3 +543,37 @@ def test_trail_map_positions_follow_live_lift_status():
     assert pins["solitude:Moonbeam Lift Line"] == [700, 560]               # at the lift's bottom terminal
     assert pins["solitude:Moonbeam Parking Lot"] != [700, 560]             # beside it
     assert companion.trail_view(None, lifts, cams, {}) is None
+
+
+# ------------------------------------------------------------------ history
+def test_history_past_days_and_comparisons(tmp_path, monkeypatch):
+    from skicrowd import dashboard, history
+    my = tmp_path / "my_days.csv"
+    my.write_text("date,resort,arrive,leave,notes\n2027-01-09,solitude,09:00,12:00,powder morning\n")
+    monkeypatch.setattr(history, "MY_DAYS", my)
+    cfg = load_config(use_calibrated=True, use_status=False)
+    days = [dt.date(2027, 1, 9), dt.date(2027, 1, 10)]
+    w = synthetic_weather(cfg, pd.date_range("2026-10-01", "2027-01-16", freq="D"))
+    utc = lambda d, h: dt.datetime(d.year, d.month, d.day, h, 0, tzinfo=dashboard.MT).astimezone(dt.timezone.utc).isoformat()
+    rows = [{"observed_at": utc(d, h), "canyon": c, "net_vehicles_in_canyon": k * min(h - 6, 6) * 300,
+             "collected_at": utc(d, h)} for k, d in enumerate(days, 1) for h in range(7, 17) for c in ("LCC", "BCC")]
+    pd.DataFrame(rows).to_csv(tmp_path / "canyon_live.csv", index=False)
+    now = dt.datetime(2027, 1, 16, 8, 0, tzinfo=dashboard.MT)
+    site = dashboard.build(cfg, w, tmp_path, now=now)
+    h = site["_history"]
+    got = {d["date"]: d for d in h["days"]}
+    assert set(got) == {"2027-01-09", "2027-01-10"}
+    assert got["2027-01-10"]["canyons"]["BCC"]["peak"] == 3600 and got["2027-01-09"]["canyons"]["BCC"]["peak"] == 1800
+    sol9, sol10 = got["2027-01-09"]["resorts"]["solitude"], got["2027-01-10"]["resorts"]["solitude"]
+    assert sol9["measured"] and sol10["crowd"] > sol9["crowd"]          # twice the cars, more crowded
+    assert got["2027-01-09"]["mine"]["notes"] == "powder morning"
+    up = {u["date"]: u for u in h["upcoming"]}
+    assert up["2027-01-16"]["canyons"]["BCC"] > 0
+    assert up["2027-01-16"]["like"]["solitude"]["mine"]["date"] == "2027-01-09"
+
+
+def test_udot_hourly_rebuilds_cars_in_canyon():
+    from skicrowd import history
+    c = history.curves_udot([dt.date(2025, 2, 22)])[dt.date(2025, 2, 22)]
+    bcc = dict(c["BCC"])
+    assert bcc["06:00"] < bcc["10:00"] < bcc["13:00"] and bcc["13:00"] > bcc["18:00"]
