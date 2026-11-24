@@ -123,7 +123,7 @@ Forecast
 23°/38°
 Tuesday
 
-Sunny
+Mostly Sunny
 
 23°/42°
 Wednesday
@@ -204,7 +204,7 @@ LIFTS OPEN
 0 of 14
 Lift	Status	Type	Hours	Notes
 Aerial Tram	
-	Tram	Closed for the season	
+	Tram	9 am - 3:45 pm	
 Baby Thunder	
 	Double	Closed for the season	
 Baby Thunder Conveyor	
@@ -212,15 +212,15 @@ Baby Thunder Conveyor
 Baldy	
 	Quad	Closed for the season	
 Chickadee	
-	Quad	Closed for the season	
+	Quad	9 am - 5 pm	
 Chickadee Conveyor	
 	Carpet	Closed for the season	
 Gad 2	
 	Quad	Closed for the season	
 Gadzoom	
-	Quad	Closed for the season	
+	Quad	9 am - 4 pm	
 Little Cloud	
-	Quad	Closed for the season	
+	Quad	9 am - 3:45 pm	
 Mid-Gad	
 	Double	Closed for the season	
 Mineral Basin	
@@ -230,7 +230,7 @@ Peruvian
 Peruvian Tunnel	
 	Carpet	Closed for the season	
 Wilbere	
-	Quad	Closed for the season	
+	Quad	9 am - 4:30 pm	
 Gad Valley
 Trail 0 of 87
 Mineral Basin
