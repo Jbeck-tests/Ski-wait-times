@@ -59,19 +59,19 @@ Season
 Conditions
 Base
 
-25°F
+27°F
 
-Partly Cloudy
-Wind 4 mph S
+Mostly Sunny
+Wind 4 mph SW
 Mid Mountain
 
 28°F
 
-Partly Cloudy
+Mostly Sunny
 Wind 1 mph NW
 Lens Recommendation
 
-AMP LS Red Chrome (Ambit)
+AMP Black Chrome (Ambit)
 
 Forecast 
 Previous Day
@@ -80,17 +80,17 @@ Extended Forecast (NOAA)
 Today
 High
 
-30°F
+32°F
 
 Low
 
 18°F
 
-Partly Cloudy
+Mostly Sunny
 
 Wind
 
-4 mph S
+4 mph SW
 
 Wednesday 25th
 High
@@ -117,44 +117,44 @@ Partly Cloudy
 Friday 27th
 High
 
-37°F
+36°F
 
 Low
 
-28°F
+27°F
 
 Mostly Cloudy
 
 Saturday 28th
 High
 
-37°F
+36°F
 
 Low
 
-32°F
+28°F
 
 Cloudy with Moderate/Heavy Snowfall
 
 Sunday 29th
 High
 
-37°F
+36°F
 
 Low
 
-30°F
+27°F
 
 Mostly Cloudy
 
 Monday 30th
 High
 
-36°F
+34°F
 
 Low
 
-32°F
+30°F
 
 Cloudy with Moderate/Heavy Snowfall
 

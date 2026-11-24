@@ -24,7 +24,7 @@ H: 33°F / L: 30°F
 
 Wind Chill: 29°F
 
-Wind: 0mph NNW
+Wind: 0mph ENE
 
 18
 IN

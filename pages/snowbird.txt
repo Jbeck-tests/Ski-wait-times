@@ -118,37 +118,37 @@ Open Lifts
 Open Trails
 Forecast
 > View full weather forecast
-24°/38°
+23°/38°
 Tuesday
 
 Sunny
 
-24°/41°
+23°/42°
 Wednesday
 
 Mostly Cloudy
 
-27°/41°
+26°/42°
 Thursday
 
-Mostly Sunny
+Sunny
 
-28°/41°
+30°/42°
 Friday
 
-Mostly Cloudy then Slight Chance Light Snow
+Partly Sunny then Slight Chance Light Snow
 
-24°/36°
+24°/38°
 Saturday
 
-Chance Light Snow
+Light Snow Likely
 
-26°/37°
+29°/41°
 Sunday
 
-Mostly Cloudy then Chance Light Snow
+Partly Sunny then Chance Light Snow
 
-27°/34°
+28°/36°
 Monday
 
 Light Snow Likely
