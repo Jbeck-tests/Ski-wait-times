@@ -44,6 +44,7 @@ h1 { font-size: 1.9rem; text-transform: uppercase; line-height: 1; }
   letter-spacing: .06em; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); }
 .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--quiet); }
 .pill.stale .dot { background: var(--busy); }
+.pill.off .dot { background: var(--faint); }
 nav.tabs { display: flex; gap: 4px; }
 nav.tabs a, nav.tabs button { font: 600 .9rem var(--body); color: var(--muted); background: none; border: 0; cursor: pointer;
   padding: 8px 12px 10px; border-bottom: 3px solid transparent; text-decoration: none; }
@@ -352,13 +353,26 @@ function weekDetail(d) {
     ${hourStrip(x.hourly, null, d.hours)}`;
 }
 
+function mountainNow() {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: "America/Denver", month: "numeric",
+    hour: "numeric", minute: "numeric", hourCycle: "h23" }).formatToParts(new Date()).map(p => [p.type, +p.value || 0]));
+  return { month: parts.month, minutes: parts.hour * 60 + parts.minute };
+}
+
 function setLive(d) {
+  // The collector updates every 20 min from 7am to 5pm Mountain, Nov-Apr.
+  // "Delayed" only means something while updates are expected.
   const age = (Date.now() - new Date(d.generated_at).getTime()) / 60000;
-  const ski = d.now_hour != null;
-  document.getElementById("updated").textContent = "Updated " + d.generated_label;
-  const stale = ski && age > 45;
-  document.getElementById("live").classList.toggle("stale", stale);
-  document.getElementById("liveTxt").textContent = stale ? "Delayed" : ski ? "Live" : "Off-hours";
+  const mt = mountainNow();
+  const season = [11, 12, 1, 2, 3, 4].includes(mt.month);
+  const expecting = season && mt.minutes >= 7 * 60 + 30 && mt.minutes < 17 * 60 + 30;
+  const state = !expecting ? "off" : age > 45 ? "stale" : "live";
+  const pill = document.getElementById("live");
+  pill.classList.toggle("stale", state === "stale");
+  pill.classList.toggle("off", state === "off");
+  document.getElementById("liveTxt").textContent = { live: "Live", stale: "Delayed", off: "After hours" }[state];
+  document.getElementById("updated").textContent = "Updated " + d.generated_label +
+    (state === "off" && season ? " · resumes 7 AM" : "");
 }
 
 async function load() {
