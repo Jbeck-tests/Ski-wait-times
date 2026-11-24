@@ -508,3 +508,21 @@ def test_companion_joins_status_map_and_cameras(monkeypatch):
     assert cam["pos"] == m["lifts"][0]["coords"][0] and cam["latest"] == 12 and cam["url"]
     assert {r["name"]: r["status"] for r in v["map"]["runs"]} == {"Left Run": "open", "Right Run": "closed", "Far Run": None}
     assert v["runs_open"] == 1 and v["runs_total"] == 2
+
+
+def test_map_orientation_and_neighbouring_resorts():
+    from skicrowd.resort_maps import _assign, build_resort, uphill_bearing
+    # toy lift climbs due north -> uphill bearing 0; one climbing south-west -> 225
+    assert build_resort("test", _toy_osm())["bearing"] == 0
+    assert uphill_bearing([{"type": "chair_lift", "coords": [[40.6, -111.6], [40.59, -111.6131]]}]) == 225
+    # a lift inside a neighbouring resort's outline is not ours, even when we're the only resort listed
+    box = lambda la, lo: [{"lat": la, "lon": lo}, {"lat": la + .01, "lon": lo}, {"lat": la + .01, "lon": lo + .01},
+                          {"lat": la, "lon": lo + .01}, {"lat": la, "lon": lo}]
+    els = [{"type": "way", "id": 1, "tags": {"landuse": "winter_sports", "name": "Deer Valley Resort"}, "geometry": box(40.60, -111.50)},
+           {"type": "way", "id": 2, "tags": {"landuse": "winter_sports", "name": "Park City Mountain"}, "geometry": box(40.62, -111.53)},
+           {"type": "way", "id": 3, "tags": {"aerialway": "chair_lift", "name": "Ours"},
+            "geometry": [{"lat": 40.602, "lon": -111.495}, {"lat": 40.605, "lon": -111.495}, {"lat": 40.608, "lon": -111.495}]},
+           {"type": "way", "id": 4, "tags": {"aerialway": "chair_lift", "name": "Theirs"},
+            "geometry": [{"lat": 40.622, "lon": -111.525}, {"lat": 40.625, "lon": -111.525}, {"lat": 40.628, "lon": -111.525}]}]
+    got = _assign(els, ["deer_valley"])["deer_valley"]
+    assert [e["tags"]["name"] for e in got] == ["Ours"]

@@ -164,7 +164,7 @@ def resort_view(resort: str, lift_rows: list[dict], run_rows: list[dict], cams_n
         "areas": [x for x in run_rows if x.get("kind") in ("area", "gate")],
         "open_runs": [x["name"] for x in ski if x["status"] == "open"],
         "map": None if not map_ else {
-            "bounds": map_["bounds"], "attribution": map_["attribution"],
+            "bounds": map_["bounds"], "attribution": map_["attribution"], "bearing": map_.get("bearing", 0),
             "lifts": [{**l, "status": next((x["status"] for x in lift_rows
                                             if match_lift(x["lift"], {l["key"]: True})), None)}
                       for l in map_["lifts"]],

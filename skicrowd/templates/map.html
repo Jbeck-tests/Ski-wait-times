@@ -44,7 +44,7 @@ h2 { font: 700 1.3rem/1.1 var(--display); text-transform: uppercase; margin: 0; 
 .panel { padding: 14px 16px 40px; display: grid; gap: 14px; align-content: start; }
 @media (min-width: 900px) {
   .layout { grid-template-columns: minmax(0, 1fr) 380px; height: calc(100vh - 58px); }
-  #map { height: 100%; }
+  #map, .mapwrap { height: 100%; }
   .panel { overflow-y: auto; border-left: 1px solid var(--line); }
 }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
@@ -77,6 +77,11 @@ h2 { font: 700 1.3rem/1.1 var(--display); text-transform: uppercase; margin: 0; 
   border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
 .campin svg { width: 14px; height: 14px; }
 .leaflet-container { font: 13px var(--body); }
+.north { position: absolute; right: 10px; top: 10px; z-index: 500; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; pointer-events: none; }
+.north span { display: block; font: 700 10px/1 var(--body); text-align: center; transition: transform .3s; }
+.lift-label { background: rgba(255,255,255,.9); border: 0; box-shadow: none; font-weight: 600; font-size: 11px; padding: 1px 5px; color: #14202a; }
+.lift-label::before { display: none; }
 a { color: var(--accent); }
 button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </style>
@@ -88,13 +93,17 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outlin
   <span id="headline" class="sub"></span>
 </header>
 <div class="layout">
-  <div id="map" role="region" aria-label="Resort map"></div>
+  <div class="mapwrap" style="position:relative;min-width:0">
+    <div id="map" role="region" aria-label="Resort map"></div>
+    <div class="north" aria-label="North arrow"><span id="north">N<br>↑</span></div>
+  </div>
   <aside class="panel" id="panel">
     <div class="card" id="detail"><p class="note">Loading…</p></div>
     <div class="card">
       <div class="toggles" role="group" aria-label="Map filters">
         <button id="tOpen" aria-pressed="true">Open runs only</button>
         <button id="tCams" aria-pressed="true">Cameras</button>
+        <button id="tView" aria-pressed="true" title="Turn the map like the resort's trail map, or put north up">Trail-map view</button>
       </div>
       <div class="legend" style="margin-top:10px">
         <span><i class="swatch" style="background:var(--lift-on)"></i>Lift running</span>
@@ -107,6 +116,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outlin
   </aside>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"></script>
 <script>
 const R = new URLSearchParams(location.search).get("r") || "solitude";
 const LEVELS = [[50, "quiet", "Quiet"], [80, "moderate", "Moderate"], [110, "busy", "Busy"], [1e9, "packed", "Packed"]];
@@ -119,7 +129,10 @@ const drank = d => DRANK[(d || "").toLowerCase()] || 9;
 const runColor = d => ({ 1: css("--run-easy"), 2: css("--run-int"), 3: css("--run-adv"), 4: css("--run-adv"), 5: css("--run-adv") }[drank(d)] || css("--run-other"));
 const CAM_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 4 7.2 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3.2L15 4H9zm3 4.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9z"/></svg>';
 
-let V, D, map, layers = {}, showOpen = true, showCams = true, selected = null;
+// The rotate plugin turns the map clockwise by its "bearing"; to put compass
+// direction B (the resort's uphill) at the top, turn it by 360 - B.
+const turn = b => (360 - (b || 0)) % 360;
+let V, D, map, layers = {}, showOpen = true, showCams = true, selected = null, trailView = true;
 
 function runsHTML(runs) {
   if (!runs || !runs.length) return `<p class="note">No run list for this lift.</p>`;
@@ -175,14 +188,39 @@ function highlight(l) {
   });
 }
 
+// Fit points to the view in the map's turned frame (the rotate plugin's own
+// fitBounds ignores the turn and zooms out too far).
+function fitRotated(pts, pad = 0.1, maxZoom = 15) {
+  const z0 = 15, th = (map.getBearing ? map.getBearing() : 0) * Math.PI / 180;
+  const c = Math.cos(th), s = Math.sin(th);
+  const P = pts.map(p => map.project(L.latLng(p), z0)).map(q => ({ x: q.x * c - q.y * s, y: q.x * s + q.y * c }));
+  const xs = P.map(q => q.x), ys = P.map(q => q.y);
+  let [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  const px = (x1 - x0) * pad, py = (y1 - y0) * pad;
+  x0 -= px; x1 += px; y0 -= py; y1 += py;
+  const size = map.getSize();
+  const zoom = Math.min(maxZoom, Math.floor(z0 + Math.log2(Math.min(size.x / Math.max(x1 - x0, 1), size.y / Math.max(y1 - y0, 1)))));
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;            // centre, turned back to map pixels
+  const center = map.unproject(L.point(cx * c + cy * s, -cx * s + cy * c), z0);
+  map.setView(center, zoom, { animate: false });
+}
+
 function drawMap() {
   const m = V.map;
-  map = L.map("map", { zoomControl: true, attributionControl: true });
+  // turned like the resort's trail map: looking up the mountain from the base
+  const rotatable = !!(L.Map.prototype.setBearing);
+  map = L.map("map", Object.assign({ zoomControl: true, attributionControl: true },
+    rotatable ? { rotate: true, bearing: turn(trailView ? m.bearing : 0), touchRotate: false, shiftKeyRotate: false,
+                  rotateControl: false, compassBearing: false } : {}));
+  if (!rotatable) document.getElementById("tView").hidden = true;
+  map.setView(L.latLngBounds(m.bounds).getCenter(), 14);   // the rotate plugin needs a view before fitBounds
   L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", { maxZoom: 17, subdomains: "abc",
     attribution: 'Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM · Style © <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)' }).addTo(map);
+  document.getElementById("north").style.transform = `rotate(${-(trailView ? (m.bearing || 0) : 0)}deg)`;
   // start on the lifts that are running (whole resort when none are)
   const running = m.lifts.filter(l => l.status === "open").flatMap(l => l.coords);
-  map.fitBounds(running.length ? L.latLngBounds(running).pad(0.25) : m.bounds, { padding: [20, 20], maxZoom: 15 });
+  const frame = running.length ? running : m.lifts.filter(l => !/carpet|tow/i.test(l.name)).flatMap(l => l.coords);
+  fitRotated(frame.length ? frame : [m.bounds[0], m.bounds[1]], running.length ? 0.25 : 0.05);
   layers = { run: {}, lift: {}, cams: L.layerGroup() };
   m.runs.forEach(r => {
     const open = r.status === "open";
@@ -198,6 +236,8 @@ function drawMap() {
     const i = V.lifts.findIndex(x => x.map_id === l.id);
     line.on("click", () => i >= 0 ? selectLift(i, false) : null);
     layers.lift[l.id] = line.addTo(map);
+    if (on) L.tooltip({ permanent: true, direction: "center", className: "lift-label", interactive: false })
+      .setLatLng(l.coords[Math.floor(l.coords.length / 2)]).setContent(esc(l.name)).addTo(map);
     L.circleMarker(l.coords[l.coords.length - 1], { radius: 3, color: on ? css("--lift-on") : css("--lift-off"), fillOpacity: 1 }).addTo(map);
   });
   V.cams.filter(c => c.pos).forEach(c => {
@@ -251,10 +291,16 @@ async function load() {
     }
     if (!V.map) document.getElementById("map").innerHTML = `<p class="note" style="padding:16px">No map for this resort yet.</p>`;
   } catch (e) {
+    console.error(e);
     document.getElementById("detail").innerHTML = `<p class="note">Couldn't load this resort's data.</p>`;
   }
 }
 document.getElementById("tOpen").addEventListener("click", e => { showOpen = !showOpen; e.currentTarget.setAttribute("aria-pressed", showOpen); applyFilters(); });
+document.getElementById("tView").addEventListener("click", e => {
+  trailView = !trailView; e.currentTarget.setAttribute("aria-pressed", trailView);
+  if (map && map.setBearing) map.setBearing(turn(trailView ? V.map.bearing : 0));
+  document.getElementById("north").style.transform = `rotate(${-(trailView ? (V.map.bearing || 0) : 0)}deg)`;
+});
 document.getElementById("tCams").addEventListener("click", e => { showCams = !showCams; e.currentTarget.setAttribute("aria-pressed", showCams); applyFilters(); });
 load();
 </script>

@@ -144,18 +144,47 @@ def _inside(pt, ring) -> bool:
     return inside
 
 
+# Trail maps are drawn looking up the mountain from the base. The map pages
+# turn each resort so its uphill direction points up the screen. Computed
+# from the lifts (bottom -> top); override where the official map differs.
+# Checked against the official maps (Nov 2026): Snowbasin looks southwest
+# (Strawberry left, John Paul right) and Solitude about 195 degrees, both as
+# computed. Deer Valley's map looks almost due south (Carpenter and Silver
+# Lake run straight up); the new East Village lifts pull the computed angle
+# to 225, so it is set by hand.
+BEARING_OVERRIDE: dict[str, int] = {"deer_valley": 195}
+SURFACE = {"magic_carpet", "rope_tow", "platter", "t-bar", "j-bar", "drag_lift"}
+
+
+def uphill_bearing(lifts: list[dict]) -> int:
+    """Compass direction lifts climb, length-weighted, to the nearest 5 degrees."""
+    vx = vy = 0.0
+    for l in lifts:
+        if l["type"] in SURFACE:
+            continue
+        (la0, lo0), (la1, lo1) = l["coords"][0], l["coords"][-1]
+        vx += (lo1 - lo0) * math.cos(math.radians(la0)) * 111320
+        vy += (la1 - la0) * 110540
+    if not vx and not vy:
+        return 0
+    return int(5 * round(((math.degrees(math.atan2(vx, vy)) + 360) % 360) / 5)) % 360
+
+
 # ------------------------------------------------------------- per resort
 def _assign(elements, resorts: list[str]) -> dict[str, list]:
     """Split a region's lifts/runs between its resorts by ski-area outline."""
     areas = {r: [] for r in resorts}
+    others = []          # neighbouring ski areas (e.g. Park City Mountain next to Deer Valley)
     for e in elements:
         t = e.get("tags", {})
         if t.get("landuse") != "winter_sports":
             continue
         name = norm_name(t.get("name"))
-        for r in resorts:
-            if AREA_NAME[r] in name:
-                areas[r] += _rings(e)
+        mine = [r for r in resorts if AREA_NAME[r] in name]
+        for r in mine:
+            areas[r] += _rings(e)
+        if not mine:
+            others += _rings(e)
     out = {r: [] for r in resorts}
     for e in elements:
         t = e.get("tags", {})
@@ -166,8 +195,8 @@ def _assign(elements, resorts: list[str]) -> dict[str, list]:
             continue
         mid = g[len(g) // 2]
         hits = [r for r in resorts if any(_inside(mid, ring) for ring in areas[r])]
-        if not hits and len(resorts) == 1:
-            hits = resorts
+        if not hits and any(_inside(mid, ring) for ring in others):
+            continue          # belongs to a neighbouring resort
         if not hits:   # just outside every outline: nearest outline within 400 m
             pr = Proj(*mid)
             best = min(((float(np.min(np.linalg.norm(pr.xy(ring), axis=1))), r)
@@ -271,6 +300,7 @@ def build_resort(resort: str, elements: list[dict]) -> dict:
     lats += [min(lats) - pad_lat, max(lats) + pad_lat]
     lons += [min(lons) - pad_lon, max(lons) + pad_lon]
     return {"resort": resort, "bounds": [[min(lats), min(lons)], [max(lats), max(lons)]],
+            "bearing": BEARING_OVERRIDE.get(resort, uphill_bearing(lifts)),
             "lifts": out_lifts, "runs": out_runs,
             "attribution": "Map data © OpenStreetMap contributors (ODbL)"}
 

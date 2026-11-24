@@ -26,7 +26,9 @@ the collector every 20 minutes from 7am to 5pm Mountain).
 * **Season:** the full-season calendar.
 * **Resort maps** (`map.html?r=solitude`, linked from each card): a topo map
   with lifts (running or closed) and runs (colored by difficulty, open ones
-  highlighted). Tap a lift to see its open runs, its lift-line count and its
+  highlighted), turned to face the same way as the resort's official trail
+  map (looking up the mountain from the base; "Trail-map view" switches to
+  north-up). Tap a lift to see its open runs, its lift-line count and its
   live camera; tap a camera pin for the live view. Each card on Today lists
   the running lifts with the runs open off each one.
 
