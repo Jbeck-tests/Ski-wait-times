@@ -5,7 +5,7 @@ Menu
 BOOK NOW
 MOUNTAIN REPORT
 
-Updated 3 minutes ago
+Updated 2 minutes ago
 
 WEATHER
 LIFTS & TRAILS
@@ -13,7 +13,7 @@ AREAS & PARKS
 MAPS
 WEATHER
 MID-MOUNTAIN
-36
+35
 °F
 °C
 
@@ -21,7 +21,7 @@ CLEAR
 
 H: 35°F / L: 28°F
 
-Wind Chill: 36°F
+Wind Chill: 35°F
 
 Wind: 0mph N
 
