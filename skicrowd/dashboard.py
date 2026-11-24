@@ -35,6 +35,13 @@ MT = ZoneInfo("America/Denver")
 TEMPLATES = Path(__file__).resolve().parent / "templates"
 CANYON_STATION = {"LCC": "udot_317", "BCC": "udot_322"}
 CANYON_NAME = {"LCC": "Little Cottonwood", "BCC": "Big Cottonwood"}
+CAM_CONFIG = Path(__file__).resolve().parent / "config" / "webcams.toml"
+
+# Webcam split of a canyon's cars between its resorts (see split_signals).
+SPLIT_MIN_DAYS = 8          # comparable past days a camera needs at this hour
+SPLIT_WEIGHT = 0.5          # how far the webcams may move the model's split (0 = not at all, 1 = fully)
+SPLIT_FRESH_MIN = 45        # use a camera only if it has a frame from the last 45 minutes
+SPLIT_SMOOTH = {"lift_line": 3.0, "parking": 5.0}   # added to counts so near-empty frames don't explode ratios
 
 
 def _read(path: Path) -> pd.DataFrame | None:
@@ -96,12 +103,36 @@ def canyon_today(data_dir: Path, now: dt.datetime) -> dict:
     return out
 
 
-def webcams_today(data_dir: Path, now: dt.datetime) -> dict:
+def cam_rows(data_dir: Path) -> pd.DataFrame | None:
+    """Usable lift-line / parking readings, with stuck feeds removed.
+
+    A feed can serve the same picture for weeks while its timestamp keeps
+    updating (Brighton's Ski Utah feeds in Nov 2026 showed a promo graphic and
+    a summer frame). The collector flags repeats as frozen, but the first copy
+    of a stuck picture still gets counted, so also drop any picture seen on
+    more than one day, and camera-days whose picture never changed."""
     d = _read(data_dir / "webcam_counts.csv")
     if d is None or d.empty:
-        return {}
+        return None
+    d = d[d["kind"].isin(["lift_line", "parking"])].copy()
     d["t"] = _mt(d["image_time"])
-    d = d[(d["t"].dt.date == now.date()) & (d["t"] <= now) & (d["usable"] == 1) & d["kind"].isin(["lift_line", "parking"])]
+    d["date"] = d["t"].dt.date
+    days_seen = d.groupby("image_sha1")["date"].transform("nunique")
+    g = d.groupby(["camera", "date"])["image_sha1"]
+    stuck_day = (g.transform("nunique") == 1) & (g.transform("size") >= 3)
+    frozen = d["frozen"].fillna(0).astype(float) == 1 if "frozen" in d else False
+    lift_closed = d["lift_open"].fillna(1).astype(float) == 0 if "lift_open" in d else False
+    d = d[(d["usable"] == 1) & (days_seen == 1) & ~stuck_day & ~frozen]
+    d["lift_closed"] = lift_closed[d.index] if not isinstance(lift_closed, bool) else False
+    d["value"] = np.where(d["kind"] == "parking", d["vehicles"], d["people"])
+    return d.dropna(subset=["value"])
+
+
+def webcams_today(data_dir: Path, now: dt.datetime) -> dict:
+    d = cam_rows(data_dir)
+    if d is None or d.empty:
+        return {}
+    d = d[(d["date"] == now.date()) & (d["t"] <= now)]
     out = {}
     for cam, g in d.sort_values("t").groupby("camera"):
         g = g.dropna(subset=["people", "vehicles"])
@@ -118,6 +149,101 @@ def webcams_today(data_dir: Path, now: dt.datetime) -> dict:
 
 
 # ------------------------------------------------------------------ nowcast
+def _split_skip() -> set[str]:
+    """Cameras marked `split = false` in webcams.toml (e.g. misaimed)."""
+    cams = tomllib.loads(CAM_CONFIG.read_text())["cam"]
+    return {f"{c['resort']}:{c['title']}" for c in cams if c.get("split") is False}
+
+
+def open_days(data_dir: Path) -> dict[str, set]:
+    """Dates on which each resort had at least one lift running."""
+    d = _read(data_dir / "lift_status.csv")
+    if d is None or d.empty:
+        return {}
+    d["date"] = _mt(d["collected_at"]).dt.date
+    # Brighton rows logged before its icons were decoded are 'unknown' with
+    # a raw '2 of 8 open' summary: any N > 0 means lifts were running.
+    summary = d["raw"].astype(str).str.extract(r"^(\d+) of \d+ open$")[0].astype(float)
+    d = d[(d["status"] == "open") | (summary > 0)]
+    days = {r: set(g["date"]) for r, g in d.groupby("resort")}
+    # Lifts can run before opening day (previews, testing): if Ski Utah's
+    # report that day didn't list the resort as open, the day doesn't count.
+    st = _read(data_dir / "resort_status.csv")
+    if st is not None and not st.empty:
+        st["date"] = _mt(st["collected_at"]).dt.date
+        not_open = st.groupby(["resort", "date"])["status"].agg(lambda x: "open" not in set(x))
+        for (r, day), bad in not_open.items():
+            if bad and r in days:
+                days[r].discard(day)
+    return days
+
+
+def split_signals(data_dir: Path, now: dt.datetime, canyon: str, members: list[str],
+                  cam_resort: dict[str, str] | None = None) -> dict:
+    """How busy each resort's webcams are relative to the canyon's live car count.
+
+    For every camera reading: v = (count + smoothing) per 1,000 cars in the
+    canyon at that moment. A camera's baseline is its median v at the same
+    hour on past *comparable* days - days when the same set of the canyon's
+    resorts was running lifts (a Solitude cam meant something different
+    while Brighton was closed). Index = today's v / baseline: above 1 means
+    the resort is taking more of the canyon's traffic than usual.
+
+    Works with one resort's cameras alone (Solitude's busier than usual
+    implies Brighton's quieter). Needs SPLIT_MIN_DAYS comparable days per
+    camera at the current hour before it is used."""
+    out = {"method": "model", "index": {}, "cams": {}, "days": 0, "needed": SPLIT_MIN_DAYS}
+    cams, live = cam_rows(data_dir), _read(data_dir / "canyon_live.csv")
+    if cams is None or live is None or cams.empty or live.empty:
+        return out
+    skip = _split_skip()
+    cams = cams[cams["resort"].isin(members) & ~cams["camera"].isin(skip) & ~cams["lift_closed"]
+                & (cams["t"] <= now)].copy()
+    live = live[live["canyon"] == canyon].copy()
+    live["t"] = _mt(live["observed_at"])
+    live = live.sort_values("t")[["t", "net_vehicles_in_canyon"]]
+    if cams.empty or live.empty:
+        return out
+    cams = pd.merge_asof(cams.sort_values("t"), live, on="t", direction="nearest",
+                         tolerance=pd.Timedelta(minutes=30)).dropna(subset=["net_vehicles_in_canyon"])
+    cams = cams[cams["net_vehicles_in_canyon"] >= 200]       # too few cars to normalise by
+    if cams.empty:
+        return out
+    smooth = cams["kind"].map(SPLIT_SMOOTH).fillna(3.0)
+    cams["v"] = (cams["value"] + smooth) / cams["net_vehicles_in_canyon"] * 1000
+
+    od = open_days(data_dir)
+    today = now.date()
+    want = set(members)
+    comparable = {d for d in set(cams["date"]) if d < today and
+                  {r for r in want if d in od.get(r, set())} == want}
+    hour = int(min(max(now.hour, intraday.DAY_HOURS[0]), intraday.DAY_HOURS[-1]))
+    hist = cams[cams["date"].isin(comparable) & (cams["t"].dt.hour == hour)]
+    out["days"] = int(hist.groupby("camera")["date"].nunique().max()) if len(hist) else 0
+    fresh = cams[(cams["date"] == today) & (cams["t"] > now - dt.timedelta(minutes=SPLIT_FRESH_MIN))]
+    for r in members:
+        ratios, used = [], []
+        for cam, g in fresh[fresh["resort"] == r].groupby("camera"):
+            base = hist[hist["camera"] == cam]
+            if base["date"].nunique() < SPLIT_MIN_DAYS:
+                continue
+            ratios.append(g["v"].iloc[-1] / base["v"].median())
+            used.append(cam.split(":", 1)[1])
+        if ratios:
+            out["index"][r] = float(np.clip(np.exp(np.mean(np.log(ratios))), 0.5, 2.0))
+            out["cams"][r] = used
+    if out["index"]:
+        out["method"] = "webcams"
+    return out
+
+
+def adjusted_shares(model_share: dict[str, float], index: dict[str, float]) -> dict[str, float]:
+    """Model split nudged by the webcam indexes, then renormalised."""
+    raw = {r: m * index.get(r, 1.0) ** SPLIT_WEIGHT for r, m in model_share.items()}
+    tot = sum(raw.values())
+    return {r: v / tot for r, v in raw.items()}
+
+
 def _profile_share(region: str, daytype: str, snow: str, t_hours: float) -> float:
     """Share of the day's arrivals expected to be in the canyon at t."""
     c = intraday._curve(intraday.load_profiles(), region, daytype, snow)
@@ -192,7 +318,8 @@ def build(cfg: dict, weather: pd.DataFrame, data_dir: Path, now: dt.datetime | N
                       "status": status.get(r, {}), "lifts": lifts.get(r),
                       "model_now": None if model_now is None else round(model_now),
                       "crowd_now": None if model_now is None else round(model_now), "nowcast_ratio": None,
-                      "est_cars": None, "cams": [c for c in cams.values() if c["resort"] == r]}
+                      "est_cars": None, "split": None,
+                      "cams": [c for c in cams.values() if c["resort"] == r]}
 
     for c, live in canyons.items():
         members = [r for r in ikon if cfg["resorts"][r]["canyon"] == c and resorts[r]["open_today"]]
@@ -203,11 +330,25 @@ def build(cfg: dict, weather: pd.DataFrame, data_dir: Path, now: dt.datetime | N
         snow = "powder" if any(float(today_rows.loc[r, "new_24"]) * cfg["behaviour"].get("snow_report_factor", 1)
                                >= 8 for r in members if "new_24" in today_rows) else "normal"
         ratio = nowcast(live["latest"], total, c, dtype, snow, t_hours) if total else None
+        if not total:
+            continue
+        model_share = {r: vis[r] / total for r in members}
+        share, split = dict(model_share), {"method": "single", "members": members}
+        if len(members) > 1:
+            sig = split_signals(data_dir, now, c, members)
+            share = adjusted_shares(model_share, sig["index"])
+            split = {**sig, "members": members}
+        canyons[c]["split"] = split
         for r in members:
-            resorts[r]["est_cars"] = round(live["latest"] * vis[r] / total) if total else None
+            resorts[r]["est_cars"] = round(live["latest"] * share[r])
+            resorts[r]["split"] = {"method": split["method"], "share": round(share[r], 3),
+                                   "model_share": round(model_share[r], 3),
+                                   "index": None if r not in split.get("index", {}) else round(split["index"][r], 2),
+                                   "cams": split.get("cams", {}).get(r, [])}
             if ratio is not None and resorts[r]["model_now"] is not None:
-                resorts[r]["nowcast_ratio"] = round(ratio, 2)
-                resorts[r]["crowd_now"] = round(resorts[r]["model_now"] * ratio)
+                rr = float(np.clip(ratio * share[r] / model_share[r], 0.5, 1.8))
+                resorts[r]["nowcast_ratio"] = round(rr, 2)
+                resorts[r]["crowd_now"] = round(resorts[r]["model_now"] * rr)
     for r in resorts.values():
         r["level_now"] = crowd_label(r["crowd_now"]) if r["crowd_now"] is not None else "closed"
 

@@ -155,6 +155,7 @@ footer { color: var(--muted); font-size: .8rem; margin-top: 32px; display: grid;
       <div class="card canyons">
         <div class="canyon-nums" id="canyonNums"></div>
         <div class="chart" id="canyonChart"></div>
+        <div id="splitNotes" style="display:grid;gap:4px"></div>
         <p class="note">Measured by UDOT: vehicles that have gone up minus come down since last night. Includes backcountry skiers and residents, not just resort skiers.</p>
       </div>
     </div>
@@ -229,7 +230,24 @@ function renderCanyons(d) {
     return `<div class="num"><span class="k"><i style="background:var(--${c.toLowerCase()})"></i>${esc(x.name)}</span>
       <span class="v">${x.latest.toLocaleString()}</span><span class="s">cars at ${esc(x.latest_time)} · peak ${x.peak.toLocaleString()}</span></div>`;
   }).join("") : `<div class="num"><span class="s">No canyon counts yet today.</span></div>`;
+  const notes = cs.map(c => splitNote(d, c)).filter(Boolean);
+  document.getElementById("splitNotes").innerHTML = notes.map(n => `<p class="note" style="margin:0">${n}</p>`).join("");
   drawCanyonChart(d, cs);
+}
+
+function splitNote(d, c) {
+  const sp = d.canyons[c].split;
+  if (!sp || !sp.members || sp.members.length < 2) return "";
+  const names = sp.members.map(r => d.resorts[r].name);
+  const pair = names.join(" / ");
+  const pct = r => Math.round(d.resorts[r].split.share * 100) + "%";
+  if (sp.method === "webcams") {
+    const used = Object.entries(sp.cams).map(([r, cs]) => `${d.resorts[r].name} (${cs.join(", ")})`).join("; ");
+    return `<strong>${esc(pair)} split:</strong> ${sp.members.map(r => `${esc(d.resorts[r].name)} ${pct(r)}`).join(", ")}. ` +
+      `Model split adjusted by live webcams: ${esc(used)}.`;
+  }
+  return `<strong>${esc(pair)} split:</strong> ${sp.members.map(r => `${esc(d.resorts[r].name)} ${pct(r)}`).join(", ")}, from the model. ` +
+    `Webcam adjustment is still learning what normal looks like at this hour: ${sp.days} of ${sp.needed} days.`;
 }
 
 function drawCanyonChart(d, cs) {
@@ -297,7 +315,11 @@ function renderResorts(d) {
     if (x.lifts) sub = `${x.lifts.open}/${x.lifts.total} lifts open` + (x.lifts.unknown ? ` (${x.lifts.unknown} unconfirmed)` : "") + ` · ${x.lifts.as_of}`;
     if (!x.open_today) sub = st.status === "opening" && st.date ? `Opens ${new Date(st.date + "T12:00").toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : st.status === "tba" ? "Opening TBA" : "Closed";
     const rows = [];
-    if (x.est_cars != null) rows.push(`<dt>Cars here</dt><dd>~${x.est_cars.toLocaleString()} <span class="tag">estimated</span></dd>`);
+    if (x.est_cars != null) {
+      const sp = x.split || {};
+      const how = sp.method === "webcams" ? "model + webcams" : sp.method === "single" ? "only resort open in canyon" : "estimated";
+      rows.push(`<dt>Cars here</dt><dd>~${x.est_cars.toLocaleString()} <span class="tag">${how}</span></dd>`);
+    }
     if (x.nowcast_ratio != null) rows.push(`<dt>vs. expected</dt><dd>${Math.round(x.nowcast_ratio * 100)}% of the traffic the model expected by now</dd>`);
     if (x.lifts && x.lifts.open_lifts.length) rows.push(`<dt>Running</dt><dd>${esc(x.lifts.open_lifts.join(", "))}</dd>`);
     const lines = x.cams.filter(c => c.kind === "lift_line" && c.lift_open !== false);

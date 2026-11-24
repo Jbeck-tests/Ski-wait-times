@@ -383,3 +383,56 @@ def test_dashboard_build_splits_canyon_cars_and_writes_site(tmp_path):
 def json_roundtrip(path):
     import json
     return json.loads(path.read_text())
+
+
+def _split_fixture(tmp_path, n_days, today_people):
+    """n_days past days with Brighton + Solitude both running, then today.
+    Solitude's Moonbeam cam sees 30 people per 1,500 canyon cars at 10am."""
+    from skicrowd import dashboard
+    days = [dt.date(2027, 1, 1) + dt.timedelta(days=i) for i in range(n_days + 1)]
+    utc = lambda d, h, m: dt.datetime(d.year, d.month, d.day, h, m, tzinfo=dashboard.MT).astimezone(dt.timezone.utc).isoformat()
+    canyon, lifts, cams = [], [], []
+    for i, d in enumerate(days):
+        people = today_people if d == days[-1] else 30
+        canyon.append({"observed_at": utc(d, 10, 0), "canyon": "BCC", "net_vehicles_in_canyon": 1500, "collected_at": utc(d, 10, 5)})
+        for r, lift in (("brighton", "Milly Express"), ("solitude", "Moonbeam Express")):
+            lifts.append({"collected_at": utc(d, 10, 5), "resort": r, "lift": lift, "status": "open", "raw": "open"})
+        cams.append({"collected_at": utc(d, 10, 5), "image_time": utc(d, 10, 2), "image_ts": "", "camera": "solitude:Moonbeam Lift Line",
+                     "resort": "solitude", "kind": "lift_line", "usable": 1, "brightness": 120, "sharpness": 900,
+                     "people": people, "vehicles": 0, "image_sha1": f"s{i}", "frozen": 0, "lift_open": 1})
+        # Brighton's feed is stuck: the same picture every day
+        cams.append({**cams[-1], "camera": "brighton:Main Parking Lot", "resort": "brighton", "kind": "parking",
+                     "people": 0, "vehicles": 27, "image_sha1": "promo", "lift_open": ""})
+    pd.DataFrame(canyon).to_csv(tmp_path / "canyon_live.csv", index=False)
+    pd.DataFrame(lifts).to_csv(tmp_path / "lift_status.csv", index=False)
+    pd.DataFrame(cams).to_csv(tmp_path / "webcam_counts.csv", index=False)
+    return dt.datetime(days[-1].year, days[-1].month, days[-1].day, 10, 20, tzinfo=dashboard.MT)
+
+
+def test_webcam_split_moves_share_once_it_has_enough_history(tmp_path):
+    from skicrowd import dashboard
+    now = _split_fixture(tmp_path, n_days=dashboard.SPLIT_MIN_DAYS, today_people=60)
+    sig = dashboard.split_signals(tmp_path, now, "BCC", ["brighton", "solitude"])
+    assert sig["method"] == "webcams" and sig["days"] == dashboard.SPLIT_MIN_DAYS
+    assert sig["index"]["solitude"] == pytest.approx(63 / 33, rel=0.01)
+    assert "brighton" not in sig["index"]                        # stuck feed ignored
+    share = dashboard.adjusted_shares({"brighton": 0.55, "solitude": 0.45}, sig["index"])
+    assert share["solitude"] > 0.5 and sum(share.values()) == pytest.approx(1.0)
+
+
+def test_webcam_split_waits_for_history_and_ignores_stuck_feeds(tmp_path):
+    from skicrowd import dashboard
+    now = _split_fixture(tmp_path, n_days=3, today_people=60)
+    sig = dashboard.split_signals(tmp_path, now, "BCC", ["brighton", "solitude"])
+    assert sig["method"] == "model" and sig["days"] == 3 and sig["index"] == {}
+    rows = dashboard.cam_rows(tmp_path)
+    assert "brighton:Main Parking Lot" not in set(rows["camera"])
+
+
+def test_brighton_status_icons_decoded():
+    from pathlib import Path
+    from skicrowd.lifts import parse_brighton_html
+    lifts = parse_brighton_html((Path(__file__).parent / "fixtures" / "lifts_brighton_mixed.html").read_text())
+    assert len(lifts) == 8                                       # page summary: "Lifts Open 2 of 8"
+    assert sorted(x.lift for x in lifts if x.status == "open") == ["Explorer", "Majestic"]
+    assert all(x.status in ("open", "closed") for x in lifts)

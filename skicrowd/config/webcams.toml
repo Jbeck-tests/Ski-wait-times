@@ -41,6 +41,7 @@ resort = "brighton"
 section = "Brighton"
 title = "Main Parking Lot"
 kind = "parking"
+# Nov 2026: Ski Utah serves a promo graphic here (stuck feed); dropped automatically until it goes live.
 
 [[cam]]
 resort = "brighton"
@@ -69,6 +70,7 @@ section = "Solitude Mountain Resort"
 title = "Moonbeam Parking Lot"
 kind = "parking"
 # Nov 20 2026: frame showed a trail-map sign, not the lot. Recheck aim in season.
+split = false        # not used for the Brighton/Solitude split until the aim is confirmed
 
 [[cam]]
 resort = "solitude"

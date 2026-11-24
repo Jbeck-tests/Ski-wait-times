@@ -135,6 +135,35 @@ Each camera becomes its own observation source. Its daily value is the mean
 count from 9:00 to 12:30, and the camera gets its own scale, so a wide shot
 and a tight queue cam can both be used.
 
+### Splitting a canyon's cars between its resorts
+
+UDOT's live feed gives one total per canyon. The dashboard splits it between
+the canyon's open resorts (Brighton/Solitude, Alta/Snowbird):
+
+1. **Model split.** Each resort's expected share of the canyon's skiers.
+   Checked against UDOT's Brighton Loop counter (station 822, 2024-25): the
+   model puts Brighton at ~55% of Big Cottonwood skiers, against ~49% of
+   cars measured at the loop. The average is about right, but the measured
+   split moves much more from day to day than the model's does.
+2. **Webcam adjustment** (`dashboard.split_signals`). Each lift-line or
+   parking camera reading becomes "count per 1,000 cars in the canyon". Its
+   baseline is the median at the same hour on past *comparable* days, when
+   the same resorts in that canyon were officially open and running lifts.
+   Today's reading divided by the baseline says whether that resort is
+   taking more or less of the canyon than usual, and the model's split is
+   moved halfway toward it (`SPLIT_WEIGHT`). One resort's cameras are
+   enough: if Solitude's lines are long for the traffic, Brighton gets less.
+   It switches on by itself once a camera has `SPLIT_MIN_DAYS` (8)
+   comparable days at that hour. Until then the dashboard shows "learning:
+   N of 8 days".
+
+**Stuck feeds.** Some feeds keep a fresh timestamp but serve the same
+picture. In Nov 2026, Ski Utah's Brighton feeds showed a promotional graphic
+and a summer frame. Readings are dropped when a picture appears on more
+than one day, or when a camera's picture never changes all day, so stuck
+feeds can't distort the counts. Set `split = false` on a camera in
+`webcams.toml` to leave it out of the split (the misaimed Moonbeam lot cam is).
+
 ### Tuning once the season starts
 
 * **Regions of interest.** Add an `roi` polygon to cameras whose frame

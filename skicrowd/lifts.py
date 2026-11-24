@@ -15,6 +15,7 @@ Why it matters:
 from __future__ import annotations
 
 import datetime as dt
+import html as _html
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -27,7 +28,7 @@ PAGES = {
     "snowbasin": ("https://www.snowbasin.com/the-mountain/mountain-report/", r"^Lift Name", r"^Trails$"),
     # Snowbird's table rows read "<name>" then "<type> <status>".
     "snowbird": ("https://www.snowbird.com/the-mountain/mountain-report/lift-trail-report/", r"^Lift Status Type", r"(?i)^(gad valley|terrain & gates)$"),
-    # Brighton shows each lift's status as an icon; see parse_brighton().
+    # Brighton shows each lift's status as an icon; see parse_brighton_html().
     "brighton": ("https://www.brightonresort.com/conditions", r"(?i)^show legend$", r"(?i)^trail status$"),
 }
 
@@ -90,6 +91,25 @@ def parse_brighton(text: str) -> list[Lift]:
     return [Lift("brighton", n, status, f"{n_open} of {total} open") for n in names]
 
 
+def parse_brighton_html(markup: str) -> list[Lift]:
+    """Brighton's markup: one <li> per lift, with a lift-type icon, the name
+    in <p>, and a status icon whose alt text is 'Open' / 'Closed' / ..."""
+    out, seen = [], set()
+    for item in re.findall(r"<li\b[^>]*>(.*?)</li>", markup, flags=re.S):
+        if "/Lift/Type/" not in item:
+            continue
+        name = re.search(r"<p>(.*?)</p>", item, re.S)
+        st = re.search(r'<img alt="([^"]+)"[^>]*src="[^"]*/Common/Status/[^"]+"', item)
+        if not name or not st:
+            continue
+        n = _norm(_html.unescape(re.sub(r"<[^>]+>", "", name.group(1))))
+        status = STATUS.get(st.group(1).lower(), "unknown")
+        if n and n.lower() not in seen:
+            out.append(Lift("brighton", n, status, st.group(1)))
+            seen.add(n.lower())
+    return out
+
+
 def parse(resort: str, text: str) -> list[Lift]:
     if resort == "brighton":
         return parse_brighton(text)
@@ -129,7 +149,8 @@ def fetch(resorts=tuple(PAGES), debug_dir: Path | None = None, timeout_ms: int =
                     pass
                 page.wait_for_timeout(2500)
                 text = page.evaluate("() => document.body ? document.body.innerText : ''")
-                lifts = parse(r, text)
+                lifts = parse_brighton_html(page.content()) if r == "brighton" else []
+                lifts = lifts or parse(r, text)
                 if debug_dir is not None and (not lifts or any(x.status == "unknown" for x in lifts)):
                     debug_dir.mkdir(parents=True, exist_ok=True)
                     (debug_dir / f"lifts_{r}.txt").write_text(text)
