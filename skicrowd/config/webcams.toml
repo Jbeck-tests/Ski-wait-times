@@ -28,18 +28,21 @@ lift = "Tram"
 resort = "alta"
 section = "Alta Ski Area"
 title = "Albion Lot Entrance"        # UDOT cam at Alta, shows the Rustler lot
+latlon = [40.59137, -111.62948]   # OSM: Albion Base Parking
 kind = "parking"
 
 [[cam]]
 resort = "alta"
 section = "Alta Ski Area"
 title = "Albion Basin"
+near_lift = "Sunnyside"
 kind = "base"
 
 [[cam]]
 resort = "brighton"
 section = "Brighton"
 title = "Main Parking Lot"
+near_lift = "Majestic"
 kind = "parking"
 # Nov 2026: Ski Utah serves a promo graphic here (stuck feed); dropped automatically until it goes live.
 
@@ -68,6 +71,7 @@ lift = "Majestic"
 resort = "solitude"
 section = "Solitude Mountain Resort"
 title = "Moonbeam Parking Lot"
+near_lift = "Moonbeam Express"
 kind = "parking"
 # Nov 20 2026: frame showed a trail-map sign, not the lot. Recheck aim in season.
 split = false        # not used for the Brighton/Solitude split until the aim is confirmed
@@ -122,12 +126,14 @@ lift = "Link"
 resort = "deer_valley"
 section = "Deer Valley Resort"
 title = "Snow Park Lodge"
+near_lift = "Carpenter Express"
 kind = "base"
 
 [[cam]]
 resort = "deer_valley"
 section = "Deer Valley Resort"
 title = "Silver Lake Lodge"
+near_lift = "Sterling Express"
 kind = "base"
 
 [[cam]]
@@ -148,6 +154,7 @@ lift = "Sterling Express"
 resort = "snowbasin"
 section = "Snowbasin Resort"
 title = "Earl's Plaza"
+near_lift = "John Paul Express"
 kind = "base"
 
 [[cam]]
@@ -161,6 +168,7 @@ lift = "Wildcat Express"
 resort = "snowbasin"
 section = "Snowbasin Resort"
 title = "Strawberry Base Area"
+near_lift = "Strawberry Express Gondola"
 kind = "base"
 
 [[cam]]

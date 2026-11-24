@@ -135,6 +135,30 @@ Each camera becomes its own observation source. Its daily value is the mean
 count from 9:00 to 12:30, and the camera gets its own scale, so a wide shot
 and a tight queue cam can both be used.
 
+### Lifts, runs and the resort maps
+
+* **Run status.** The collector keeps the latest text of each resort's
+  lift/trail page in `pages/` (Brighton: its lift and trail rows, whose
+  status, difficulty and grooming are icons). `skicrowd/runs.py` parses it
+  when the dashboard builds. Snowbird's run lists are collapsed on its page,
+  so the collector expands them first. Alta publishes terrain areas and
+  gates by lift ("Ballroom via Collins") rather than named runs.
+* **Maps.** The resorts' official trail maps are copyrighted artwork, so the
+  map pages draw lifts and runs from OpenStreetMap (ODbL) on OpenTopoMap
+  tiles, and link to the official report. To refresh the geometry, run
+  **Actions → Fetch resort maps** (downloads to `collector-data/maps/`),
+  then `python -m skicrowd.maps build --raw collector-data/maps` and commit
+  `skicrowd/mapdata/`.
+* **Runs per lift.** Brighton and Snowbasin group runs by lift on their own
+  pages, and those groupings are used as given. Elsewhere it comes from the
+  map's geometry: runs drawn downhill from near a lift's top that lead back
+  to its bottom. OpenStreetMap names don't always match the resort's names,
+  so a run can show on the map without a status.
+* **Cameras on the map.** Lift-line cameras sit at the bottom of their lift.
+  Base and parking cameras sit next to the lift they overlook
+  (`near_lift`), or at `latlon` in `webcams.toml`. The live picture is
+  loaded from Ski Utah only when someone taps "Show live camera".
+
 ### Splitting a canyon's cars between its resorts
 
 UDOT's live feed gives one total per canyon. The dashboard splits it between

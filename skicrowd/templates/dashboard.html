@@ -101,6 +101,18 @@ nav.tabs :focus-visible, button:focus-visible, .cell:focus-visible { outline: 2p
 .c.l-quiet, .c.l-moderate, .c.l-busy, .c.l-packed { padding-left: 0; }
 .c.l-quiet::before, .c.l-moderate::before, .c.l-busy::before, .c.l-packed::before, .cell::before { display: none; }
 .lifts-open { color: var(--muted); font-size: .8rem; }
+.lifts-run { display: grid; gap: 2px; }
+.lr-head { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 2px; }
+a.lr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 8px; padding: 6px 8px; margin: 0 -8px; border-radius: 6px;
+  color: var(--ink); text-decoration: none; }
+a.lr:hover { background: var(--bg); }
+.lr-name { font-weight: 600; font-size: .9rem; display: flex; align-items: center; gap: 6px; min-width: 0; }
+.lr-meta { font-size: .8rem; color: var(--muted); text-align: right; white-space: nowrap; }
+.lr-runs { grid-column: 1 / -1; font-size: .78rem; color: var(--muted); padding-left: 15px; }
+.ldot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--faint); }
+.ldot.on { background: var(--quiet); } .ldot.unk { background: var(--moderate); }
+a.maplink { font-weight: 600; font-size: .88rem; color: var(--accent); text-decoration: none; }
+a.maplink:hover { text-decoration: underline; }
 .closedlist { margin-top: 12px; color: var(--muted); font-size: .86rem; display: flex; flex-wrap: wrap; gap: 6px 18px; }
 .closedlist strong { color: var(--ink); font-weight: 600; }
 .days { display: grid; gap: 6px; }
@@ -301,6 +313,12 @@ function hourStrip(hourly, nowHour, hours) {
       `<span class="c l-${lvl(v)[0]} ${hours[i] === nowHour ? "now" : ""}" title="${hl(hours[i])}: ${v}">${v}</span>`).join("") + `</div>`;
 }
 
+function liftMatch(camTitle, lift) {
+  const k = s => s.toLowerCase().replace(/\b(express|lift|line|chairlift|chair|base of|maze)\b/g, " ").replace(/[^a-z0-9]+/g, " ").trim().split(" ").filter(Boolean);
+  const a = k(camTitle), b = new Set(k(lift));
+  return a.length && a.some(t => b.has(t));
+}
+
 function renderResorts(d) {
   const today = d.week[0];
   const closed = d.order.filter(r => !d.resorts[r].open_today);
@@ -312,7 +330,8 @@ function renderResorts(d) {
   document.getElementById("resorts").innerHTML = d.order.filter(r => d.resorts[r].open_today).map(r => {
     const x = d.resorts[r], st = x.status || {};
     let sub = "";
-    if (x.lifts) sub = `${x.lifts.open}/${x.lifts.total} lifts open` + (x.lifts.unknown ? ` (${x.lifts.unknown} unconfirmed)` : "") + ` · ${x.lifts.as_of}`;
+    if (x.lifts) sub = `${x.lifts.open}/${x.lifts.total} lifts` + (x.lifts.unknown ? ` (${x.lifts.unknown} unconfirmed)` : "") +
+      (x.runs ? ` · ${x.runs.open}/${x.runs.total} runs` : "") + ` · ${x.lifts.as_of}`;
     if (!x.open_today) sub = st.status === "opening" && st.date ? `Opens ${new Date(st.date + "T12:00").toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : st.status === "tba" ? "Opening TBA" : "Closed";
     const rows = [];
     if (x.est_cars != null) {
@@ -321,9 +340,15 @@ function renderResorts(d) {
       rows.push(`<dt>Cars here</dt><dd>~${x.est_cars.toLocaleString()} <span class="tag">${how}</span></dd>`);
     }
     if (x.nowcast_ratio != null) rows.push(`<dt>vs. expected</dt><dd>${Math.round(x.nowcast_ratio * 100)}% of the traffic the model expected by now</dd>`);
-    if (x.lifts && x.lifts.open_lifts.length) rows.push(`<dt>Running</dt><dd>${esc(x.lifts.open_lifts.join(", "))}</dd>`);
     const lines = x.cams.filter(c => c.kind === "lift_line" && c.lift_open !== false);
-    lines.forEach(c => rows.push(`<dt>${esc(c.title.replace(/ Lift Line| Lift| Chairlift/g, ""))} line</dt><dd>${c.latest} people <span class="tag">${esc(c.time)}</span></dd>`));
+    const mapUrl = (lift) => `map.html?r=${encodeURIComponent(r)}` + (lift ? `&lift=${encodeURIComponent(lift)}` : "");
+    const liftRows = (x.lift_detail || []).map(l => {
+      const cam = lines.find(c => liftMatch(c.title, l.name));
+      const runs = l.open_runs.length ? `<div class="lr-runs">${esc(l.open_runs.slice(0, 5).join(", "))}${l.runs_open > 5 ? ` +${l.runs_open - 5} more` : ""}</div>` : "";
+      return `<a class="lr" href="${mapUrl(l.name)}"><span class="lr-name"><i class="ldot ${l.status === "open" ? "on" : "unk"}"></i>${esc(l.name)}</span>` +
+        `<span class="lr-meta">${l.runs_total ? `${l.runs_open} run${l.runs_open === 1 ? "" : "s"} open` : ""}${cam ? ` · line ${cam.latest} <span class="tag">${esc(cam.time)}</span>` : ""}</span>${runs}</a>`;
+    }).join("");
+    const areas = x.areas_open && x.areas_open.length ? `<div class="lr-runs" style="margin-top:4px">Terrain open: ${esc(x.areas_open.join(", "))}</div>` : "";
     const lots = x.cams.filter(c => c.kind === "parking");
     lots.forEach(c => rows.push(`<dt>${esc(c.title)}</dt><dd>${c.latest} cars in view <span class="tag">${esc(c.time)}</span></dd>`));
     const hourly = today && today.resorts[r] ? today.resorts[r].hourly : null;
@@ -331,7 +356,9 @@ function renderResorts(d) {
       <div class="rhead"><h3>${esc(x.name)}</h3><span class="sub">${esc(sub)}</span></div>
       ${x.open_today ? `<div class="now"><span class="v">${x.crowd_now ?? "–"}</span>${levelChip(x.crowd_now)}<span class="tag">${x.nowcast_ratio != null ? "live-adjusted" : "model"}</span></div>` : ""}
       ${rows.length ? `<dl class="kv">${rows.join("")}</dl>` : ""}
+      ${liftRows ? `<div class="lifts-run"><div class="lr-head">Lifts running</div>${liftRows}${areas}</div>` : ""}
       ${x.open_today ? hourStrip(hourly, d.now_hour, d.hours) : ""}
+      ${x.has_map ? `<a class="maplink" href="${mapUrl()}">Map: lifts, runs &amp; live cameras →</a>` : ""}
     </article>`;
   }).join("");
 }

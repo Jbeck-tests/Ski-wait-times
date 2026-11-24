@@ -80,7 +80,8 @@ def lift_summary(data_dir: Path, now: dt.datetime | None = None) -> dict:
             if busy:
                 pick = g[g["t"] == max(busy)]
         t = pick["t"].iloc[0]
-        out[r] = {"open": int((pick["status"] == "open").sum()), "total": int(len(pick)),
+        out[r] = {"rows": pick[["lift", "status"]].to_dict("records"),
+                  "open": int((pick["status"] == "open").sum()), "total": int(len(pick)),
                   "unknown": int((pick["status"] == "unknown").sum()),
                   "open_lifts": pick.loc[pick["status"] == "open", "lift"].tolist(),
                   "as_of": (t.strftime("%-I:%M %p") if t.date() == now.date() else t.strftime("%a %-I:%M %p"))}
@@ -352,6 +353,25 @@ def build(cfg: dict, weather: pd.DataFrame, data_dir: Path, now: dt.datetime | N
     for r in resorts.values():
         r["level_now"] = crowd_label(r["crowd_now"]) if r["crowd_now"] is not None else "closed"
 
+    # lifts / runs / cameras per resort, for the cards and the map pages
+    from . import companion, runs as runs_mod
+    run_rows = runs_mod.load(data_dir / "pages")
+    cam_urls = json.loads((data_dir / "cams_latest.json").read_text()) if (data_dir / "cams_latest.json").exists() else {}
+    views = {}
+    for r in ikon:
+        lift_rows = (lifts.get(r) or {}).get("rows", [])
+        v = companion.resort_view(r, lift_rows, run_rows.get(r, []), resorts[r]["cams"], cam_urls)
+        views[r] = v
+        resorts[r]["runs"] = {"open": v["runs_open"], "total": v["runs_total"]} if v["runs_total"] else None
+        resorts[r]["lift_detail"] = [{"name": l["name"], "status": l["status"], "runs_open": l["runs_open"],
+                                      "runs_total": len(l["runs"]), "cams": len(l["cams"]),
+                                      "open_runs": [x["name"] for x in l["runs"] if x["status"] == "open"][:8]}
+                                     for l in v["lifts"] if l["status"] in ("open", "unknown", "hold")]
+        resorts[r]["areas_open"] = [a["name"] for a in v["areas"] if a["status"] == "open"]
+        resorts[r]["has_map"] = v["map"] is not None
+        if resorts[r]["lifts"]:
+            resorts[r]["lifts"].pop("rows", None)
+
     open_now = {r: v["crowd_now"] for r, v in resorts.items() if v["crowd_now"] is not None}
     return {
         "generated_at": now.isoformat(timespec="minutes"),
@@ -359,15 +379,21 @@ def build(cfg: dict, weather: pd.DataFrame, data_dir: Path, now: dt.datetime | N
         "today": today.isoformat(), "model_mode_today": mode_today,
         "hours": intraday.DAY_HOURS, "now_hour": block if 7 <= now.hour < 17 else None,
         "best_now": min(open_now, key=open_now.get) if open_now else None,
-        "resorts": resorts, "canyons": canyons, "week": week,
+        "resorts": resorts, "canyons": canyons, "week": week, "_views": views,
         "order": sorted(ikon, key=lambda r: (open_now.get(r) is None, open_now.get(r, 0))),
     }
 
 
 def write_site(data: dict, out: Path, calendar_html: str | None = None) -> Path:
     out.mkdir(parents=True, exist_ok=True)
+    data = dict(data)
+    views = data.pop("_views", {})
+    (out / "resorts").mkdir(exist_ok=True)
+    for r, v in views.items():
+        (out / "resorts" / f"{r}.json").write_text(json.dumps(v, separators=(",", ":")))
     (out / "data.json").write_text(json.dumps(data, separators=(",", ":")))
     shutil.copy(TEMPLATES / "dashboard.html", out / "index.html")
+    shutil.copy(TEMPLATES / "map.html", out / "map.html")
     (out / ".nojekyll").write_text("")
     if calendar_html is not None:
         (out / "calendar.html").write_text(

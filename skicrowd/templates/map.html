@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Resort Map</title>
+<meta name="description" content="Live lifts, runs and lift-line cameras on a map.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+/* Layout: header; map (left/top) + detail panel (right/below). Panel shows the selected lift, run or camera. */
+:root {
+  color-scheme: light;
+  --bg: #f3f6f8; --surface: #ffffff; --ink: #14202a; --muted: #5a6a77; --faint: #8a98a3; --line: #d9e1e7; --accent: #1f5f8b;
+  --quiet: #0ca30c; --moderate: #fab219; --busy: #ec835a; --packed: #d03b3b;
+  --quiet-bg: #dcf2dc; --moderate-bg: #fdf0cf; --busy-bg: #fbe3d9; --packed-bg: #f7d9d9;
+  --run-easy: #1a9a3a; --run-int: #1f63c6; --run-adv: #111111; --run-exp: #111111; --run-other: #7a6a9a;
+  --lift-on: #c2185b; --lift-off: #8a98a3;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif; --body: "Inter", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  color-scheme: dark; --bg: #0f151a; --surface: #17212a; --ink: #e8eef3; --muted: #9aabb8; --faint: #6f808d; --line: #2a3843; --accent: #7fb8e0;
+  --quiet-bg: #173a20; --moderate-bg: #3d3313; --busy-bg: #43261a; --packed-bg: #47191b; } }
+:root[data-theme="dark"] {
+  color-scheme: dark; --bg: #0f151a; --surface: #17212a; --ink: #e8eef3; --muted: #9aabb8; --faint: #6f808d; --line: #2a3843; --accent: #7fb8e0;
+  --quiet-bg: #173a20; --moderate-bg: #3d3313; --busy-bg: #43261a; --packed-bg: #47191b; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.45 var(--body); }
+header { padding: max(10px, env(safe-area-inset-top, 0px)) 16px 10px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px;
+  border-bottom: 1px solid var(--line); }
+header a.back { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .9rem; }
+h1 { font: 700 1.7rem/1 var(--display); text-transform: uppercase; margin: 0; }
+h2 { font: 700 1.3rem/1.1 var(--display); text-transform: uppercase; margin: 0; }
+.sub { color: var(--muted); font-size: .85rem; }
+.level { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: .8rem; padding: 2px 8px; border-radius: 6px; }
+.level::before { content: ""; width: 9px; height: 9px; border-radius: 2px; }
+.l-quiet { background: var(--quiet-bg); } .l-quiet::before { background: var(--quiet); }
+.l-moderate { background: var(--moderate-bg); } .l-moderate::before { background: var(--moderate); }
+.l-busy { background: var(--busy-bg); } .l-busy::before { background: var(--busy); }
+.l-packed { background: var(--packed-bg); } .l-packed::before { background: var(--packed); }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr); }
+#map { height: 58vh; min-height: 320px; background: #dfe6ea; }
+.panel { padding: 14px 16px 40px; display: grid; gap: 14px; align-content: start; }
+@media (min-width: 900px) {
+  .layout { grid-template-columns: minmax(0, 1fr) 380px; height: calc(100vh - 58px); }
+  #map { height: 100%; }
+  .panel { overflow-y: auto; border-left: 1px solid var(--line); }
+}
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.toggles { display: flex; flex-wrap: wrap; gap: 6px; }
+.toggles button, .liftbtn { font: 500 .82rem var(--body); color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 999px; padding: 5px 10px; cursor: pointer; }
+.toggles button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.lifts { display: grid; gap: 4px; }
+.liftbtn { display: flex; justify-content: space-between; align-items: center; gap: 8px; border-radius: 8px; text-align: left; width: 100%; padding: 8px 10px; }
+.liftbtn.sel { box-shadow: inset 0 0 0 2px var(--accent); }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+.on { background: var(--quiet); } .off { background: var(--faint); } .unk { background: var(--moderate); }
+.runlist { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 3px; font-size: .88rem; }
+.runlist li { display: flex; align-items: center; gap: 8px; }
+.runlist li.closed { color: var(--faint); }
+.diff { width: 12px; height: 12px; flex: none; display: inline-block; }
+.d1 { background: var(--run-easy); border-radius: 50%; }
+.d2 { background: var(--run-int); }
+.d3, .d4 { background: var(--run-adv); transform: rotate(45deg) scale(.8); }
+.d5 { background: var(--run-adv); transform: rotate(45deg) scale(.8); box-shadow: 7px 0 0 var(--run-adv); margin-right: 6px; }
+.d9 { background: var(--run-other); border-radius: 2px; }
+.tag { font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); }
+.cam img { width: 100%; border-radius: 8px; display: block; margin-top: 8px; background: var(--line); min-height: 120px; }
+.cambtn { margin-top: 8px; font: 600 .85rem var(--body); color: var(--surface); background: var(--accent); border: 0; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .78rem; color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.swatch { width: 18px; height: 4px; border-radius: 2px; display: inline-block; }
+.note { color: var(--muted); font-size: .8rem; margin: 0; }
+.campin { width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center;
+  border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+.campin svg { width: 14px; height: 14px; }
+.leaflet-container { font: 13px var(--body); }
+a { color: var(--accent); }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="./">← Today</a>
+  <h1 id="title">Resort map</h1>
+  <span id="headline" class="sub"></span>
+</header>
+<div class="layout">
+  <div id="map" role="region" aria-label="Resort map"></div>
+  <aside class="panel" id="panel">
+    <div class="card" id="detail"><p class="note">Loading…</p></div>
+    <div class="card">
+      <div class="toggles" role="group" aria-label="Map filters">
+        <button id="tOpen" aria-pressed="true">Open runs only</button>
+        <button id="tCams" aria-pressed="true">Cameras</button>
+      </div>
+      <div class="legend" style="margin-top:10px">
+        <span><i class="swatch" style="background:var(--lift-on)"></i>Lift running</span>
+        <span><i class="swatch" style="background:var(--lift-off)"></i>Lift closed</span>
+        <span><i class="diff d1"></i>Easier</span><span><i class="diff d2"></i>Intermediate</span><span><i class="diff d3"></i>Advanced/expert</span>
+      </div>
+    </div>
+    <div class="card"><h2 style="font-size:1.05rem">Lifts</h2><div class="lifts" id="liftList" style="margin-top:8px"></div></div>
+    <p class="note" id="credits"></p>
+  </aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const R = new URLSearchParams(location.search).get("r") || "solitude";
+const LEVELS = [[50, "quiet", "Quiet"], [80, "moderate", "Moderate"], [110, "busy", "Busy"], [1e9, "packed", "Packed"]];
+const lvl = v => (LEVELS.find(([m]) => v < m) || LEVELS[3]).slice(1);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const DRANK = { novice: 1, easy: 1, beginner: 1, easiest: 1, intermediate: 2, moderate: 2, "advanced intermediate": 3,
+  advanced: 3, difficult: 3, "more difficult": 3, expert: 4, freeride: 4, "extremely difficult": 5, extreme: 5 };
+const drank = d => DRANK[(d || "").toLowerCase()] || 9;
+const runColor = d => ({ 1: css("--run-easy"), 2: css("--run-int"), 3: css("--run-adv"), 4: css("--run-adv"), 5: css("--run-adv") }[drank(d)] || css("--run-other"));
+const CAM_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 4 7.2 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3.2L15 4H9zm3 4.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9z"/></svg>';
+
+let V, D, map, layers = {}, showOpen = true, showCams = true, selected = null;
+
+function runsHTML(runs) {
+  if (!runs || !runs.length) return `<p class="note">No run list for this lift.</p>`;
+  const open = runs.filter(r => r.status === "open"), closed = runs.filter(r => r.status !== "open");
+  const li = r => `<li class="${r.status === "open" ? "" : "closed"}"><i class="diff d${drank(r.difficulty)}" title="${esc(r.difficulty || "")}"></i>${esc(r.name)}` +
+    (r.groomed ? ` <span class="tag">groomed</span>` : "") + (r.status && r.status !== "open" ? ` <span class="tag">${esc(r.status)}</span>` : "") + `</li>`;
+  return `<ul class="runlist">${open.map(li).join("")}</ul>` +
+    (closed.length ? `<details style="margin-top:6px"><summary class="note">${closed.length} closed or unknown</summary><ul class="runlist">${closed.map(li).join("")}</ul></details>` : "");
+}
+
+function camHTML(c, autoload) {
+  const count = c.latest == null ? "" : c.kind === "parking" ? `${c.latest} cars in view` : `${c.latest} people in line`;
+  const closedLift = c.lift_open === false ? ` <span class="tag">lift closed</span>` : "";
+  return `<div class="cam"><strong>${esc(c.title)}</strong>${closedLift}<div class="sub">${count ? esc(count) + " · " + esc(c.time) : "No usable frame yet today"}</div>` +
+    (c.url ? (autoload ? `<img src="${esc(c.url)}" alt="Live view: ${esc(c.title)}" loading="lazy">`
+                       : `<button class="cambtn" data-cam="${esc(c.id)}">Show live camera</button>`) +
+             `<div class="note" style="margin-top:4px">Camera via <a href="https://www.skiutah.com/resorts/webcams" target="_blank" rel="noopener">Ski Utah</a></div>` : "") + `</div>`;
+}
+
+function selectLift(i, fly = true) {
+  const l = V.lifts[i]; selected = { lift: i };
+  const st = l.status === "open" ? "Running" : l.status === "unknown" ? "Status unconfirmed" : l.status ? l.status[0].toUpperCase() + l.status.slice(1) : "No status";
+  const cams = V.cams.filter(c => l.cams.includes(c.id));
+  const src = l.runs_source === "resort" ? "Runs as grouped by the resort." : l.runs_source === "map" ? "Runs you can ski from the top and back to this lift (from the map)." : "";
+  document.getElementById("detail").innerHTML = `<h2>${esc(l.name)}</h2>
+    <div class="sub"><i class="dot ${l.status === "open" ? "on" : l.status === "unknown" ? "unk" : "off"}"></i> ${esc(st)} · ${l.runs_open} of ${l.runs.length} runs open</div>
+    ${cams.map(c => camHTML(c, false)).join("")}
+    <div style="margin-top:10px">${runsHTML(l.runs)}</div><p class="note" style="margin-top:6px">${src}</p>`;
+  bindCamButtons();
+  document.querySelectorAll(".liftbtn").forEach(b => b.classList.toggle("sel", +b.dataset.i === i));
+  if (fly && l.map_id && layers.lift[l.map_id]) map.fitBounds(layers.lift[l.map_id].getBounds(), { padding: [60, 60], maxZoom: 16 });
+  highlight(l);
+}
+
+function selectCam(id) {
+  const c = V.cams.find(x => x.id === id); selected = { cam: id };
+  document.getElementById("detail").innerHTML = camHTML(c, true);
+}
+
+function bindCamButtons() {
+  document.querySelectorAll(".cambtn").forEach(b => b.addEventListener("click", () => {
+    const c = V.cams.find(x => x.id === b.dataset.cam);
+    b.outerHTML = `<img src="${esc(c.url)}" alt="Live view: ${esc(c.title)}">`;
+  }));
+}
+
+function highlight(l) {
+  if (!layers.run) return;
+  const names = new Set(l.runs.map(r => r.name.toLowerCase()));
+  Object.values(layers.run).forEach(({ line, r }) => {
+    const hit = names.has((r.page_name || r.name || "").toLowerCase());
+    line.setStyle({ weight: hit ? 5 : (r.status === "open" ? 3 : 2) });
+  });
+}
+
+function drawMap() {
+  const m = V.map;
+  map = L.map("map", { zoomControl: true, attributionControl: true });
+  L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", { maxZoom: 17, subdomains: "abc",
+    attribution: 'Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM · Style © <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)' }).addTo(map);
+  // start on the lifts that are running (whole resort when none are)
+  const running = m.lifts.filter(l => l.status === "open").flatMap(l => l.coords);
+  map.fitBounds(running.length ? L.latLngBounds(running).pad(0.25) : m.bounds, { padding: [20, 20], maxZoom: 15 });
+  layers = { run: {}, lift: {}, cams: L.layerGroup() };
+  m.runs.forEach(r => {
+    const open = r.status === "open";
+    const line = L.polyline(r.coords, { color: runColor(r.difficulty), weight: open ? 3 : 2, opacity: open ? 0.95 : 0.35,
+      dashArray: r.status && !open ? "4 5" : null });
+    line.bindTooltip(`${esc(r.page_name || r.name || "Unnamed run")}${r.status ? " · " + esc(r.status) : ""}${r.groomed ? " · groomed" : ""}`, { sticky: true });
+    layers.run[r.id] = { line, r };
+  });
+  m.lifts.forEach(l => {
+    const on = l.status === "open";
+    const line = L.polyline(l.coords, { color: on ? css("--lift-on") : css("--lift-off"), weight: on ? 4 : 3, opacity: on ? 1 : 0.7 });
+    line.bindTooltip(`${esc(l.name)} · ${on ? "running" : esc(l.status || "no status")}`, { sticky: true });
+    const i = V.lifts.findIndex(x => x.map_id === l.id);
+    line.on("click", () => i >= 0 ? selectLift(i, false) : null);
+    layers.lift[l.id] = line.addTo(map);
+    L.circleMarker(l.coords[l.coords.length - 1], { radius: 3, color: on ? css("--lift-on") : css("--lift-off"), fillOpacity: 1 }).addTo(map);
+  });
+  V.cams.filter(c => c.pos).forEach(c => {
+    const icon = L.divIcon({ className: "", html: `<div class="campin" title="${esc(c.title)}">${CAM_SVG}</div>`, iconSize: [26, 26] });
+    L.marker(c.pos, { icon, keyboard: true, title: c.title }).on("click", () => selectCam(c.id)).addTo(layers.cams);
+  });
+  applyFilters();
+}
+
+function applyFilters() {
+  Object.values(layers.run).forEach(({ line, r }) => {
+    const show = !showOpen || r.status === "open" || (r.status == null && !V.runs_total);
+    show ? line.addTo(map) : line.remove();
+  });
+  Object.values(layers.lift).forEach(l => l.bringToFront());
+  showCams ? layers.cams.addTo(map) : layers.cams.remove();
+}
+
+function renderSide() {
+  const r = D.resorts[R] || {};
+  document.title = `${r.name || R} Map`;
+  document.getElementById("title").textContent = r.name || R;
+  const bits = [];
+  if (r.crowd_now != null) { const [k, t] = lvl(r.crowd_now); bits.push(`Crowd now ${r.crowd_now} <span class="level l-${k}">${t}</span>`); }
+  const lo = V.lifts.filter(l => l.status === "open").length;
+  bits.push(`${lo}/${V.lifts.length} lifts running`);
+  if (V.runs_total) bits.push(`${V.runs_open}/${V.runs_total} runs open`);
+  document.getElementById("headline").innerHTML = bits.join(" · ");
+  document.getElementById("liftList").innerHTML = V.lifts.map((l, i) =>
+    `<button class="liftbtn" data-i="${i}"><span><i class="dot ${l.status === "open" ? "on" : l.status === "unknown" ? "unk" : "off"}"></i> ${esc(l.name)}</span>` +
+    `<span class="sub">${l.runs.length ? `${l.runs_open}/${l.runs.length} runs` : ""}${l.cams.length ? " · cam" : ""}</span></button>`).join("");
+  document.querySelectorAll(".liftbtn").forEach(b => b.addEventListener("click", () => selectLift(+b.dataset.i)));
+  const want = (new URLSearchParams(location.search).get("lift") || "").toLowerCase();
+  const asked = want ? V.lifts.findIndex(l => l.name.toLowerCase() === want) : -1;
+  const first = asked >= 0 ? asked : V.lifts.findIndex(l => l.status === "open");
+  if (first >= 0) selectLift(first, asked >= 0 && !!map);
+  else document.getElementById("detail").innerHTML = `<h2>No lifts running</h2><p class="note">Tap a lift for its runs and camera.</p>`;
+  document.getElementById("credits").innerHTML = `Lift and run status from the resort's own report (<a href="${esc(V.official)}" target="_blank" rel="noopener">official report and trail map</a>). ` +
+    `Map drawn from OpenStreetMap; runs may be missing or named differently from the resort's map. Updated ${esc(D.generated_label)}.`;
+}
+
+async function load() {
+  try {
+    const [d, v] = await Promise.all([fetch("data.json?t=" + Date.now(), { cache: "no-store" }).then(r => r.json()),
+                                      fetch(`resorts/${R}.json?t=` + Date.now(), { cache: "no-store" }).then(r => r.json())]);
+    D = d; V = v;
+    renderSide();
+    if (V.map && !map) {
+      drawMap();
+      if (selected && selected.lift != null && new URLSearchParams(location.search).get("lift")) selectLift(selected.lift, true);
+    }
+    if (!V.map) document.getElementById("map").innerHTML = `<p class="note" style="padding:16px">No map for this resort yet.</p>`;
+  } catch (e) {
+    document.getElementById("detail").innerHTML = `<p class="note">Couldn't load this resort's data.</p>`;
+  }
+}
+document.getElementById("tOpen").addEventListener("click", e => { showOpen = !showOpen; e.currentTarget.setAttribute("aria-pressed", showOpen); applyFilters(); });
+document.getElementById("tCams").addEventListener("click", e => { showCams = !showCams; e.currentTarget.setAttribute("aria-pressed", showCams); applyFilters(); });
+load();
+</script>
+</body>
+</html>

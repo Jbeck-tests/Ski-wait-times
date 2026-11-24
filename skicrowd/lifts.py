@@ -32,6 +32,9 @@ PAGES = {
     "brighton": ("https://www.brightonresort.com/conditions", r"(?i)^show legend$", r"(?i)^trail status$"),
 }
 
+# Pages whose run lists are collapsed: click these to expand before reading.
+EXPAND = {"snowbird": re.compile(r"^Trail \d+ of \d+$")}
+
 STATUS = {
     "open": "open", "lift open": "open", "opened": "open",
     "closed": "closed", "lift closed": "closed", "closed for season": "closed",
@@ -134,12 +137,16 @@ def parse(resort: str, text: str) -> list[Lift]:
 
 
 def brighton_items(markup: str) -> str:
-    """Just the lift and trail rows of Brighton's page (status is in icons)."""
-    items = [m.group(0) for m in re.finditer(r"<li\b[^>]*>.*?</li>", markup, flags=re.S)
-             if "/Lift/Type/" in m.group(0) or "/Trail/Difficulty/" in m.group(0)]
-    # trails are grouped under a heading per lift/area
-    heads = re.findall(r'aria-label="Open accordion for ([^"]+)"', markup)
-    return "<!-- areas: " + " | ".join(dict.fromkeys(heads)) + " -->\n<ul>\n" + "\n".join(items) + "\n</ul>\n"
+    """Just the lift and trail rows of Brighton's page (status is in icons),
+    with a `<!-- group: X -->` marker where each lift's trail list starts."""
+    parts = []
+    pat = r'aria-label="Open accordion for ([^"]+)"|<li\b[^>]*>.*?</li>'
+    for m in re.finditer(pat, markup, flags=re.S):
+        if m.group(1):
+            parts.append(f"<!-- group: {m.group(1)} -->")
+        elif "/Lift/Type/" in m.group(0) or "/Trail/Difficulty/" in m.group(0):
+            parts.append(m.group(0))
+    return "<ul>\n" + "\n".join(parts) + "\n</ul>\n"
 
 
 def fetch(resorts=tuple(PAGES), debug_dir: Path | None = None, timeout_ms: int = 45000,
@@ -160,6 +167,13 @@ def fetch(resorts=tuple(PAGES), debug_dir: Path | None = None, timeout_ms: int =
                 except Exception:  # noqa: BLE001  slow trackers; use what loaded
                     pass
                 page.wait_for_timeout(2500)
+                if r in EXPAND:          # runs hidden in collapsed sections
+                    for loc in page.get_by_text(EXPAND[r]).all():
+                        try:
+                            loc.click(timeout=3000)
+                        except Exception:  # noqa: BLE001
+                            pass
+                    page.wait_for_timeout(1500)
                 text = page.evaluate("() => document.body ? document.body.innerText : ''")
                 markup = page.content() if r == "brighton" else ""
                 lifts = parse_brighton_html(markup) if r == "brighton" else []

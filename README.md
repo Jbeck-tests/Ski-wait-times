@@ -24,6 +24,11 @@ the collector every 20 minutes from 7am to 5pm Mountain).
 * **This week:** expected peak crowd for each resort for the next 7 days.
   Tap a day for its hour-by-hour curve.
 * **Season:** the full-season calendar.
+* **Resort maps** (`map.html?r=solitude`, linked from each card): a topo map
+  with lifts (running or closed) and runs (colored by difficulty, open ones
+  highlighted). Tap a lift to see its open runs, its lift-line count and its
+  live camera; tap a camera pin for the live view. Each card on Today lists
+  the running lifts with the runs open off each one.
 
 Cars at a single resort are an **estimate**: the canyon's measured total is
 split between the canyon's open resorts by the model's expected share. "Crowd
@@ -179,7 +184,12 @@ skicrowd/udot.py             UDOT traffic-count importer + live canyon volume
 skicrowd/collect.py          webcam + live canyon collector (GitHub Actions)
 skicrowd/schedule.py         timing for the collector's self-scheduling chain
 skicrowd/dashboard.py        live dashboard data + site (GitHub Pages)
-skicrowd/templates/          dashboard and calendar pages
+skicrowd/templates/          dashboard, resort map and calendar pages
+skicrowd/runs.py             run (trail) open/closed status from the resorts' pages
+skicrowd/maps.py             fetch lift/run geometry from OpenStreetMap (maps.yml workflow)
+skicrowd/resort_maps.py      build per-resort maps + which runs each lift serves
+skicrowd/mapdata/            the built maps (ODbL, (c) OpenStreetMap contributors)
+skicrowd/companion.py        join lifts, runs, cameras and map for each resort
 skicrowd/config/webcams.toml cameras the collector reads
 data/weather_daily.csv       cleaned SNOTEL history (4 stations, 2016-17 onward)
 data/udot/                   UDOT hourly counts + daily ski signal

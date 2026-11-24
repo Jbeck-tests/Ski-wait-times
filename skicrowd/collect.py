@@ -183,6 +183,14 @@ def run(out_dir: str | Path, detector: Detector | None = None, verbose: bool = T
         for cam_id, g in prev.groupby("camera"):
             prev_hashes[cam_id] = set(g["image_sha1"].dropna())
     found = resolve_skiutah(_get(SKIUTAH_URL).decode("utf-8", "ignore"))
+    # where each camera's current still lives, for the dashboard's map
+    latest = {}
+    for cam in load_cams():
+        hit = match_cam(cam, found)
+        if hit:
+            latest[f"{cam['resort']}:{cam['title']}"] = {"url": f"{hit['url']}?_ts={hit['ts']}", "ts": hit["ts"],
+                                                         "source_title": hit["title"]}
+    (out / "cams_latest.json").write_text(__import__("json").dumps(latest, indent=1) + "\n")
     detector = detector or Detector()
     rows = []
     for cam in load_cams():

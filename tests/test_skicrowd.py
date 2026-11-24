@@ -436,3 +436,75 @@ def test_brighton_status_icons_decoded():
     assert len(lifts) == 8                                       # page summary: "Lifts Open 2 of 8"
     assert sorted(x.lift for x in lifts if x.status == "open") == ["Explorer", "Majestic"]
     assert all(x.status in ("open", "closed") for x in lifts)
+
+
+# ------------------------------------------------------------ runs and maps
+def _fixture(name):
+    from pathlib import Path
+    return (Path(__file__).parent / "fixtures" / name).read_text()
+
+
+def test_run_status_parsers():
+    from skicrowd import runs
+    sol = runs.parse_text("solitude", _fixture("runs_solitude.txt"))
+    ski = [x for x in sol if x["kind"] in ("run", "park")]
+    assert sum(x["status"] == "open" for x in ski) == 7                     # page: "7/82 OPEN" trails
+    assert {x["name"] for x in ski if x["status"] == "open"} >= {"Dean's Dash", "Main Street", "Wall Street"}
+    assert next(x for x in sol if x["name"] == "Dean's Dash")["group"] == "Moonbeam Area"
+    assert all(x["kind"] == "nordic" for x in sol if x["group"] == "Nordic")
+    sb = runs.parse_text("snowbasin", _fixture("runs_snowbasin.txt"))
+    assert {"John Paul", "Needles", "Porcupine", "Strawberry"} <= {x["group"] for x in sb}
+    assert any(x["name"] == "119" for x in sb)                              # names can be numbers
+    alta = runs.parse_alta(_fixture("runs_alta.txt"))
+    assert next(x for x in alta if x["name"] == "Ballroom")["group"] == "Collins"
+    bri = runs.parse_brighton(_fixture("runs_brighton.html"))
+    maj = [x for x in bri if x["group"] == "Majestic"]
+    assert sum(x["status"] == "open" for x in bri) == 16 and sum(x["status"] == "open" for x in maj) == 12
+    assert next(x for x in bri if x["name"] == "Explorer Main")["groomed"]
+
+
+def _toy_osm():
+    """A lift going uphill (north), two runs from its top back to its bottom,
+    and one run elsewhere."""
+    lat0, lon0 = 40.6, -111.6
+    m = 1 / 111000
+    g = lambda pts: [{"lat": lat0 + y * m, "lon": lon0 + x * m / 0.76} for x, y in pts]
+    return [
+        {"type": "way", "id": 1, "tags": {"aerialway": "chair_lift", "name": "Test Express"}, "geometry": g([(0, 0), (0, 1000)])},
+        {"type": "way", "id": 10, "tags": {"piste:type": "downhill", "name": "Left Run", "piste:difficulty": "easy"},
+         "geometry": g([(0, 1010), (-150, 500), (-10, 5)])},
+        {"type": "way", "id": 11, "tags": {"piste:type": "downhill", "name": "Right Run", "piste:difficulty": "advanced"},
+         "geometry": g([(20, 990), (200, 400), (15, -10)])},
+        {"type": "way", "id": 12, "tags": {"piste:type": "downhill", "name": "Far Run"},
+         "geometry": g([(3000, 1000), (3000, 0)])},
+    ]
+
+
+def test_map_build_finds_runs_served_by_each_lift():
+    from skicrowd.resort_maps import build_resort
+    m = build_resort("test", _toy_osm())
+    lift = m["lifts"][0]
+    names = {m["runs"][i]["name"] for i in lift["laps"]}
+    assert names == {"Left Run", "Right Run"}
+
+
+def test_companion_joins_status_map_and_cameras(monkeypatch):
+    from skicrowd import companion
+    from skicrowd.resort_maps import build_resort
+    m = build_resort("solitude", _toy_osm())
+    monkeypatch.setattr(companion, "_cams_config", lambda: [
+        {"resort": "solitude", "title": "Test Lift Line", "kind": "lift_line", "lift": "Test Express"}])
+    lift_rows = [{"lift": "TEST EXPRESS", "status": "open"}]
+    run_rows = [{"name": "Left Run", "status": "open", "group": None, "kind": "run", "difficulty": None, "groomed": True},
+                {"name": "Right Run", "status": "closed", "group": None, "kind": "run", "difficulty": None, "groomed": False}]
+    cams_now = [{"title": "Test Lift Line", "latest": 12, "time": "9:40 AM", "lift_open": True}]
+    v = companion.resort_view("solitude", lift_rows, run_rows, cams_now,
+                              {"solitude:Test Lift Line": {"url": "https://example/cam.jpg"}}, map_=m)
+    lift = v["lifts"][0]
+    assert lift["runs_open"] == 1 and lift["runs"][0]["name"] == "Left Run" and lift["runs"][0]["groomed"]
+    assert lift["runs"][0]["difficulty"] == "easy"                        # from the map
+    assert lift["cams"] == ["solitude:Test Lift Line"]
+    cam = v["cams"][0]
+    assert cam["pos"] == m["lifts"][0]["coords"][0] and cam["latest"] == 12 and cam["url"]
+    assert {r["name"]: r["status"] for r in v["map"]["runs"]} == {"Left Run": "open", "Right Run": "closed", "Far Run": None}
+    assert v["runs_open"] == 1 and v["runs_total"] == 2
