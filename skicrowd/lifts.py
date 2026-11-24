@@ -168,12 +168,20 @@ def fetch(resorts=tuple(PAGES), debug_dir: Path | None = None, timeout_ms: int =
                     pass
                 page.wait_for_timeout(2500)
                 if r in EXPAND:          # runs hidden in collapsed sections
-                    for loc in page.get_by_text(EXPAND[r]).all():
-                        try:
-                            loc.click(timeout=3000)
-                        except Exception:  # noqa: BLE001
-                            pass
-                    page.wait_for_timeout(1500)
+                    # click the nearest button-like ancestor of each "Trail N of M" label
+                    page.evaluate("""(src) => {
+                        const re = new RegExp(src);
+                        const els = [...document.querySelectorAll('body *')].filter(e =>
+                            e.children.length === 0 && re.test((e.textContent || '').trim()));
+                        for (const e of els) {
+                            const t = e.closest('button,[role=button],summary,[aria-expanded],a,[onclick]') || e.parentElement;
+                            if (t && t.getAttribute('aria-expanded') !== 'true') t.click();
+                        }
+                    }""", EXPAND[r].pattern)
+                    page.wait_for_timeout(2000)
+                    if debug_dir is not None and not (debug_dir / f"expand_{r}.html").exists():
+                        debug_dir.mkdir(parents=True, exist_ok=True)
+                        (debug_dir / f"expand_{r}.html").write_text(page.content())
                 text = page.evaluate("() => document.body ? document.body.innerText : ''")
                 markup = page.content() if r == "brighton" else ""
                 lifts = parse_brighton_html(markup) if r == "brighton" else []
