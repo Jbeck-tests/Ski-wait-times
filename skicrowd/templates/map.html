@@ -40,11 +40,16 @@ h2 { font: 700 1.3rem/1.1 var(--display); text-transform: uppercase; margin: 0; 
 .l-busy { background: var(--busy-bg); } .l-busy::before { background: var(--busy); }
 .l-packed { background: var(--packed-bg); } .l-packed::before { background: var(--packed); }
 .layout { display: grid; grid-template-columns: minmax(0, 1fr); }
-#map { height: 58vh; min-height: 320px; background: #dfe6ea; }
+#map, #tmap { height: 58vh; min-height: 320px; background: #dfe6ea; }
+#tmap { background: var(--bg); }
+.trail-label { background: rgba(20,32,42,.88); color: #fff; border: 0; box-shadow: none; font: 600 11px var(--body); padding: 2px 6px; border-radius: 4px; }
+.trail-label::before { display: none; }
+.modes { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; margin-right: 4px; }
+.modes button { border: 0; border-radius: 0; }
 .panel { padding: 14px 16px 40px; display: grid; gap: 14px; align-content: start; }
 @media (min-width: 900px) {
   .layout { grid-template-columns: minmax(0, 1fr) 380px; height: calc(100vh - 58px); }
-  #map, .mapwrap { height: 100%; }
+  #map, #tmap, .mapwrap { height: 100%; }
   .panel { overflow-y: auto; border-left: 1px solid var(--line); }
 }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
@@ -77,6 +82,7 @@ h2 { font: 700 1.3rem/1.1 var(--display); text-transform: uppercase; margin: 0; 
   border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
 .campin svg { width: 14px; height: 14px; }
 .leaflet-container { font: 13px var(--body); }
+[hidden] { display: none !important; }
 .north { position: absolute; right: 10px; top: 10px; z-index: 500; width: 34px; height: 34px; border-radius: 50%;
   background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; pointer-events: none; }
 .north span { display: block; font: 700 10px/1 var(--body); text-align: center; transition: transform .3s; }
@@ -94,18 +100,25 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outlin
 </header>
 <div class="layout">
   <div class="mapwrap" style="position:relative;min-width:0">
-    <div id="map" role="region" aria-label="Resort map"></div>
+    <div id="tmap" role="region" aria-label="Official trail map" hidden></div>
+    <div id="map" role="region" aria-label="Terrain map"></div>
     <div class="north" aria-label="North arrow"><span id="north">N<br>↑</span></div>
   </div>
   <aside class="panel" id="panel">
     <div class="card" id="detail"><p class="note">Loading…</p></div>
     <div class="card">
       <div class="toggles" role="group" aria-label="Map filters">
-        <button id="tOpen" aria-pressed="true">Open runs only</button>
+        <span class="modes" id="modes" hidden><button id="mTrail" aria-pressed="true">Official map</button><button id="mTerrain" aria-pressed="false">Terrain map</button></span>
+        <button id="tOpen" aria-pressed="true" class="terrain-only">Open runs only</button>
         <button id="tCams" aria-pressed="true">Cameras</button>
-        <button id="tView" aria-pressed="true" title="Turn the map like the resort's trail map, or put north up">Trail-map view</button>
+        <button id="tView" class="terrain-only" aria-pressed="true" title="Turn the map like the resort's trail map, or put north up">Trail-map view</button>
       </div>
-      <div class="legend" style="margin-top:10px">
+      <div class="legend trail-only" style="margin-top:10px" hidden>
+        <span><i class="swatch" style="background:#19c219;height:6px"></i>Lift running</span>
+        <span><i class="swatch" style="background:repeating-linear-gradient(90deg,#333 0 3px,transparent 3px 7px)"></i>Lift closed</span>
+        <span>Tap a lift for its open runs and camera</span>
+      </div>
+      <div class="legend terrain-only" style="margin-top:10px">
         <span><i class="swatch" style="background:var(--lift-on)"></i>Lift running</span>
         <span><i class="swatch" style="background:var(--lift-off)"></i>Lift closed</span>
         <span><i class="diff d1"></i>Easier</span><span><i class="diff d2"></i>Intermediate</span><span><i class="diff d3"></i>Advanced/expert</span>
@@ -133,6 +146,7 @@ const CAM_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
 // direction B (the resort's uphill) at the top, turn it by 360 - B.
 const turn = b => (360 - (b || 0)) % 360;
 let V, D, map, layers = {}, showOpen = true, showCams = true, selected = null, trailView = true;
+let tmap = null, tlayers = { lifts: [], cams: null }, mode = "trail";
 
 function runsHTML(runs) {
   if (!runs || !runs.length) return `<p class="note">No run list for this lift.</p>`;
@@ -163,7 +177,12 @@ function selectLift(i, fly = true) {
     <div style="margin-top:10px">${runsHTML(l.runs)}</div><p class="note" style="margin-top:6px">${src}</p>`;
   bindCamButtons();
   document.querySelectorAll(".liftbtn").forEach(b => b.classList.toggle("sel", +b.dataset.i === i));
-  if (fly && l.map_id && layers.lift[l.map_id]) map.fitBounds(layers.lift[l.map_id].getBounds(), { padding: [60, 60], maxZoom: 16 });
+  if (fly && mode === "terrain" && map && l.map_id && layers.lift[l.map_id]) map.fitBounds(layers.lift[l.map_id].getBounds(), { padding: [60, 60], maxZoom: 16 });
+  if (fly && mode === "trail" && tmap) {
+    const t = tlayers.lifts.find(x => x.l.i === i);
+    if (t) tmap.fitBounds(t.line.getBounds().pad(0.6), { maxZoom: 0.5 });
+  }
+  tlayers.lifts.forEach(x => x.line.setStyle({ weight: x.l.i === i ? (x.on ? 16 : 6) : (x.on ? 11 : 3.5) }));
   highlight(l);
 }
 
@@ -247,6 +266,61 @@ function drawMap() {
   applyFilters();
 }
 
+// ---- the official trail map (image from Ski Utah) with live lift status on top
+function drawTrail() {
+  const T = V.trail;
+  tmap = L.map("tmap", { crs: L.CRS.Simple, minZoom: -5, maxZoom: 2, zoomSnap: 0.25, zoomDelta: 0.5, attributionControl: true,
+                         rotate: false, rotateControl: false, touchRotate: false });
+  const ll = ([x, y]) => L.latLng(T.height - y, x);
+  const bounds = L.latLngBounds([[0, 0], [T.height, T.width]]);
+  const img = L.imageOverlay(T.image, bounds, { alt: `${V.name || R} official trail map` }).addTo(tmap);
+  img.on("error", () => {                       // image moved or gone: use the terrain map
+    document.getElementById("modes").hidden = true; setMode("terrain");
+  });
+  tmap.attributionControl.setPrefix(false).addAttribution(`Trail map © ${esc((D.resorts[R] || {}).name || "the resort")}, shown from <a href="https://www.skiutah.com/members/${esc(T.page || "")}" target="_blank" rel="noopener">Ski Utah</a>`);
+  tmap.setMaxBounds(bounds.pad(0.15));
+  T.lifts.forEach(l => {
+    const on = l.status === "open";
+    const pts = l.pts.map(ll);
+    const line = L.polyline(pts, on ? { color: "#19c219", weight: 11, opacity: 0.6, lineCap: "round" }
+                                     : { color: "#1d262e", weight: 3.5, opacity: l.status ? 0.5 : 0, dashArray: "1 7", lineCap: "round" }).addTo(tmap);
+    const hit = L.polyline(pts, { color: "#000", weight: 26, opacity: 0 }).addTo(tmap);   // easy to tap
+    const tip = `${esc(l.name)} · ${on ? "running" : l.status ? esc(l.status) : "no status"}`;
+    hit.bindTooltip(tip, { sticky: true });
+    if (l.i != null) hit.on("click", () => selectLift(l.i, false));
+    if (on) L.tooltip({ permanent: true, direction: "center", className: "trail-label", interactive: false })
+      .setLatLng(pts[Math.floor(pts.length / 2)] || pts[0]).setContent(esc(l.name)).addTo(tmap);
+    tlayers.lifts.push({ l, line, on });
+  });
+  tlayers.cams = L.layerGroup();
+  T.pins.forEach(p => {
+    const c = V.cams.find(x => x.id === p.id); if (!c) return;
+    const icon = L.divIcon({ className: "", html: `<div class="campin" title="${esc(c.title)}">${CAM_SVG}</div>`, iconSize: [26, 26] });
+    L.marker(ll(p.xy), { icon, title: c.title }).on("click", () => selectCam(c.id)).addTo(tlayers.cams);
+  });
+  if (showCams) tlayers.cams.addTo(tmap);
+  // start on the running lifts (whole map when none are)
+  const run = tlayers.lifts.filter(x => x.on).map(x => x.line.getBounds());
+  if (run.length) tmap.fitBounds(run.reduce((a, b) => a.extend(b), L.latLngBounds(run[0].getSouthWest(), run[0].getNorthEast())).pad(0.45), { maxZoom: 0 });
+  else tmap.fitBounds(bounds);
+}
+
+function setMode(m) {
+  mode = m;
+  try { localStorage.setItem("mapMode", m); } catch (e) {}
+  document.getElementById("tmap").hidden = m !== "trail";
+  document.getElementById("map").hidden = m !== "terrain";
+  document.querySelector(".north").hidden = m !== "terrain";
+  document.querySelectorAll(".terrain-only").forEach(e => e.hidden = m !== "terrain" || (e.id === "tView" && !(L.Map.prototype.setBearing)));
+  document.querySelectorAll(".trail-only").forEach(e => e.hidden = m !== "trail");
+  document.getElementById("mTrail").setAttribute("aria-pressed", m === "trail");
+  document.getElementById("mTerrain").setAttribute("aria-pressed", m === "terrain");
+  if (m === "terrain" && V.map && !map) drawMap();
+  if (m === "trail" && V.trail && !tmap) drawTrail();
+  (m === "trail" ? tmap : map)?.invalidateSize();
+  if (selected && selected.lift != null && new URLSearchParams(location.search).get("lift")) selectLift(selected.lift, true);
+}
+
 function applyFilters() {
   Object.values(layers.run).forEach(({ line, r }) => {
     const show = !showOpen || r.status === "open" || (r.status == null && !V.runs_total);
@@ -254,6 +328,10 @@ function applyFilters() {
   });
   Object.values(layers.lift).forEach(l => l.bringToFront());
   showCams ? layers.cams.addTo(map) : layers.cams.remove();
+}
+function applyCams() {
+  if (map && layers.cams) showCams ? layers.cams.addTo(map) : layers.cams.remove();
+  if (tmap && tlayers.cams) showCams ? tlayers.cams.addTo(tmap) : tlayers.cams.remove();
 }
 
 function renderSide() {
@@ -276,7 +354,7 @@ function renderSide() {
   if (first >= 0) selectLift(first, asked >= 0 && !!map);
   else document.getElementById("detail").innerHTML = `<h2>No lifts running</h2><p class="note">Tap a lift for its runs and camera.</p>`;
   document.getElementById("credits").innerHTML = `Lift and run status from the resort's own report (<a href="${esc(V.official)}" target="_blank" rel="noopener">official report and trail map</a>). ` +
-    `Map drawn from OpenStreetMap; runs may be missing or named differently from the resort's map. Updated ${esc(D.generated_label)}.`;
+    `Official trail map shown from Ski Utah; terrain map drawn from OpenStreetMap (runs may be missing or named differently there). Updated ${esc(D.generated_label)}.`;
 }
 
 async function load() {
@@ -285,11 +363,13 @@ async function load() {
                                       fetch(`resorts/${R}.json?t=` + Date.now(), { cache: "no-store" }).then(r => r.json())]);
     D = d; V = v;
     renderSide();
-    if (V.map && !map) {
-      drawMap();
-      if (selected && selected.lift != null && new URLSearchParams(location.search).get("lift")) selectLift(selected.lift, true);
+    if (!map && !tmap) {
+      let saved = null;
+      try { saved = localStorage.getItem("mapMode"); } catch (e) {}
+      document.getElementById("modes").hidden = !(V.trail && V.map);
+      setMode(V.trail && saved !== "terrain" ? "trail" : V.map ? "terrain" : "trail");
     }
-    if (!V.map) document.getElementById("map").innerHTML = `<p class="note" style="padding:16px">No map for this resort yet.</p>`;
+    if (!V.map && !V.trail) document.getElementById("map").innerHTML = `<p class="note" style="padding:16px">No map for this resort yet.</p>`;
   } catch (e) {
     console.error(e);
     document.getElementById("detail").innerHTML = `<p class="note">Couldn't load this resort's data.</p>`;
@@ -301,7 +381,9 @@ document.getElementById("tView").addEventListener("click", e => {
   if (map && map.setBearing) map.setBearing(turn(trailView ? V.map.bearing : 0));
   document.getElementById("north").style.transform = `rotate(${-(trailView ? (V.map.bearing || 0) : 0)}deg)`;
 });
-document.getElementById("tCams").addEventListener("click", e => { showCams = !showCams; e.currentTarget.setAttribute("aria-pressed", showCams); applyFilters(); });
+document.getElementById("tCams").addEventListener("click", e => { showCams = !showCams; e.currentTarget.setAttribute("aria-pressed", showCams); applyCams(); });
+document.getElementById("mTrail").addEventListener("click", () => setMode("trail"));
+document.getElementById("mTerrain").addEventListener("click", () => setMode("terrain"));
 load();
 </script>
 </body>

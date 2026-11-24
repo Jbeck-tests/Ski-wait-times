@@ -21,6 +21,7 @@ from pathlib import Path
 from .resort_maps import OUT as MAPDATA, lift_key, norm_name
 
 CAM_CONFIG = Path(__file__).resolve().parent / "config" / "webcams.toml"
+TRAILMAPS = Path(__file__).resolve().parent / "config" / "trailmaps.json"
 OFFICIAL_MAPS = {
     "solitude": "https://www.solitudemountain.com/mountain-and-village/conditions-and-maps",
     "brighton": "https://www.brightonresort.com/conditions",
@@ -63,6 +64,40 @@ def match_lift(name: str, candidates: dict[str, object]):
         if j > score:
             best, score = v, j
     return best if score >= 0.5 else None
+
+
+def load_trailmap(resort: str) -> dict | None:
+    """The official trail map (shown from Ski Utah) and lift positions on it."""
+    if not TRAILMAPS.exists():
+        return None
+    return json.loads(TRAILMAPS.read_text()).get(resort)
+
+
+def trail_view(trail: dict | None, lifts: list[dict], cams: list[dict], map_lifts: dict) -> dict | None:
+    """Lifts and camera pins in the official map's pixel space, with live status."""
+    if not trail:
+        return None
+    pix = {lift_key(n): pts for n, pts in trail["lifts"].items()}
+    out_lifts, used = [], set()
+    for l in lifts:
+        k = match_lift(l["name"], {kk: kk for kk in pix})
+        if not k:
+            continue
+        used.add(k)
+        out_lifts.append({"name": l["name"], "status": l["status"], "pts": pix[k], "i": lifts.index(l)})
+    for k, pts in pix.items():          # on the map but not in the resort's own list
+        if k not in used:
+            name = next(n for n in trail["lifts"] if lift_key(n) == k)
+            out_lifts.append({"name": name, "status": None, "pts": pts, "i": None})
+    pins = []
+    for c in cams:
+        anchor = c.get("lift") or c.get("near_lift")
+        k = match_lift(anchor, {kk: kk for kk in pix}) if anchor else None
+        if k:
+            x, y = pix[k][0]
+            pins.append({"id": c["id"], "xy": [x, y] if c.get("lift") else [x + 0.012 * trail["width"], y + 0.008 * trail["width"]]})
+    return {"image": trail["image"], "width": trail["width"], "height": trail["height"],
+            "credit": "Official trail map, shown from Ski Utah", "lifts": out_lifts, "pins": pins}
 
 
 def load_map(resort: str) -> dict | None:
@@ -149,7 +184,8 @@ def resort_view(resort: str, lift_rows: list[dict], run_rows: list[dict], cams_n
                 pos = [lat, lon] if c.get("lift") else [round(lat - 0.0003, 5), round(lon + 0.0004, 5)]
         now = by_title.get(c["title"])
         url = cam_urls.get(cid, {}).get("url")
-        cams.append({"id": cid, "title": c["title"], "kind": c["kind"], "lift": c.get("lift"), "pos": pos,
+        cams.append({"id": cid, "title": c["title"], "kind": c["kind"], "lift": c.get("lift"),
+                     "near_lift": c.get("near_lift"), "pos": pos,
                      "latest": now["latest"] if now else None, "time": now["time"] if now else None,
                      "lift_open": now["lift_open"] if now else None, "url": url})
     for l in lifts:
@@ -170,5 +206,6 @@ def resort_view(resort: str, lift_rows: list[dict], run_rows: list[dict], cams_n
                       for l in map_["lifts"]],
             "runs": map_runs},
         "cams": cams,
+        "trail": trail_view(load_trailmap(resort), lifts, cams, map_lifts),
         "official": OFFICIAL_MAPS.get(resort),
     }

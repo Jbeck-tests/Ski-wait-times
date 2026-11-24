@@ -526,3 +526,20 @@ def test_map_orientation_and_neighbouring_resorts():
             "geometry": [{"lat": 40.622, "lon": -111.525}, {"lat": 40.625, "lon": -111.525}, {"lat": 40.628, "lon": -111.525}]}]
     got = _assign(els, ["deer_valley"])["deer_valley"]
     assert [e["tags"]["name"] for e in got] == ["Ours"]
+
+
+def test_trail_map_positions_follow_live_lift_status():
+    from skicrowd import companion
+    trail = {"image": "https://example/map.jpg", "width": 1000, "height": 600, "page": "x",
+             "lifts": {"Powderhorn 2": [[500, 550], [450, 100]], "Moonbeam Express": [[700, 560], [720, 300]]}}
+    lifts = [{"name": "MOONBEAM EXPRESS", "status": "open"}, {"name": "POWDERHORN II", "status": "closed"}]
+    cams = [{"id": "solitude:Moonbeam Lift Line", "lift": "Moonbeam Express"},
+            {"id": "solitude:Moonbeam Parking Lot", "near_lift": "Moonbeam Express"}]
+    v = companion.trail_view(trail, lifts, cams, {})
+    by = {l["name"]: l for l in v["lifts"]}
+    assert by["MOONBEAM EXPRESS"]["status"] == "open" and by["MOONBEAM EXPRESS"]["i"] == 0
+    assert by["POWDERHORN II"]["pts"] == [[500, 550], [450, 100]]           # "II" on the page, "2" on the map
+    pins = {p["id"]: p["xy"] for p in v["pins"]}
+    assert pins["solitude:Moonbeam Lift Line"] == [700, 560]               # at the lift's bottom terminal
+    assert pins["solitude:Moonbeam Parking Lot"] != [700, 560]             # beside it
+    assert companion.trail_view(None, lifts, cams, {}) is None

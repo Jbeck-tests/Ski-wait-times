@@ -143,9 +143,13 @@ and a tight queue cam can both be used.
   when the dashboard builds. Snowbird's run lists are collapsed on its page,
   so the collector expands them first. Alta publishes terrain areas and
   gates by lift ("Ballroom via Collins") rather than named runs.
-* **Maps.** The resorts' official trail maps are copyrighted artwork, so the
-  map pages draw lifts and runs from OpenStreetMap (ODbL) on OpenTopoMap
-  tiles, and link to the official report. To refresh the geometry, run
+* **Maps.** The map pages open on each resort's official trail map, loaded
+  straight from Ski Utah's servers (the image is never copied into this repo
+  or the site). `skicrowd/config/trailmaps.json` holds each map's address and
+  where every lift sits on it (pixels), read from the 2026-27 maps, so live
+  status can be drawn on top. If Ski Utah replaces an image, re-measure the
+  lifts; until then the page falls back to the **Terrain map**: lifts and runs
+  from OpenStreetMap (ODbL) on OpenTopoMap tiles. To refresh the geometry, run
   **Actions → Fetch resort maps** (downloads to `collector-data/maps/`),
   then `python -m skicrowd.maps build --raw collector-data/maps` and commit
   `skicrowd/mapdata/`.
