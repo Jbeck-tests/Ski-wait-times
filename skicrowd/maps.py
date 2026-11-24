@@ -16,7 +16,11 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-OVERPASS = "https://overpass-api.de/api/interpreter"
+# Public Overpass servers, tried in turn (the main one is often overloaded)
+OVERPASS = ["https://overpass-api.de/api/interpreter",
+            "https://overpass.private.coffee/api/interpreter",
+            "https://overpass.kumi.systems/api/interpreter",
+            "https://maps.mail.ru/osm/tools/overpass/api/interpreter"]
 # (south, west, north, east) per region; resorts sharing a canyon share a box
 REGIONS = {
     "BCC": (40.575, -111.640, 40.645, -111.555),
@@ -41,21 +45,28 @@ def _query(bbox: tuple[float, float, float, float]) -> str:
 
 def fetch(out: Path, regions=tuple(REGIONS)) -> None:
     out.mkdir(parents=True, exist_ok=True)
+    failed = []
     for name in regions:
         body = urllib.parse.urlencode({"data": _query(REGIONS[name])}).encode()
-        req = urllib.request.Request(OVERPASS, data=body,
-                                     headers={"User-Agent": "skicrowd/1.0 (personal ski crowd dashboard)"})
-        for attempt in range(4):
+        for attempt in range(2 * len(OVERPASS)):
+            url = OVERPASS[attempt % len(OVERPASS)]
+            req = urllib.request.Request(url, data=body,
+                                         headers={"User-Agent": "skicrowd/1.0 (personal ski crowd dashboard)"})
             try:
-                data = urllib.request.urlopen(req, timeout=240).read()
-                json.loads(data)
+                data = urllib.request.urlopen(req, timeout=200).read()
+                if not json.loads(data).get("elements"):
+                    raise ValueError("empty result")
                 (out / f"raw_{name}.json").write_bytes(data)
-                print(f"{name}: {len(data):,} bytes")
+                print(f"{name}: {len(data):,} bytes from {url}")
                 break
             except Exception as e:  # noqa: BLE001
-                print(f"{name}: attempt {attempt + 1} failed: {e}")
-                time.sleep(20 * (attempt + 1))
-        time.sleep(5)        # be gentle with the public Overpass server
+                print(f"{name}: {url} failed: {e}")
+                time.sleep(10)
+        else:
+            failed.append(name)
+        time.sleep(5)        # be gentle with the public servers
+    if failed:
+        raise SystemExit(f"could not fetch: {', '.join(failed)}")
 
 
 def main(argv=None):
