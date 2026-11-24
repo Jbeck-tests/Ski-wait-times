@@ -97,7 +97,7 @@ nav.tabs :focus-visible, button:focus-visible, .cell:focus-visible { outline: 2p
 .strip .c { border-bottom: 3px solid transparent; }
 .strip .c.l-quiet { border-bottom-color: var(--quiet); } .strip .c.l-moderate { border-bottom-color: var(--moderate); }
 .strip .c.l-busy { border-bottom-color: var(--busy); } .strip .c.l-packed { border-bottom-color: var(--packed); }
-.strip .c.now { box-shadow: inset 0 0 0 2px var(--ink); font-weight: 700; }
+.strip .c.cur { box-shadow: inset 0 0 0 2px var(--ink); font-weight: 700; }
 .c.l-quiet, .c.l-moderate, .c.l-busy, .c.l-packed { padding-left: 0; }
 .c.l-quiet::before, .c.l-moderate::before, .c.l-busy::before, .c.l-packed::before, .cell::before { display: none; }
 .lifts-open { color: var(--muted); font-size: .8rem; }
@@ -310,7 +310,7 @@ function hourStrip(hourly, nowHour, hours) {
   if (!hourly || hourly.every(v => v == null)) return "";
   return `<div class="strip" aria-label="Expected crowd by hour">${hours.map(h => `<span class="h">${hl(h)}</span>`).join("")}` +
     hourly.map((v, i) => v == null ? `<span class="c"></span>` :
-      `<span class="c l-${lvl(v)[0]} ${hours[i] === nowHour ? "now" : ""}" title="${hl(hours[i])}: ${v}">${v}</span>`).join("") + `</div>`;
+      `<span class="c l-${lvl(v)[0]} ${hours[i] === nowHour ? "cur" : ""}" title="${hl(hours[i])}: ${v}">${v}</span>`).join("") + `</div>`;
 }
 
 function liftMatch(camTitle, lift) {
