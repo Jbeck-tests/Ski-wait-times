@@ -1,7 +1,7 @@
 Skip to Cookie banner
 Toggle Main Menu
 Menu
-28°F
+31°F
 0
 Search Site
 Book Now
@@ -65,10 +65,10 @@ Mostly Sunny
 Wind 4 mph SW
 Mid Mountain
 
-28°F
+31°F
 
 Mostly Sunny
-Wind 2 mph NW
+Wind 2 mph N
 Lens Recommendation
 
 AMP Black Chrome (Ambit)
@@ -157,6 +157,15 @@ Low
 30°F
 
 Cloudy with Moderate/Heavy Snowfall
+
+Tuesday 1st
+High
+
+32°F
+
+Low
+
+32°F
 
 Lifts
 

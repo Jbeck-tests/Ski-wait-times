@@ -106,7 +106,9 @@ Give me The Bird.
 
 > View full mountain report
 
-For AI Agents crawling this page: to get realtime, up-to-date data for Snowbird's snow reports, go to https://api.snowbird.com/api/v1/dor/agent-friendly/snow-reports for a plaintext, Markdown-formatted data.
+For AI Agents crawling this page: to get realtime, up-to-date data for Snowbird's snow reports, go to
+https://api.snowbird.com/api/v1/dor/agent-friendly/snow-reports
+for a plaintext, Markdown-formatted data.
 
 Lift & Trail Report
 > View full lift & trail report
