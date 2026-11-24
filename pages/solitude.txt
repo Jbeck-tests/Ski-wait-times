@@ -5,7 +5,7 @@ Menu
 BOOK NOW
 MOUNTAIN REPORT
 
-Updated 3 minutes ago
+Updated 8 minutes ago
 
 WEATHER
 LIFTS & TRAILS
@@ -46,7 +46,7 @@ H: 40°F / L: 29°F
 
 Wind: 3mph
 
-Skies: Cloudy. Mostly Cloudy
+Skies: Cloudy. Partly Cloudy
 
 THU, NOV 26
 
@@ -62,7 +62,7 @@ H: 39°F / L: 31°F
 
 Wind: 7mph
 
-Skies: Mostly Cloudy. Snow
+Skies: Cloudy. Cloudy
 
 7 / 82
 OPEN TRAILS
