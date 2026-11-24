@@ -1,0 +1,48 @@
+name: Fetch resort maps (OpenStreetMap)
+
+# One-off / occasional: downloads lift and run geometry from OpenStreetMap's
+# Overpass API and commits the raw JSON to collector-data/maps/. The
+# dashboard's resort maps are built from it (python -m skicrowd.maps build).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: maps
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check out data branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config --global user.name "skicrowd-collector"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir collector-data && cd collector-data
+          git init -q
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch -q --depth 1 origin collector-data
+          git checkout -q -b collector-data FETCH_HEAD
+      - name: Fetch
+        run: python -m skicrowd.maps fetch --out collector-data/maps
+      - name: Commit
+        run: |
+          cd collector-data
+          git add -A maps
+          if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
+          git commit -q -m "maps: OpenStreetMap lifts and runs $(date -u +%Y-%m-%d)"
+          for i in 1 2 3 4; do
+            git push -q origin HEAD:collector-data && exit 0
+            git pull -q --rebase origin collector-data
+          done
+          exit 1

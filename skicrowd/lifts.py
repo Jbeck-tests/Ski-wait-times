@@ -133,8 +133,20 @@ def parse(resort: str, text: str) -> list[Lift]:
     return out
 
 
-def fetch(resorts=tuple(PAGES), debug_dir: Path | None = None, timeout_ms: int = 45000) -> list[Lift]:
-    """Render each resort's page and parse it. Pages that fail are skipped."""
+def brighton_items(markup: str) -> str:
+    """Just the lift and trail rows of Brighton's page (status is in icons)."""
+    items = [m.group(0) for m in re.finditer(r"<li\b[^>]*>.*?</li>", markup, flags=re.S)
+             if "/Lift/Type/" in m.group(0) or "/Trail/Difficulty/" in m.group(0)]
+    # trails are grouped under a heading per lift/area
+    heads = re.findall(r'aria-label="Open accordion for ([^"]+)"', markup)
+    return "<!-- areas: " + " | ".join(dict.fromkeys(heads)) + " -->\n<ul>\n" + "\n".join(items) + "\n</ul>\n"
+
+
+def fetch(resorts=tuple(PAGES), debug_dir: Path | None = None, timeout_ms: int = 45000,
+          pages_dir: Path | None = None) -> list[Lift]:
+    """Render each resort's page and parse it. Pages that fail are skipped.
+    With `pages_dir`, the page text is kept (latest only) so run status can
+    be parsed later (Brighton: its lift/trail rows, which carry status icons)."""
     from playwright.sync_api import sync_playwright
     results = []
     with sync_playwright() as p:
@@ -149,8 +161,14 @@ def fetch(resorts=tuple(PAGES), debug_dir: Path | None = None, timeout_ms: int =
                     pass
                 page.wait_for_timeout(2500)
                 text = page.evaluate("() => document.body ? document.body.innerText : ''")
-                lifts = parse_brighton_html(page.content()) if r == "brighton" else []
+                markup = page.content() if r == "brighton" else ""
+                lifts = parse_brighton_html(markup) if r == "brighton" else []
                 lifts = lifts or parse(r, text)
+                if pages_dir is not None and text.strip():
+                    pages_dir.mkdir(parents=True, exist_ok=True)
+                    (pages_dir / f"{r}.txt").write_text(text)
+                    if markup:
+                        (pages_dir / f"{r}.html").write_text(brighton_items(markup))
                 if debug_dir is not None and (not lifts or any(x.status == "unknown" for x in lifts)):
                     debug_dir.mkdir(parents=True, exist_ok=True)
                     (debug_dir / f"lifts_{r}.txt").write_text(text)

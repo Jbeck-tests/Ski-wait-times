@@ -161,7 +161,7 @@ def run(out_dir: str | Path, detector: Detector | None = None, verbose: bool = T
     # 3) lift open/closed status (rendered public lift-status pages)
     lift_rows = []
     try:
-        lift_rows = lift_status.rows(lift_status.fetch(debug_dir=out / "debug"), now)
+        lift_rows = lift_status.rows(lift_status.fetch(debug_dir=out / "debug", pages_dir=out / "pages"), now)
         n = _append(out / "lift_status.csv", lift_rows, ["collected_at", "resort", "lift"])
         if verbose:
             counts = {}
