@@ -4,35 +4,35 @@ run	Alice Avenue	closed	green
 run	Bananas	closed	blue	
 run	Barry Barry Steep	closed	black-2	
 run	Bass Benches	closed	black	
-run	Bass Highway	unknown	green	1
+run	Bass Highway	open	green	1
 run	Bicarbonate Gully	closed	blue	
 run	Binx's Bumper	closed	black-2	
 run	Black Forest	closed	black	
-run	Blue Angel	unknown	black	
+run	Blue Angel	open	black	
 run	Bluebell	closed	blue	
 run	Bonar's Pass	closed	black	
 run	Boundary Bowl	closed	black-2	
-run	Bryce's Run	unknown	blue	1
+run	Bryce's Run	open	blue	1
 run	Carbonate	closed	black	
-run	Cat Crew Cutoff	unknown	blue	
+run	Cat Crew Cutoff	open	blue	
 run	Come From Behind Gully	closed	black	
-run	Creek Road	unknown	green	1
+run	Creek Road	open	green	1
 run	Defiance Ledge	closed	black-2	
 run	Easy Street	closed	green	
 run	Elbow Proper	closed	blue	
 run	Election	closed	blue	
 run	Exit Gully	closed	black-2	
-run	Fields Cutoff	unknown	blue	1
+run	Fields Cutoff	open	blue	1
 run	Figure 8 Bowl	closed	black-2	
-run	Fluffy Bunny	unknown	black	1
+run	Fluffy Bunny	open	black	1
 run	Gad 2 Return	closed	black	
 run	Gad Chutes	closed	black-2	
 run	Gad Gully	closed	black	
 run	Gadzooks	closed	black	
 run	Get Serious Chutes	closed	black-2	
 run	Goblin Gully	closed	black	
-run	Harper's Ferry	unknown	black	1
-run	Harper's Ferry East	unknown	black	1
+run	Harper's Ferry	open	black	1
+run	Harper's Ferry East	open	black	1
 run	High Saddle	closed	black-2	
 run	Hoop's	closed	black	
 run	Jones Avenue	closed	black-2	
@@ -40,30 +40,30 @@ run	Knucklehead Traverse	closed	black
 run	Lazy Susan	closed	blue	
 run	Low Saddle	closed	black	
 run	Lower Bassackwards	closed	blue	
-run	Lower Emma	unknown	green	1
+run	Lower Emma	open	green	1
 run	Lower Tiger Tail	closed	black	
-run	Lowest Bassackwards	unknown	blue	1
+run	Lowest Bassackwards	open	blue	1
 run	Madam Annie's	closed	blue	
 run	Mark Malu Fork	closed	black	
-run	Middle Bassackwards	unknown	blue	1
-run	Middle Emma	unknown	green	1
+run	Middle Bassackwards	open	blue	1
+run	Middle Emma	open	green	1
 run	Middle Tiger Tail	closed	black	
-run	Miner's Road	unknown	green	
+run	Miner's Road	open	green	
 run	Mini Miners' Camp	closed	green	
 run	Mozzarella Bowl	closed	black	
 run	Mushroom Land	closed	black-2	
-run	Old Hollywood	unknown	black-2	
+run	Old Hollywood	open	black-2	
 run	Old Ladies	closed	black	
 run	Old Same Place	closed	black	
 run	Organ Grinder	closed	black-2	
 run	Pucker Brush	closed	black	
 run	Rasta Chutes	closed	black-2	
 run	Red Lens Line	closed	black	
-run	Regulator Gully	unknown	blue	
-run	Regulator Johnson	unknown	black	1
+run	Regulator Gully	open	blue	
+run	Regulator Johnson	open	black	1
 run	Restaurant Roll	closed	black-2	
 run	Road to Provo	closed	black	
-run	Roger's Run	unknown	blue	1
+run	Roger's Run	open	blue	1
 run	S.T.H.	closed	black	
 run	Shireen	closed	black	
 run	Sneaky Pete	closed	black	
@@ -76,7 +76,7 @@ run	Thunder Junction	closed	green
 run	Tiny Tiger	closed	blue	
 run	Tricep	closed	black	
 run	Upper Bassackwards	closed	blue	
-run	Upper Big Emma	unknown	blue	1
+run	Upper Big Emma	open	blue	1
 run	Upper Tiger Tail	closed	black	
 run	W. 2nd Long	closed	green	
 run	W. 2nd S. On-Ramp	closed	blue	
@@ -84,8 +84,8 @@ run	W. 2nd Short	closed	green
 run	West 2nd South	closed	green	
 run	White Rabbit	closed	black-2	
 run	Wilbere Bowl	closed	black-2	
-run	Wilbere Cutoff	unknown	blue	
-run	Wilbere Ridge	unknown	blue	
+run	Wilbere Cutoff	open	blue	
+run	Wilbere Ridge	open	blue	
 run	Wilma's	closed	black-2	
 group	Mineral Basin
 run	49er Gully	closed	black	
