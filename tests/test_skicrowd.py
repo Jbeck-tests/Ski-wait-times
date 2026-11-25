@@ -596,3 +596,5 @@ def test_snowbird_open_lifts_and_hidden_run_tables():
            '<td class="difficulty"><div class="icon difficulty-level-green"></div></td><td class="groomed"><div class="icon"></div></td><td class="notes"></td></tr>')
     one = runs.parse_snowbird(lifts.snowbird_items('<span class="panel-label">Gad Valley</span>' + row))
     assert one == [{"name": "Big Emma", "status": "open", "group": "Gad Valley", "kind": "run", "difficulty": "Easiest", "groomed": True}]
+    live = row.replace('icon open"', 'icon opening"').replace("7ED321", "8BC53F")      # the live page's open icon
+    assert runs.parse_snowbird(lifts.snowbird_items(live))[0]["status"] == "open"

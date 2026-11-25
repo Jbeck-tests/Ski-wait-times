@@ -176,7 +176,7 @@ def snowbird_items(markup: str) -> str:
         cls = re.search(r'class="[^"]*\bicon\b([^"]*)"', st_td.group(1))
         tokens = set((cls.group(1) if cls else "").split())
         fills = set(re.findall(r'fill="#([0-9A-Fa-f]{6})"', st_td.group(1).upper()))
-        if tokens & {"open"}:
+        if tokens & {"open", "opening"}:                # Snowbird's open icon is "opening" (green)
             status = "open"
         elif tokens & {"closed"}:
             status = "closed"
@@ -184,7 +184,7 @@ def snowbird_items(markup: str) -> str:
             status = "hold" if tokens & {"hold", "on-hold"} else "scheduled"
         elif "D0021B" in fills:
             status = "closed"
-        elif fills & {"7ED321", "4CA252", "417505", "5CB85C", "2EA44F"}:
+        elif fills & {"8BC53F", "7ED321", "4CA252", "417505", "5CB85C", "2EA44F"}:
             status = "open"
         else:
             status = "unknown"
