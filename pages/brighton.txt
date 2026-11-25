@@ -56,16 +56,16 @@ Base Depth
 30"
 LIFT STATUS
 
-Last updated: Wednesday 12:38 PM
+Last updated: Wednesday 04:00 PM
 
 Lifts Open
-3
+0
 
 of 8
 
 Lifts Closed
 
-5 of 8
+8 of 8
 
 Show legend
 
@@ -73,7 +73,7 @@ Caterpillar
 
 Crest 6
 
-9:00 AM - 4:00 PM
+Closes 12:00 PM
 
 Explorer
 
@@ -293,7 +293,7 @@ Parking Lot
 
 PARKING & LOT STATUS
 
-Last updated: Wednesday 12:38 PM
+Last updated: Wednesday 04:00 PM
 
 Main Lot
 No Reservations Required Today

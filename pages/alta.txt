@@ -33,11 +33,11 @@ Closed
 Trail & Grooming Status
 SUGARLOAF
 
-Closes daily
-@ 04:00 pm
+Opens daily
+@ 09:15 am
 
-Open
-Open
+Closed
+Closed
 Trail & Grooming Status
 COLLINS
 
@@ -49,11 +49,11 @@ Open
 Trail & Grooming Status
 WILDCAT
 
-Closes daily
-@ 04:00 pm
+Opens daily
+@ 09:15 am
 
-Open
-Open
+Closed
+Closed
 Trail & Grooming Status
 TERRAIN
 STATUS
@@ -165,7 +165,7 @@ WHITE CLIFFS
 via Wildcat
 
 
-Open
+Closed
 	
 BLACKJACK TRAVERSE
 via Wildcat
