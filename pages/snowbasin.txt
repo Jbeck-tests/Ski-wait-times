@@ -62,13 +62,13 @@ Base
 30°F
 
 Mostly Cloudy
-Wind 2 mph S
+Wind 1 mph S
 Mid Mountain
 
 36°F
 
 Mostly Cloudy
-Wind 0 mph
+Wind 2 mph NE
 Lens Recommendation
 
 AMP LS Bronze Chrome (Shield)
@@ -90,7 +90,7 @@ Mostly Cloudy
 
 Wind
 
-2 mph S
+1 mph S
 
 Thursday 26th
 High
@@ -99,11 +99,33 @@ High
 
 Low
 
-21°F
+23°F
 
 Partly Cloudy
 
 Friday 27th
+High
+
+37°F
+
+Low
+
+28°F
+
+Mostly Cloudy
+
+Saturday 28th
+High
+
+37°F
+
+Low
+
+27°F
+
+Cloudy with Moderate/Heavy Snowfall
+
+Sunday 29th
 High
 
 36°F
@@ -114,47 +136,25 @@ Low
 
 Mostly Cloudy
 
-Saturday 28th
+Monday 30th
 High
 
 36°F
 
 Low
 
-28°F
-
-Cloudy with Moderate/Heavy Snowfall
-
-Sunday 29th
-High
-
 34°F
-
-Low
-
-25°F
-
-Mostly Cloudy
-
-Monday 30th
-High
-
-34°F
-
-Low
-
-30°F
 
 Cloudy with Moderate/Heavy Snowfall
 
 Tuesday 1st
 High
 
-34°F
+37°F
 
 Low
 
-30°F
+34°F
 
 Cloudy with Moderate/Heavy Snowfall
 
