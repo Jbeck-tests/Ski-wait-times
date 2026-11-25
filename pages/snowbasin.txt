@@ -59,7 +59,7 @@ Season
 Conditions
 Base
 
-30°F
+32°F
 
 Mostly Cloudy
 Wind 1 mph S
@@ -68,7 +68,7 @@ Mid Mountain
 36°F
 
 Mostly Cloudy
-Wind 2 mph NE
+Wind 0 mph
 Lens Recommendation
 
 AMP LS Bronze Chrome (Shield)
