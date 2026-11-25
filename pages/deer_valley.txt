@@ -4,7 +4,7 @@ Menu
 BOOK NOW
 MOUNTAIN REPORT
 
-Updated 7 minutes ago
+Updated 2 minutes ago
 
 WEATHER
 LIFTS & TRAILS
@@ -14,7 +14,7 @@ WEATHER
 BASE
 MID-MOUNTAIN
 SUMMIT
-31
+36
 °F
 °C
 
@@ -22,9 +22,9 @@ SUNNY
 
 H: 38°F / L: 31°F
 
-Wind Chill: 24°F
+Wind Chill: 36°F
 
-Wind: 7mph S
+Wind: 1mph W
 
 18
 IN
@@ -45,13 +45,13 @@ THU, NOV 26
 
 H: 39°F / L: 33°F
 
-Wind: 5mph
+Wind: 6mph
 
 Skies: Partly Cloudy. Partly Cloudy
 
 FRI, NOV 27
 
-H: 40°F / L: 29°F
+H: 40°F / L: 31°F
 
 Wind: 10mph
 
@@ -59,9 +59,9 @@ Skies: Cloudy. Snow and Rain
 
 SAT, NOV 28
 
-H: 29°F / L: 24°F
+H: 30°F / L: 24°F
 
-Wind: 16mph
+Wind: 17mph
 
 Skies: Snow and Wind. Mostly Cloudy
 
@@ -1465,7 +1465,7 @@ DEER VALLEY EAST VILLAGE
 
 DEER VALLEY | HELLY HANSEN
 
-SCHEDULED
+OPEN
 
 10:00 AM—6:00 PM
 
@@ -1513,7 +1513,7 @@ CLOSED FOR SEASON
 
 SIGNATURES ON MAIN STREET
 
-SCHEDULED
+OPEN
 
 10:00 AM—6:00 PM
 
