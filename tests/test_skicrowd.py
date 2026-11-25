@@ -577,3 +577,22 @@ def test_udot_hourly_rebuilds_cars_in_canyon():
     c = history.curves_udot([dt.date(2025, 2, 22)])[dt.date(2025, 2, 22)]
     bcc = dict(c["BCC"])
     assert bcc["06:00"] < bcc["10:00"] < bcc["13:00"] and bcc["13:00"] > bcc["18:00"]
+
+
+def test_snowbird_open_lifts_and_hidden_run_tables():
+    from pathlib import Path
+    from skicrowd import lifts, runs
+    fx = Path(__file__).parent / "fixtures"
+    got = {x.lift: x.status for x in lifts.parse("snowbird", (fx / "lifts_snowbird_open.txt").read_text())}
+    # the page shows running lifts as "<type> <hours>" (no word "open"); "5 of 14" were running
+    assert sorted(k for k, v in got.items() if v == "open") == ["Aerial Tram", "Chickadee", "Gadzoom", "Little Cloud", "Wilbere"]
+    assert len(got) == 14
+    markup = (fx / "runs_snowbird.html").read_text()
+    r = runs.parse_snowbird(lifts.snowbird_items(markup))
+    assert len(r) == 175 and {x["group"] for x in r} == {"Gad Valley", "Mineral Basin", "Peruvian Gulch"}
+    assert all(x["status"] == "closed" for x in r) and not any(x["groomed"] for x in r)
+    # an open, groomed run (status icon green, a grooming icon)
+    row = ('<tr><td class="name">Big Emma</td><td class="status"><div class="icon open"><svg><path fill="#7ED321"></path></svg></div></td>'
+           '<td class="difficulty"><div class="icon difficulty-level-green"></div></td><td class="groomed"><div class="icon"></div></td><td class="notes"></td></tr>')
+    one = runs.parse_snowbird(lifts.snowbird_items('<span class="panel-label">Gad Valley</span>' + row))
+    assert one == [{"name": "Big Emma", "status": "open", "group": "Gad Valley", "kind": "run", "difficulty": "Easiest", "groomed": True}]

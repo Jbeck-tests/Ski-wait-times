@@ -68,12 +68,19 @@ def _title(name: str) -> str:
     return " ".join(w if re.fullmatch(r"[IVX]+", w) else w.capitalize() for w in name.split())
 
 
+HOURS = re.compile(r"(?i)^\d{1,2}(:\d{2})?\s*(am|pm)\s*[-–—]\s*\d{1,2}(:\d{2})?\s*(am|pm)$")
+
+
 def _status_of(line: str) -> str | None:
     key = line.lower()
     if key in STATUS:
         return STATUS[key]
     stripped = TYPE_PREFIX.sub("", line).lower()      # "Tram Closed for the season"
-    return STATUS.get(stripped) if stripped != key else None
+    if stripped == key:
+        return None
+    if HOURS.match(stripped):                         # Snowbird: "Tram 9 am - 3:45 pm" = running
+        return "open"
+    return STATUS.get(stripped)
 
 
 def parse_brighton(text: str) -> list[Lift]:
@@ -149,6 +156,45 @@ def brighton_items(markup: str) -> str:
     return "<ul>\n" + "\n".join(parts) + "\n</ul>\n"
 
 
+def snowbird_items(markup: str) -> str:
+    """Snowbird's run tables (hidden in collapsed panels, so not in the page
+    text) as compact lines: 'group<TAB>name' and
+    'run<TAB>name<TAB>status<TAB>difficulty<TAB>groomed'."""
+    out = []
+    pat = r'<span class="panel-label">([^<]+)</span>|<tr>(.*?)</tr>'
+    for m in re.finditer(pat, markup, flags=re.S):
+        if m.group(1):
+            out.append("group\t" + _html.unescape(m.group(1)).strip())
+            continue
+        row = m.group(2)
+        if 'class="difficulty"' not in row:
+            continue                                   # lift rows: status comes from the text
+        name = re.search(r'<td class="name">(.*?)</td>', row, re.S)
+        st_td = re.search(r'<td class="status">(.*?)</td>', row, re.S)
+        if not name or not st_td:
+            continue
+        cls = re.search(r'class="[^"]*\bicon\b([^"]*)"', st_td.group(1))
+        tokens = set((cls.group(1) if cls else "").split())
+        fills = set(re.findall(r'fill="#([0-9A-Fa-f]{6})"', st_td.group(1).upper()))
+        if tokens & {"open"}:
+            status = "open"
+        elif tokens & {"closed"}:
+            status = "closed"
+        elif tokens & {"hold", "on-hold", "expected", "scheduled"}:
+            status = "hold" if tokens & {"hold", "on-hold"} else "scheduled"
+        elif "D0021B" in fills:
+            status = "closed"
+        elif fills & {"7ED321", "4CA252", "417505", "5CB85C", "2EA44F"}:
+            status = "open"
+        else:
+            status = "unknown"
+        diff = re.search(r"difficulty-level-([a-z0-9-]+)", row)
+        groomed = bool(re.search(r'<td class="groomed">\s*<(?!/td)', row))
+        n = re.sub(r"\s+", " ", _html.unescape(re.sub(r"<[^>]+>", "", name.group(1)))).strip()
+        out.append("\t".join(["run", n, status, diff.group(1) if diff else "", "1" if groomed else ""]))
+    return "\n".join(out) + "\n"
+
+
 def fetch(resorts=tuple(PAGES), debug_dir: Path | None = None, timeout_ms: int = 45000,
           pages_dir: Path | None = None) -> list[Lift]:
     """Render each resort's page and parse it. Pages that fail are skipped.
@@ -191,6 +237,13 @@ def fetch(resorts=tuple(PAGES), debug_dir: Path | None = None, timeout_ms: int =
                     (pages_dir / f"{r}.txt").write_text(text)
                     if markup:
                         (pages_dir / f"{r}.html").write_text(brighton_items(markup))
+                    if r == "snowbird":
+                        full = page.content()
+                        items = snowbird_items(full)
+                        (pages_dir / "snowbird.runs").write_text(items)
+                        if debug_dir is not None and "\tunknown\t" in items:   # a status icon we can't read
+                            debug_dir.mkdir(parents=True, exist_ok=True)
+                            (debug_dir / "runs_snowbird.html").write_text(full)
                 if debug_dir is not None and (not lifts or any(x.status == "unknown" for x in lifts)):
                     debug_dir.mkdir(parents=True, exist_ok=True)
                     (debug_dir / f"lifts_{r}.txt").write_text(text)

@@ -123,12 +123,32 @@ def parse_brighton(markup: str) -> list[dict]:
     return out
 
 
+SNOWBIRD_DIFF = {"green": "Easiest", "blue": "More Difficult", "black": "Expert", "black-2": "Expert",
+                  "black3": "Expert", "black-3": "Expert"}
+
+
+def parse_snowbird(text: str) -> list[dict]:
+    """Lines written by lifts.snowbird_items()."""
+    out, group = [], None
+    for line in text.splitlines():
+        f = line.split("\t")
+        if f[0] == "group" and len(f) > 1:
+            group = f[1]
+        elif f[0] == "run" and len(f) >= 5:
+            out.append({"name": _clean(f[1]), "status": f[2], "group": group,
+                        "kind": "park" if "park" in f[1].lower() else "run",
+                        "difficulty": SNOWBIRD_DIFF.get(f[3]), "groomed": f[4] == "1"})
+    return out
+
+
 def load(pages_dir: Path) -> dict[str, list[dict]]:
     """Runs per resort from the collector's saved pages (missing pages skipped)."""
     out = {}
     for r in ("solitude", "deer_valley", "snowbasin", "snowbird", "alta", "brighton"):
         try:
-            if r == "brighton" and (pages_dir / "brighton.html").exists():
+            if r == "snowbird" and (pages_dir / "snowbird.runs").exists():
+                runs = parse_snowbird((pages_dir / "snowbird.runs").read_text())
+            elif r == "brighton" and (pages_dir / "brighton.html").exists():
                 runs = parse_brighton((pages_dir / "brighton.html").read_text())
             elif r == "alta" and (pages_dir / "alta.txt").exists():
                 runs = parse_alta((pages_dir / "alta.txt").read_text())
