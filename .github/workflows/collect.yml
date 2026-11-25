@@ -128,7 +128,15 @@ jobs:
       name: github-pages
       url: ${{ steps.d.outputs.page_url }}
     steps:
+      # GitHub's Pages API sometimes returns 5xx for a minute; try twice.
+      - id: d1
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+      - name: Wait before retrying
+        if: steps.d1.outcome == 'failure'
+        run: sleep 60
       - id: d
+        if: steps.d1.outcome == 'failure'
         uses: actions/deploy-pages@v4
 
   next:
@@ -154,10 +162,22 @@ jobs:
       - name: Start the next run
         if: steps.wait.outputs.wait != 'stop'
         run: |
-          # Only one chain: skip if another run is already queued or running.
-          others=$(gh run list -R "$GITHUB_REPOSITORY" --workflow collect.yml --limit 20 \
-                     --json databaseId,status \
-                     --jq "[.[] | select(.databaseId != ${GITHUB_RUN_ID}) | select(.status != \"completed\")] | length")
-          if [ "$others" != "0" ]; then echo "Another run is active ($others); not dispatching."; exit 0; fi
-          gh workflow run collect.yml -R "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME" -f force=false
-          echo "Dispatched next run."
+          # GitHub's API occasionally returns 5xx; one failed call must not end
+          # the chain (Nov 25 2026 it did). Keep trying for ~15 minutes.
+          for i in $(seq 1 15); do
+            # Only one chain: skip if another run is already queued or running.
+            if others=$(gh run list -R "$GITHUB_REPOSITORY" --workflow collect.yml --limit 20 \
+                          --json databaseId,status \
+                          --jq "[.[] | select(.databaseId != ${GITHUB_RUN_ID}) | select(.status != \"completed\")] | length"); then
+              if [ "$others" != "0" ]; then echo "Another run is active ($others); not dispatching."; exit 0; fi
+            else
+              echo "Couldn't list runs (attempt $i); dispatching anyway (the concurrency group keeps it to one chain)."
+            fi
+            if gh workflow run collect.yml -R "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME" -f force=false; then
+              echo "Dispatched next run."; exit 0
+            fi
+            echo "Dispatch failed (attempt $i); retrying in 60s."
+            sleep 60
+          done
+          echo "Could not dispatch the next run; the backup schedule or a manual run will restart the chain."
+          exit 1
