@@ -5,7 +5,7 @@ Menu
 BOOK NOW
 MOUNTAIN REPORT
 
-Updated 7 minutes ago
+Updated 3 minutes ago
 
 WEATHER
 LIFTS & TRAILS
@@ -13,19 +13,19 @@ AREAS & PARKS
 MAPS
 WEATHER
 MID-MOUNTAIN
-31
+37
 °F
 °C
 
 PARTLY CLOUDY
 
-H: 35°F / L: 28°F
+H: 40°F / L: 30°F
 
-Wind Chill: 31°F
+Wind Chill: 37°F
 
 Wind: 0mph N
 
-28
+27
 IN
 CM
 
@@ -40,29 +40,29 @@ Last 24 Hour: 0"
 Last 48 Hour: 0"
 
 Mid-Mountain Forecast
-WED, NOV 25
-
-H: 40°F / L: 29°F
-
-Wind: 3mph
-
-Skies: Cloudy. Partly Cloudy
-
 THU, NOV 26
 
 H: 40°F / L: 32°F
 
 Wind: 4mph
 
-Skies: Mostly Sunny. Mostly Clear
+Skies: Partly Cloudy. Partly Cloudy
 
 FRI, NOV 27
 
-H: 39°F / L: 30°F
+H: 40°F / L: 29°F
 
-Wind: 7mph
+Wind: 8mph
 
-Skies: Cloudy. Cloudy
+Skies: Cloudy. Snow and Rain
+
+SAT, NOV 28
+
+H: 29°F / L: 22°F
+
+Wind: 11mph
+
+Skies: Snow. Mostly Cloudy
 
 7 / 82
 OPEN TRAILS
@@ -71,9 +71,10 @@ OPEN LIFTS
 6 / 82
 GROOMED RUNS
 DAILY MESSAGE
+November 25, 2026 at 5:21 a.m. — Happy Thanksgiving week! We are so grateful to be back skiing and riding. Expect slightly warmer weather for the next few days with highs in the upper 30s and low 40s. We are spinning Apex Express, Moonbeam Express, Link, and the Magic Carpet, providing access to Main Street, Fleet Street, Wall Street, Easy Street, Same Street, Dean's Dash, and Little Dollie. Apex Express terrain should be considered “experts only.” Please don’t enter closed terrain no matter how tempting the snow looks. Hidden hazards exist just beyond our rope lines, including cables and other snowmaking equipment. The snowstorms are taking a quick break, so now is the time to get your UDOT Cottonwood Canyons Sticker. Don’t slow the flow — get your free UDOT sticker and help keep traffic moving through traction law checkpoints.  
 
-November 24, 2026 at 5:38 a.m. —Today, we are expecting a high of 35 degrees with light winds under mostly sunny skies. We are spinning Apex Express, Moonbeam Express, Link, and the Magic Carpet, providing access to Main Street, Fleet Street, Wall Street, Easy Street, Same Street, Dean's Dash, and Little Dollie. Apex Express terrain should be considered “experts only.” Our grooming team works all night long, laying down silky stripes for you to cruise down. Stay tuned to Solitude's social channels and the Ikon Pass app to get the latest updates on grooming and terrain status. Our teams continue to work around the clock to bring you more terrain. Help them out by not ducking ropes or entering closed terrain. Stay safe and stay in bounds. Have a terrific Tuesday on the hill!
 
+read more
 MORE RESOURCES
 Buy Lift Tickets
 First Time Visitor Guide

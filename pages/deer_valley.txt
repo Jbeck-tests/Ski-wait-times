@@ -4,7 +4,7 @@ Menu
 BOOK NOW
 MOUNTAIN REPORT
 
-Updated 7 minutes ago
+Updated 3 minutes ago
 
 WEATHER
 LIFTS & TRAILS
@@ -14,17 +14,17 @@ WEATHER
 BASE
 MID-MOUNTAIN
 SUMMIT
-31
+33
 °F
 °C
 
-SUNNY
+CLEAR
 
-H: 33°F / L: 30°F
+H: 38°F / L: 31°F
 
-Wind Chill: 30°F
+Wind Chill: 33°F
 
-Wind: 2mph SSW
+Wind: 1mph NW
 
 18
 IN
@@ -41,44 +41,30 @@ Last 24 Hour: 0"
 Last 48 Hour: 0"
 
 Base Forecast
-WED, NOV 25
-
-H: 38°F / L: 30°F
-
-Wind: 4mph
-
-Skies: Cloudy. Partly Cloudy
-
 THU, NOV 26
 
-H: 38°F / L: 33°F
+H: 39°F / L: 33°F
 
 Wind: 5mph
 
-Skies: Mostly Sunny. Mostly Clear
+Skies: Partly Cloudy. Partly Cloudy
 
 FRI, NOV 27
 
-H: 40°F / L: 30°F
+H: 40°F / L: 29°F
 
 Wind: 10mph
 
-Skies: Mostly Cloudy. Windy
+Skies: Cloudy. Snow and Rain
 
-0" - 0"
-NEW SNOW
+SAT, NOV 28
 
-Mid-Mountain
+H: 29°F / L: 24°F
 
-0"
-TODAY
-0"
-2-DAY
-2"
-3-DAY
-27"
-SEASON TOTAL
-27"
+Wind: 16mph
+
+Skies: Snow and Wind. Mostly Cloudy
+
 0 / 209
 OPEN TRAILS
 0 / 209
@@ -1341,13 +1327,13 @@ SKI RACING
 
 CLOSED FOR SEASON
 
-12:00 PM—3:00 PM
+11:00 AM—3:00 PM
 
 SNOW PARK
 
 ALL SEASONS ADVENTURES
 
-OPEN
+SCHEDULED
 
 8:00 AM—6:00 PM
 
@@ -1384,7 +1370,7 @@ CHUTE ELEVEN
 
 CLOSED FOR SEASON
 
-Closed—Closed
+11:00 AM—6:00 PM
 
 CUSHING'S CABIN
 
@@ -1402,7 +1388,7 @@ FIRESIDE DINING
 
 CLOSED FOR SEASON
 
-Closed—Closed
+5:30 PM—10:00 PM
 
 SILVER LAKE
 
@@ -1479,7 +1465,7 @@ DEER VALLEY EAST VILLAGE
 
 DEER VALLEY | HELLY HANSEN
 
-OPEN
+SCHEDULED
 
 10:00 AM—6:00 PM
 
@@ -1527,7 +1513,7 @@ CLOSED FOR SEASON
 
 SIGNATURES ON MAIN STREET
 
-OPEN
+SCHEDULED
 
 10:00 AM—6:00 PM
 

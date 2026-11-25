@@ -40,7 +40,7 @@ Snow 48 Hrs.
 
 Snow 7 Days
 
-55"
+40"
 
 Snow Season Total
 
@@ -51,7 +51,7 @@ Base Depth
 28"
 LIFT STATUS
 
-Last updated: Tuesday 04:00 PM
+Last updated: Wednesday 01:00 AM
 
 Lifts Open
 0
@@ -68,7 +68,7 @@ Caterpillar
 
 Crest 6
 
-Closes 12:00 PM
+9:00 AM - 4:00 PM
 
 Explorer
 
@@ -288,7 +288,7 @@ Parking Lot
 
 PARKING & LOT STATUS
 
-Last updated: Tuesday 04:00 PM
+Last updated: Wednesday 05:40 AM
 
 Main Lot
 No Reservations Required Today
@@ -311,7 +311,7 @@ Bottom of Milly Lift
 ROAD CONDITIONS
 SR-190 Big Cottonwood Canyon Mouth to Spruces
 
-Last updated: Tuesday 07:47 AM
+Last updated: Tuesday 02:33 PM
 
 Conditions
 Dry
