@@ -1,0 +1,179 @@
+group	All Lifts
+group	Gad Valley
+run	Alice Avenue	closed	green	
+run	Bananas	closed	blue	
+run	Barry Barry Steep	closed	black-2	
+run	Bass Benches	closed	black	
+run	Bass Highway	unknown	green	1
+run	Bicarbonate Gully	closed	blue	
+run	Binx's Bumper	closed	black-2	
+run	Black Forest	closed	black	
+run	Blue Angel	unknown	black	
+run	Bluebell	closed	blue	
+run	Bonar's Pass	closed	black	
+run	Boundary Bowl	closed	black-2	
+run	Bryce's Run	unknown	blue	1
+run	Carbonate	closed	black	
+run	Cat Crew Cutoff	unknown	blue	
+run	Come From Behind Gully	closed	black	
+run	Creek Road	unknown	green	1
+run	Defiance Ledge	closed	black-2	
+run	Easy Street	closed	green	
+run	Elbow Proper	closed	blue	
+run	Election	closed	blue	
+run	Exit Gully	closed	black-2	
+run	Fields Cutoff	unknown	blue	1
+run	Figure 8 Bowl	closed	black-2	
+run	Fluffy Bunny	unknown	black	1
+run	Gad 2 Return	closed	black	
+run	Gad Chutes	closed	black-2	
+run	Gad Gully	closed	black	
+run	Gadzooks	closed	black	
+run	Get Serious Chutes	closed	black-2	
+run	Goblin Gully	closed	black	
+run	Harper's Ferry	unknown	black	1
+run	Harper's Ferry East	unknown	black	1
+run	High Saddle	closed	black-2	
+run	Hoop's	closed	black	
+run	Jones Avenue	closed	black-2	
+run	Knucklehead Traverse	closed	black	
+run	Lazy Susan	closed	blue	
+run	Low Saddle	closed	black	
+run	Lower Bassackwards	closed	blue	
+run	Lower Emma	unknown	green	1
+run	Lower Tiger Tail	closed	black	
+run	Lowest Bassackwards	unknown	blue	1
+run	Madam Annie's	closed	blue	
+run	Mark Malu Fork	closed	black	
+run	Middle Bassackwards	unknown	blue	1
+run	Middle Emma	unknown	green	1
+run	Middle Tiger Tail	closed	black	
+run	Miner's Road	unknown	green	
+run	Mini Miners' Camp	closed	green	
+run	Mozzarella Bowl	closed	black	
+run	Mushroom Land	closed	black-2	
+run	Old Hollywood	unknown	black-2	
+run	Old Ladies	closed	black	
+run	Old Same Place	closed	black	
+run	Organ Grinder	closed	black-2	
+run	Pucker Brush	closed	black	
+run	Rasta Chutes	closed	black-2	
+run	Red Lens Line	closed	black	
+run	Regulator Gully	unknown	blue	
+run	Regulator Johnson	unknown	black	1
+run	Restaurant Roll	closed	black-2	
+run	Road to Provo	closed	black	
+run	Roger's Run	unknown	blue	1
+run	S.T.H.	closed	black	
+run	Shireen	closed	black	
+run	Sneaky Pete	closed	black	
+run	Ted's Bowl	closed	black	
+run	Temptation Chutes	closed	black-2	
+run	The Fin	closed	black-2	
+run	Thunder Alley	closed	black	
+run	Thunder Bowl	closed	black-2	
+run	Thunder Junction	closed	green	
+run	Tiny Tiger	closed	blue	
+run	Tricep	closed	black	
+run	Upper Bassackwards	closed	blue	
+run	Upper Big Emma	unknown	blue	1
+run	Upper Tiger Tail	closed	black	
+run	W. 2nd Long	closed	green	
+run	W. 2nd S. On-Ramp	closed	blue	
+run	W. 2nd Short	closed	green	
+run	West 2nd South	closed	green	
+run	White Rabbit	closed	black-2	
+run	Wilbere Bowl	closed	black-2	
+run	Wilbere Cutoff	unknown	blue	
+run	Wilbere Ridge	unknown	blue	
+run	Wilma's	closed	black-2	
+group	Mineral Basin
+run	49er Gully	closed	black	
+run	Alimony Chutes	closed	black-2	
+run	Altar Bowl	closed	black-2	
+run	Bassanova	closed	blue	
+run	Bird's Nest	closed	blue	
+run	Blue By You	closed	black	
+run	Bookends Bowl	closed	black-2	
+run	Bookends Traverse	closed	black	
+run	Bookmark Gully	closed	black-2	
+run	Chamonix Bowl	closed	black	
+run	Chamonix Chutes	closed	black-2	
+run	Claim Jumper	closed	blue	
+run	Double Down	closed	black	
+run	Fossil Chutes	closed	black-2	
+run	Gheen Gully	closed	black-2	
+run	High Stakes	closed	black	
+run	Junior's Powder Paradise	closed	blue	
+run	Limber Pines	closed	black-2	
+run	Lone Star	closed	black	
+run	Lower White Diamonds	closed	blue	
+run	Luckey Boy	closed	blue	
+run	Lupine Loop	closed	blue	
+run	Nash Flora Lode	closed	black	
+run	Niagra	closed	black-2	
+run	Not Quite Corn	closed	black	
+run	Path to Paradise	closed	blue	
+run	Richie's Run	closed	black-2	
+run	Silver Dipper	closed	black	
+run	Ski Patrol Gully	closed	black	
+run	Split Rock Gully	closed	black	
+run	Tail Feathers	closed	black	
+run	The Endoras	closed	black-2	
+run	Upper White Diamonds	closed	black	
+group	Peruvian Gulch
+run	Adager	closed	black	
+run	Blackjack Gully	closed	black	
+run	Blackjack Traverse	closed	black	
+run	Center of Gravity	closed	black-2	
+run	Chickadee	closed	green	
+run	Chickadee Chutes	closed	green	
+run	Chip's Access	closed	blue	
+run	Chip's Bypass	closed	blue	
+run	Chip's Face	closed	black	
+run	Chip's Run/Phone 3 Road	closed	blue	
+run	Cirque Traverse	closed	black	
+run	Cliff Access	closed	blue	
+run	Condo Bypass	closed	blue	
+run	Dalton's Draw	closed	black-2	
+run	Fields of Glory	closed	black-2	
+run	Glen's	closed	black	
+run	Great Scott	closed	black-2	
+run	Gun Towers	closed	black-2	
+run	High Baldy Traverse	closed	black-2	
+run	Hot Foot Gully	closed	black	
+run	Hot Lips Gully	closed	black	
+run	Hubba Bubba	closed	blue	
+run	Jack Dog	closed	black	
+run	Keyhole Chute	closed	black-2	
+run	Lightning Tree Gully	closed	black	
+run	Lower Chip's	closed	blue	
+run	Lower Cirque	closed	black	
+run	Lower Mach Schnell	closed	black	
+run	Lower Primrose Path	closed	black	
+run	Lower Silver Fox	closed	black	
+run	Lower Willows	closed	black	
+run	Mid-Baldy Traverse	closed	black-2	
+run	Middle Chip's Run	closed	blue	
+run	Middle Cirque	closed	black	
+run	Middle Men's	closed	black	
+run	Oh My God	closed	black	
+run	Phone 3 Shot	closed	black	
+run	Primrose Split	closed	black	
+run	Rothman Way	closed	blue	
+run	Route 2 Cliffs	closed	black-2	
+run	Route 4 Gully	closed	black	
+run	Thanks for the Memories	closed	black-2	
+run	The Keyhole	closed	black-2	
+run	Tower 3	closed	black-2	
+run	Upper Chip's Run	closed	blue	
+run	Upper Cirque	closed	black-2	
+run	Upper Mach Schnell	closed	black-2	
+run	Upper Primrose Path	closed	black	
+run	Upper Silver Fox	closed	black-2	
+run	Venus Line	closed	black-2	
+run	West Baldy	closed	black-2	
+run	Westward Ho (from Alta)	closed	black	
+run	Who Cares	closed	black	
+run	Whodunnit	closed	blue	
+run	Willows	closed	black	
