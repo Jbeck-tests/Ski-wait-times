@@ -30,7 +30,7 @@ run	Gad Chutes	closed	black-2
 run	Gad Gully	closed	black	
 run	Gadzooks	closed	black	
 run	Get Serious Chutes	closed	black-2	
-run	Goblin Gully	closed	black	
+run	Goblin Gully	open	black	
 run	Harper's Ferry	open	black	1
 run	Harper's Ferry East	open	black	1
 run	High Saddle	closed	black-2	
@@ -53,7 +53,7 @@ run	Mini Miners' Camp	closed	green
 run	Mozzarella Bowl	closed	black	
 run	Mushroom Land	closed	black-2	
 run	Old Hollywood	open	black-2	
-run	Old Ladies	closed	black	
+run	Old Ladies	open	black	
 run	Old Same Place	closed	black	
 run	Organ Grinder	closed	black-2	
 run	Pucker Brush	closed	black	
@@ -65,7 +65,7 @@ run	Restaurant Roll	closed	black-2
 run	Road to Provo	closed	black	
 run	Roger's Run	open	blue	1
 run	S.T.H.	closed	black	
-run	Shireen	closed	black	
+run	Shireen	open	black	
 run	Sneaky Pete	closed	black	
 run	Ted's Bowl	closed	black	
 run	Temptation Chutes	closed	black-2	

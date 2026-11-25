@@ -119,42 +119,42 @@ Lift & Trail Report
 5
 /14
 Open Lifts
-19
+22
 /150
 Open Trails
 Forecast
 > View full weather forecast
-24°/42°
+25°/42°
 Wednesday
 
 Mostly Cloudy
 
-26°/42°
+28°/42°
 Thursday
 
 Mostly Sunny
 
-28°/43°
+29°/43°
 Friday
+
+Mostly Cloudy
+
+23°/34°
+Saturday
+
+Light Snow
+
+30°/41°
+Sunday
 
 Partly Sunny
 
-22°/35°
-Saturday
-
-Light Snow Likely
-
-28°/41°
-Sunday
-
-Partly Sunny then Slight Chance Light Snow
-
-27°/38°
+30°/38°
 Monday
 
-Light Snow Likely
+Chance Light Snow
 
-27°/40°
+29°/40°
 Tuesday
 
 Chance Light Snow
@@ -181,7 +181,7 @@ Open Lifts
 5
 /14
 Open Trails
-19
+22
 /150
 Is Mineral Open?
 Closed
@@ -236,7 +236,7 @@ Peruvian Tunnel
 Wilbere	
 	Quad	9 am - 4:30 pm	
 Gad Valley
-Trail 21 of 87
+Trail 24 of 87
 Mineral Basin
 Trail 0 of 33
 Peruvian Gulch
