@@ -4,7 +4,7 @@ Menu
 BOOK NOW
 MOUNTAIN REPORT
 
-Updated 3 minutes ago
+Updated 2 minutes ago
 
 WEATHER
 LIFTS & TRAILS
@@ -14,7 +14,7 @@ WEATHER
 BASE
 MID-MOUNTAIN
 SUMMIT
-33
+31
 °F
 °C
 
@@ -22,9 +22,9 @@ CLEAR
 
 H: 38°F / L: 31°F
 
-Wind Chill: 33°F
+Wind Chill: 31°F
 
-Wind: 1mph NW
+Wind: 0mph NNW
 
 18
 IN
