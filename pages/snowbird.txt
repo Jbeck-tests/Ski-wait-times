@@ -1,6 +1,6 @@
 Skip To Footer Navigation
 0"
-36°
+37°
 Menu
 Resort Status Update:
 
@@ -119,7 +119,7 @@ Lift & Trail Report
 5
 /14
 Open Lifts
-22
+24
 /150
 Open Trails
 Forecast
@@ -181,7 +181,7 @@ Open Lifts
 5
 /14
 Open Trails
-22
+24
 /150
 Is Mineral Open?
 Closed
@@ -236,7 +236,7 @@ Peruvian Tunnel
 Wilbere	
 	Quad	9 am - 4:30 pm	
 Gad Valley
-Trail 24 of 87
+Trail 26 of 87
 Mineral Basin
 Trail 0 of 33
 Peruvian Gulch
@@ -251,7 +251,7 @@ Closed
 Mineral Basin
 Closed
 Road to Provo
-Closed
+Open
 Peruvian Gulch
 Closed
 Snowbird/Alta Connection

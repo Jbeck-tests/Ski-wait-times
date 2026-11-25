@@ -44,7 +44,7 @@ run	Lower Emma	open	green	1
 run	Lower Tiger Tail	closed	black	
 run	Lowest Bassackwards	open	blue	1
 run	Madam Annie's	closed	blue	
-run	Mark Malu Fork	closed	black	
+run	Mark Malu Fork	open	black	
 run	Middle Bassackwards	open	blue	1
 run	Middle Emma	open	green	1
 run	Middle Tiger Tail	closed	black	
@@ -62,7 +62,7 @@ run	Red Lens Line	closed	black
 run	Regulator Gully	open	blue	
 run	Regulator Johnson	open	black	1
 run	Restaurant Roll	closed	black-2	
-run	Road to Provo	closed	black	
+run	Road to Provo	open	black	
 run	Roger's Run	open	blue	1
 run	S.T.H.	closed	black	
 run	Shireen	open	black	
