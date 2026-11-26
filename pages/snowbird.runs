@@ -3,19 +3,19 @@ group	Gad Valley
 run	Alice Avenue	closed	green	
 run	Bananas	closed	blue	
 run	Barry Barry Steep	closed	black-2	
-run	Bass Benches	closed	black	
+run	Bass Benches	open	black	
 run	Bass Highway	open	green	1
 run	Bicarbonate Gully	closed	blue	
 run	Binx's Bumper	closed	black-2	
 run	Black Forest	closed	black	
 run	Blue Angel	open	black	
 run	Bluebell	closed	blue	
-run	Bonar's Pass	closed	black	
+run	Bonar's Pass	open	black	
 run	Boundary Bowl	closed	black-2	
 run	Bryce's Run	open	blue	
 run	Carbonate	closed	black	
 run	Cat Crew Cutoff	open	blue	
-run	Come From Behind Gully	closed	black	
+run	Come From Behind Gully	open	black	
 run	Creek Road	open	green	1
 run	Defiance Ledge	closed	black-2	
 run	Easy Street	closed	green	
@@ -36,7 +36,7 @@ run	Harper's Ferry East	open	black
 run	High Saddle	closed	black-2	
 run	Hoop's	closed	black	
 run	Jones Avenue	closed	black-2	
-run	Knucklehead Traverse	closed	black	
+run	Knucklehead Traverse	open	black	
 run	Lazy Susan	closed	blue	
 run	Low Saddle	closed	black	
 run	Lower Bassackwards	closed	blue	
@@ -57,7 +57,7 @@ run	Old Ladies	open	black
 run	Old Same Place	closed	black	
 run	Organ Grinder	closed	black-2	
 run	Pucker Brush	closed	black	
-run	Rasta Chutes	closed	black-2	
+run	Rasta Chutes	open	black-2	
 run	Red Lens Line	closed	black	
 run	Regulator Gully	open	blue	
 run	Regulator Johnson	open	black	1
