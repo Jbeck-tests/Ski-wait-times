@@ -74,17 +74,17 @@ Base
 
 34°F
 
-Partly Cloudy
+Mostly Cloudy
 Wind 2 mph W
 Mid Mountain
 
 36°F
 
-Partly Cloudy
-Wind 4 mph NW
+Mostly Cloudy
+Wind 6 mph W
 Lens Recommendation
 
-AMP LS Red Chrome (Ambit)
+AMP LS Bronze Chrome (Shield)
 
 Forecast 
 Previous Day
@@ -170,6 +170,15 @@ Low
 30°F
 
 Cloudy with Moderate/Heavy Snowfall
+
+Thursday 3rd
+High
+
+30°F
+
+Low
+
+30°F
 
 Lifts
 
