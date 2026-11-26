@@ -17,11 +17,11 @@ Mountain environments change daily. Stay in the know with these latest mountain 
 
 SUNNYSIDE
 
-Closes daily
-@ 04:30 pm
+Opens daily
+@ 09:15 am
 
-Open
-Open
+Closed
+Closed
 Trail & Grooming Status
 SUPREME
 
@@ -41,11 +41,11 @@ Closed
 Trail & Grooming Status
 COLLINS
 
-Closes daily
-@ 04:30 pm
+Opens daily
+@ 09:15 am
 
-Open
-Open
+Closed
+Closed
 Trail & Grooming Status
 WILDCAT
 
@@ -70,18 +70,18 @@ Scheduled for A.M.
 Scheduled for A.M.
 Status	Area	Comments
 
-Open
+Closed
 	
 HIGH TRAVERSE
 via Collins
 	
 
-Open
+Closed
 	
 MAIN STREET
 	
 
-Open
+Scheduled for A.M.
 	
 BALLROOM
 via Collins
@@ -93,7 +93,7 @@ BACKSIDE
 via Collins
 	
 
-Open
+Closed
 	
 EBT/EAST BALDY TRAVERSE
 via Sugarloaf

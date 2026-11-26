@@ -5,7 +5,7 @@ Menu
 BOOK NOW
 MOUNTAIN REPORT
 
-Updated 1 minutes ago
+Updated 3 minutes ago
 
 WEATHER
 LIFTS & TRAILS
@@ -13,25 +13,25 @@ AREAS & PARKS
 MAPS
 WEATHER
 MID-MOUNTAIN
-37
+34
 °F
 °C
 
-MOSTLY CLOUDY
+CLEAR
 
-H: 40°F / L: 30°F
+H: 40°F / L: 32°F
 
-Wind Chill: 37°F
+Wind Chill: 34°F
 
 Wind: 0mph N
 
-27
+26
 IN
 CM
 
 BASE
 
-Conditions: --
+Conditions: Machine Groomed
 
 Season Total: 60"
 
@@ -40,17 +40,9 @@ Last 24 Hour: 0"
 Last 48 Hour: 0"
 
 Mid-Mountain Forecast
-THU, NOV 26
-
-H: 41°F / L: 32°F
-
-Wind: 4mph
-
-Skies: Mostly Sunny. Partly Cloudy
-
 FRI, NOV 27
 
-H: 40°F / L: 32°F
+H: 39°F / L: 32°F
 
 Wind: 8mph
 
@@ -58,11 +50,19 @@ Skies: Cloudy. Snow and Rain
 
 SAT, NOV 28
 
-H: 31°F / L: 23°F
+H: 31°F / L: 22°F
 
 Wind: 12mph
 
 Skies: Snow. Partly Cloudy
+
+SUN, NOV 29
+
+H: 39°F / L: 32°F
+
+Wind: 7mph
+
+Skies: Mostly Cloudy. Partly Cloudy
 
 7 / 82
 OPEN TRAILS
@@ -71,10 +71,11 @@ OPEN LIFTS
 6 / 82
 GROOMED RUNS
 DAILY MESSAGE
-November 25, 2026 at 5:21 a.m. — Happy Thanksgiving week! We are so grateful to be back skiing and riding. Expect slightly warmer weather for the next few days with highs in the upper 30s and low 40s. We are spinning Apex Express, Moonbeam Express, Link, and the Magic Carpet, providing access to Main Street, Fleet Street, Wall Street, Easy Street, Same Street, Dean's Dash, and Little Dollie. Apex Express terrain should be considered “experts only.” Please don’t enter closed terrain no matter how tempting the snow looks. Hidden hazards exist just beyond our rope lines, including cables and other snowmaking equipment. The snowstorms are taking a quick break, so now is the time to get your UDOT Cottonwood Canyons Sticker. Don’t slow the flow — get your free UDOT sticker and help keep traffic moving through traction law checkpoints.  
+
+November 26, 2026 at 5:35 a.m. — Happy Thanksgiving from Solitude! Come feast on some tasty laps before the big meal. Moonbeam Express, Apex Express, Link, and the Magic Carpet are up and running, providing access to 7 trails. More terrain is expected soon! Start your day with the Thanksgiving Turkey Trot at 7:00 a.m. followed by our annual T-Day scavenger hunt at 9:00 a.m. Keep your eyes open for turkeys (and possibly some treats and prizes) while out skiing and riding. Expect firm conditions on the mountain today. Apex terrain is “experts only” right now. Be aware of icy sections at the top of Apex, especially on the initial descent. Please check your speed and kindly share the mountain with other guests. Terrain park features have been removed from Easy Street. Have a great holiday at Solitude!
 
 
-read more
+
 MORE RESOURCES
 Buy Lift Tickets
 First Time Visitor Guide

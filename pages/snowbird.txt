@@ -1,6 +1,6 @@
 Skip To Footer Navigation
 0"
-33°
+29°
 Menu
 Resort Status Update:
 
@@ -81,30 +81,31 @@ Overnight (4 pm - 9 am)
 
 Base Depth
 
-40"
+38"
 
 Season Total
 
 80"
 
-November 25, 2026 - 05:41 am
+November 26, 2026 - 05:42 am
 
-Opening Day is here. Welcome back to The Bird!
+Happy Thanksgiving! 
 
 Resort Update:
 
 The Aerial Tram, Little Cloud, Gadzoom, Wilbere and Chickadee are scheduled to start spinning at 9 a.m., conditions permitting.
 
+All uphill travel is closed and early-season conditions exist. Please be aware of objects at or below the snow surface. 
+
 Mountain Report:
-No new snow overnight, but it's going to be a great day to get back on the hill, with temperatures on the mountain hovering in the high 30s to low 40s, light winds and some high clouds in the forecast.
 
-I’ve heard from patrol that the mountain is skiing phenomenally well right now, and after waiting for Opening Day all summer, I can’t wait to check it out for myself.
+Whether you're sitting down to Thanksgiving dinner or joining us on the slopes, there are four magic words today... GIVE ME THE BIRD!
 
-It’s still early season, so take it easy out there. Ski and ride in control, respect closures and rope lines, and remember that lift and terrain availability can change throughout the day.
+On this Turkey Day, boy oh boy am I grateful we're out skiing again! Opening Day was phenomenal and the mountain is skiing great and, spoiler alert, more of the same is in store for today. Expect a mix of sunshine and clouds with upper-mountain temps in the 30s. It could be a little windy at the top with gusts near 30mph, so it might be a good day for a buff or extra layer before you've built up your mid-winter cold tolerance. 
 
-Tomorrow for our Tramsgiving event from 12:00p to 3:45p, bring 3 non-perishable canned goods in exchange for one free scenic ride up the tram! All proceeds will benefit the Utah Food Bank. Great cause. Great views. What could be better? Snowbird Tramsgiving 
+Our Tramsgiving event is from 12 to 3:45p, bring 3 non-perishable canned goods in exchange for one free scenic ride up the tram! All proceeds will benefit the Utah Food Bank. Great cause. Great views. What could be better? Snowbird Tramsgiving 
 
-That’s it from me. Have an awesome Opening Day, and I’ll see you in the lift line.
+It’s early season, so take it easy out there. Ski and ride in control, respect closures and rope lines, and remember that lift and terrain availability can change throughout the day.
 
 Give me The Bird.
 
@@ -116,7 +117,7 @@ for a plaintext, Markdown-formatted data.
 
 Lift & Trail Report
 > View full lift & trail report
-2
+0
 /14
 Open Lifts
 24
@@ -124,40 +125,40 @@ Open Lifts
 Open Trails
 Forecast
 > View full weather forecast
-25°/42°
-Wednesday
-
-Mostly Cloudy
-
-28°/42°
+27°/42°
 Thursday
 
 Mostly Sunny
 
-29°/43°
+30°/43°
 Friday
 
 Mostly Cloudy
 
-23°/34°
+21°/35°
 Saturday
 
 Light Snow
 
-30°/41°
+29°/41°
 Sunday
 
 Partly Sunny
 
-30°/38°
+28°/39°
 Monday
 
-Chance Light Snow
+Light Snow Likely
 
-29°/40°
+28°/39°
 Tuesday
 
 Chance Light Snow
+
+25°/36°
+Wednesday
+
+Light Snow
 
 Webcams
 > View all webcams
@@ -178,7 +179,7 @@ Current Conditions & Forecast
 Lift & Trail Report
 Parking & Road Status
 Open Lifts
-2
+0
 /14
 Open Trails
 24
@@ -205,7 +206,7 @@ Groomed
 Groomed
 All Lifts
 LIFTS OPEN
-2 of 14
+0 of 14
 Lift	Status	Type	Hours	Notes
 Aerial Tram	
 	Tram	9 am - 3:45 pm	

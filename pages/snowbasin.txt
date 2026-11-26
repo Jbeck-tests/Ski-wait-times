@@ -1,7 +1,7 @@
 Skip to Cookie banner
 Toggle Main Menu
 Menu
-34°F
+33°F
 0
 Search Site
 Book Now
@@ -68,19 +68,19 @@ Season
 Conditions
 Base
 
-30°F
+25°F
 
-Mostly Cloudy
-Wind 2 mph SW
+Partly Cloudy
+Wind 4 mph SE
 Mid Mountain
 
-34°F
+33°F
 
-Mostly Cloudy
-Wind 3 mph S
+Partly Cloudy
+Wind 2 mph SW
 Lens Recommendation
 
-AMP LS Bronze Chrome (Shield)
+AMP LS Red Chrome (Ambit)
 
 Forecast 
 Previous Day
@@ -93,24 +93,13 @@ High
 
 Low
 
-21°F
-
-Mostly Cloudy
-
-Wind
-
-2 mph SW
-
-Thursday 26th
-High
-
-34°F
-
-Low
-
 23°F
 
 Partly Cloudy
+
+Wind
+
+4 mph SE
 
 Friday 27th
 High
@@ -126,7 +115,7 @@ Mostly Cloudy
 Saturday 28th
 High
 
-37°F
+39°F
 
 Low
 
@@ -141,7 +130,7 @@ High
 
 Low
 
-27°F
+25°F
 
 Mostly Cloudy
 
@@ -159,7 +148,7 @@ Cloudy with Moderate/Heavy Snowfall
 Tuesday 1st
 High
 
-37°F
+36°F
 
 Low
 
@@ -170,11 +159,13 @@ Cloudy with Moderate/Heavy Snowfall
 Wednesday 2nd
 High
 
-37°F
+36°F
 
 Low
 
-36°F
+32°F
+
+Cloudy with Moderate/Heavy Snowfall
 
 Lifts
 

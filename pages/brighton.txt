@@ -56,7 +56,7 @@ Base Depth
 30"
 LIFT STATUS
 
-Last updated: Wednesday 04:00 PM
+Last updated: Thursday 01:00 AM
 
 Lifts Open
 0
@@ -73,7 +73,7 @@ Caterpillar
 
 Crest 6
 
-Closes 12:00 PM
+9:00 AM - 4:00 PM
 
 Explorer
 
@@ -293,7 +293,7 @@ Parking Lot
 
 PARKING & LOT STATUS
 
-Last updated: Wednesday 04:00 PM
+Last updated: Thursday 01:00 AM
 
 Main Lot
 No Reservations Required Today
@@ -316,7 +316,7 @@ Bottom of Milly Lift
 ROAD CONDITIONS
 SR-190 Big Cottonwood Canyon Mouth to Spruces
 
-Last updated: Wednesday 09:28 AM
+Last updated: Wednesday 06:41 PM
 
 Conditions
 Dry
