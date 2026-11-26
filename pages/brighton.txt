@@ -56,16 +56,16 @@ Base Depth
 30"
 LIFT STATUS
 
-Last updated: Thursday 01:00 AM
+Last updated: Thursday 09:00 AM
 
 Lifts Open
-0
+3
 
 of 8
 
 Lifts Closed
 
-8 of 8
+5 of 8
 
 Show legend
 
@@ -293,7 +293,7 @@ Parking Lot
 
 PARKING & LOT STATUS
 
-Last updated: Thursday 01:00 AM
+Last updated: Thursday 09:00 AM
 
 Main Lot
 No Reservations Required Today
