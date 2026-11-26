@@ -12,7 +12,7 @@ run	Blue Angel	open	black
 run	Bluebell	closed	blue	
 run	Bonar's Pass	closed	black	
 run	Boundary Bowl	closed	black-2	
-run	Bryce's Run	open	blue	1
+run	Bryce's Run	open	blue	
 run	Carbonate	closed	black	
 run	Cat Crew Cutoff	open	blue	
 run	Come From Behind Gully	closed	black	
@@ -31,8 +31,8 @@ run	Gad Gully	closed	black
 run	Gadzooks	closed	black	
 run	Get Serious Chutes	closed	black-2	
 run	Goblin Gully	open	black	
-run	Harper's Ferry	open	black	1
-run	Harper's Ferry East	open	black	1
+run	Harper's Ferry	open	black	
+run	Harper's Ferry East	open	black	
 run	High Saddle	closed	black-2	
 run	Hoop's	closed	black	
 run	Jones Avenue	closed	black-2	
@@ -42,7 +42,7 @@ run	Low Saddle	closed	black
 run	Lower Bassackwards	closed	blue	
 run	Lower Emma	open	green	1
 run	Lower Tiger Tail	closed	black	
-run	Lowest Bassackwards	open	blue	1
+run	Lowest Bassackwards	open	blue	
 run	Madam Annie's	closed	blue	
 run	Mark Malu Fork	open	black	
 run	Middle Bassackwards	open	blue	1
@@ -85,7 +85,7 @@ run	West 2nd South	closed	green
 run	White Rabbit	closed	black-2	
 run	Wilbere Bowl	closed	black-2	
 run	Wilbere Cutoff	open	blue	
-run	Wilbere Ridge	open	blue	
+run	Wilbere Ridge	open	blue	1
 run	Wilma's	closed	black-2	
 group	Mineral Basin
 run	49er Gully	closed	black	
