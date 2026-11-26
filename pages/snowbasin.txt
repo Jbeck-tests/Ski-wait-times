@@ -1,7 +1,7 @@
 Skip to Cookie banner
 Toggle Main Menu
 Menu
-41°F
+37°F
 0
 Search Site
 Book Now
@@ -72,19 +72,19 @@ Season
 Conditions
 Base
 
-30°F
+32°F
 
-Mostly Sunny
+Partly Cloudy
 Wind 2 mph W
 Mid Mountain
 
-41°F
+37°F
 
-Mostly Sunny
-Wind 0 mph
+Partly Cloudy
+Wind 2 mph N
 Lens Recommendation
 
-AMP Black Chrome (Ambit)
+AMP LS Red Chrome (Ambit)
 
 Forecast 
 Previous Day
@@ -99,7 +99,7 @@ Low
 
 23°F
 
-Mostly Sunny
+Partly Cloudy
 
 Wind
 
@@ -130,7 +130,7 @@ Cloudy with Moderate/Heavy Snowfall
 Sunday 29th
 High
 
-36°F
+37°F
 
 Low
 
@@ -167,7 +167,7 @@ High
 
 Low
 
-32°F
+30°F
 
 Cloudy with Moderate/Heavy Snowfall
 
