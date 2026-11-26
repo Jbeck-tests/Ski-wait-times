@@ -56,7 +56,7 @@ Base Depth
 30"
 LIFT STATUS
 
-Last updated: Thursday 09:00 AM
+Last updated: Thursday 09:19 AM
 
 Lifts Open
 3
@@ -93,7 +93,7 @@ Snake Creek
 
 TRAIL STATUS
 
-Last updated: Wednesday 12:38 PM
+Last updated: Thursday 09:00 AM
 
 Trails Open
 19
@@ -293,7 +293,7 @@ Parking Lot
 
 PARKING & LOT STATUS
 
-Last updated: Thursday 09:00 AM
+Last updated: Thursday 09:19 AM
 
 Main Lot
 No Reservations Required Today
@@ -330,7 +330,7 @@ Ride the Ski Bus
 Route 972 Map & Bus Schedule
 UPHILL TRAVEL
 
-Last updated: Wednesday 12:38 PM
+Last updated: Thursday 09:00 AM
 
 Uphill Travel Status
 
