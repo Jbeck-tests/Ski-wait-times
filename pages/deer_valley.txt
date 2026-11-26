@@ -14,7 +14,7 @@ WEATHER
 BASE
 MID-MOUNTAIN
 SUMMIT
-42
+41
 °F
 °C
 
@@ -24,7 +24,7 @@ H: 39°F / L: 33°F
 
 Wind Chill: 41°F
 
-Wind: 3mph S
+Wind: 2mph NNW
 
 18
 IN
