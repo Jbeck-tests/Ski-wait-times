@@ -70,18 +70,18 @@ Scheduled for A.M.
 Scheduled for A.M.
 Status	Area	Comments
 
-Open
+Scheduled for A.M.
 	
 HIGH TRAVERSE
 via Collins
 	
 
-Open
+Scheduled for A.M.
 	
 MAIN STREET
 	
 
-Closed
+Scheduled for A.M.
 	
 BALLROOM
 via Collins
@@ -93,7 +93,7 @@ BACKSIDE
 via Collins
 	
 
-Open
+Scheduled for A.M.
 	
 EBT/EAST BALDY TRAVERSE
 via Sugarloaf
