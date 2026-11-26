@@ -14,7 +14,7 @@ WEATHER
 BASE
 MID-MOUNTAIN
 SUMMIT
-39
+38
 °F
 °C
 
@@ -22,9 +22,9 @@ SUNNY
 
 H: 39°F / L: 33°F
 
-Wind Chill: 39°F
+Wind Chill: 38°F
 
-Wind: 0mph NNE
+Wind: 0mph N
 
 18
 IN
@@ -51,7 +51,7 @@ Skies: Cloudy. Snow and Rain
 
 SAT, NOV 28
 
-H: 31°F / L: 25°F
+H: 31°F / L: 26°F
 
 Wind: 17mph
 
