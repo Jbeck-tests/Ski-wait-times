@@ -1,7 +1,7 @@
 Skip to Cookie banner
 Toggle Main Menu
 Menu
-32°F
+35°F
 0
 Search Site
 Book Now
@@ -75,13 +75,13 @@ Base
 23°F
 
 Partly Cloudy
-Wind 4 mph SE
+Wind 4 mph S
 Mid Mountain
 
-32°F
+35°F
 
 Partly Cloudy
-Wind 3 mph SW
+Wind 3 mph S
 Lens Recommendation
 
 AMP LS Red Chrome (Ambit)
@@ -103,7 +103,7 @@ Partly Cloudy
 
 Wind
 
-4 mph SE
+4 mph S
 
 Friday 27th
 High
