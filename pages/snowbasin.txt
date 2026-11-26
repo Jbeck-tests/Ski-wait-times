@@ -1,7 +1,7 @@
 Skip to Cookie banner
 Toggle Main Menu
 Menu
-31°F
+32°F
 0
 Search Site
 Book Now
@@ -42,9 +42,13 @@ Due to snowmaking operations and our teams gearing up for Opening Day, all uphil
 
 Last Updated Nov 25, 3:32 PM MT
 
-Last Updated: Nov 25, 5:32 AM MT
+Last Updated: Nov 26, 7:33 AM MT
 
 Snow Report
+Since 5am
+
+0”
+
 Overnight
 
 0”
@@ -74,10 +78,10 @@ Partly Cloudy
 Wind 4 mph SE
 Mid Mountain
 
-31°F
+32°F
 
 Partly Cloudy
-Wind 1 mph SE
+Wind 3 mph SW
 Lens Recommendation
 
 AMP LS Red Chrome (Ambit)
