@@ -116,7 +116,7 @@ Lift & Trail Report
 5
 /14
 Open Lifts
-29
+28
 /150
 Open Trails
 Forecast
@@ -178,7 +178,7 @@ Open Lifts
 5
 /14
 Open Trails
-29
+28
 /150
 Is Mineral Open?
 Closed
@@ -233,7 +233,7 @@ Peruvian Tunnel
 Wilbere	
 	Quad	9 am - 4:30 pm	
 Gad Valley
-Trail 31 of 87
+Trail 30 of 87
 Mineral Basin
 Trail 0 of 33
 Peruvian Gulch
