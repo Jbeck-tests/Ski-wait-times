@@ -4,7 +4,7 @@ Menu
 BOOK NOW
 MOUNTAIN REPORT
 
-Updated 1 minutes ago
+Updated 3 minutes ago
 
 WEATHER
 LIFTS & TRAILS
@@ -18,13 +18,13 @@ SUMMIT
 °F
 °C
 
-SUNNY
+PARTLY CLOUDY
 
 H: 39°F / L: 32°F
 
 Wind Chill: 42°F
 
-Wind: 1mph N
+Wind: 0mph NNW
 
 18
 IN
