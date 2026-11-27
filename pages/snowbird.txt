@@ -1,6 +1,6 @@
 Skip To Footer Navigation
 0"
-35°
+36°
 Menu
 Resort Status Update:
 
@@ -126,32 +126,32 @@ Friday
 
 Mostly Cloudy
 
-23°/36°
+21°/35°
 Saturday
 
-Light Snow
+Light Snow Likely
 
-30°/44°
+31°/42°
 Sunday
 
-Mostly Sunny
+Partly Sunny
 
-29°/39°
+30°/40°
 Monday
 
 Chance Light Snow
 
-27°/39°
+29°/38°
 Tuesday
-
-Light Snow
-
-23°/36°
-Wednesday
 
 Light Snow Likely
 
-22°/35°
+26°/38°
+Wednesday
+
+Chance Light Snow
+
+24°/36°
 Thursday
 
 Chance Light Snow
