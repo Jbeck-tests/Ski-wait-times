@@ -56,16 +56,16 @@ Base Depth
 30"
 LIFT STATUS
 
-Last updated: Friday 01:00 AM
+Last updated: Friday 09:00 AM
 
 Lifts Open
-0
+3
 
 of 8
 
 Lifts Closed
 
-8 of 8
+5 of 8
 
 Show legend
 
@@ -293,7 +293,7 @@ Parking Lot
 
 PARKING & LOT STATUS
 
-Last updated: Friday 01:00 AM
+Last updated: Friday 09:00 AM
 
 Main Lot
 No Reservations Required Today
@@ -316,7 +316,7 @@ Bottom of Milly Lift
 ROAD CONDITIONS
 SR-190 Big Cottonwood Canyon Mouth to Spruces
 
-Last updated: Thursday 09:09 AM
+Last updated: Friday 01:31 AM
 
 Conditions
 Dry

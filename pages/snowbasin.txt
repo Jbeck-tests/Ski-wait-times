@@ -167,7 +167,7 @@ Cloudy with Moderate/Heavy Snowfall
 
 Lifts
 
-0 / 13 Lifts Open
+4 / 13 Lifts Open
 
 Lift Key
 Lifts
@@ -183,7 +183,7 @@ Needles Gondola
  
 Gondola
 	
-Lift Scheduled
+Lift Open
 	9:00 AM – 4:00 PM
 Strawberry Gondola	
  
@@ -207,13 +207,13 @@ Littlecat Express
  
 Detachable Chairlift
 	
-Lift Scheduled
+Lift Open
 	9:00 AM – 4:00 PM
 Middle Bowl Express	
  
 Detachable Chairlift
 	
-Lift Scheduled
+Lift Open
 	9:00 AM – 4:00 PM
 Wildcat Express	
  
@@ -225,7 +225,7 @@ Becker
  
 Chair
 	
-Lift Scheduled
+Lift Open
 	9:00 AM – 4:00 PM
 Porcupine	
  
@@ -253,7 +253,7 @@ Lift Closed
 	9:00 AM – 4:00 PM
 Trails
 
-0 / 115 Trails Open
+18 / 115 Trails Open
 
 Trail Key
 Access Gates
@@ -357,54 +357,54 @@ Status
 Trail Name
 Status
 119
-Trail Expected
+Trail Open
+Boardwalk
+Trail Open
+Bullwinkle
+Trail Open
+Groomed
+Dan's Run
+Trail Open
+Dog Leg
+Trail Open
+Groomed
+Fro Zone
+Trail Open
+Herbert's
+Trail Open
+Littlecat
+Trail Open
+Groomed
+Lo Fro Zone
+Trail Open
+Needles Way
+Trail Open
+Groomed
+Porcupine Traverse
+Trail Open
+Groomed
+Pork Barrel
+Trail Open
+Rocky J
+Trail Open
+School Hill
+Trail Open
+Groomed
+Slo Road
+Trail Open
+Groomed
+Snow Shoe
+Trail Open
+Sweet Revenge
+Trail Open
+Groomed
+Two Bit Street
+Trail Open
+Upper 119
+Trail Open
 Bear Hollow
 Trail Expected
 Groomed
-Boardwalk
-Trail Expected
-Bullwinkle
-Trail Expected
-Groomed
-Dan's Run
-Trail Expected
-Dog Leg
-Trail Expected
-Groomed
-Fro Zone
-Trail Expected
-Herbert's
-Trail Expected
-Littlecat
-Trail Expected
-Groomed
-Lo Fro Zone
-Trail Expected
-Needles Way
-Trail Expected
-Groomed
-Porcupine Traverse
-Trail Expected
-Groomed
-Pork Barrel
-Trail Expected
-Rocky J
-Trail Expected
-School Hill
-Trail Expected
-Groomed
-Slo Road
-Trail Expected
-Groomed
-Snow Shoe
-Trail Expected
-Sweet Revenge
-Trail Expected
-Groomed
-Two Bit Street
-Trail Expected
-Upper 119
-Trail Expected
 25th St.
 Trail Closed
 3 Skis
