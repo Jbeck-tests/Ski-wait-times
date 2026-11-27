@@ -66,16 +66,16 @@ Season
 Conditions
 Base
 
-32°F
+34°F
 
 Mostly Cloudy
-Wind 4 mph W
+Wind 2 mph W
 Mid Mountain
 
 37°F
 
 Mostly Cloudy
-Wind 7 mph S
+Wind 4 mph SE
 Lens Recommendation
 
 AMP LS Bronze Chrome (Shield)
@@ -97,7 +97,7 @@ Mostly Cloudy
 
 Wind
 
-4 mph W
+2 mph W
 
 Saturday 28th
 High
