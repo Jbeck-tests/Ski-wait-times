@@ -66,7 +66,7 @@ Season
 Conditions
 Base
 
-30°F
+32°F
 
 Mostly Cloudy
 Wind 4 mph W
@@ -75,7 +75,7 @@ Mid Mountain
 36°F
 
 Mostly Cloudy
-Wind 4 mph E
+Wind 4 mph NW
 Lens Recommendation
 
 AMP LS Bronze Chrome (Shield)
@@ -253,7 +253,7 @@ Lift Closed
 	9:00 AM – 4:00 PM
 Trails
 
-18 / 115 Trails Open
+19 / 115 Trails Open
 
 Trail Key
 Access Gates
@@ -358,6 +358,9 @@ Trail Name
 Status
 119
 Trail Open
+Bear Hollow
+Trail Open
+Groomed
 Boardwalk
 Trail Open
 Bullwinkle
@@ -402,9 +405,6 @@ Two Bit Street
 Trail Open
 Upper 119
 Trail Open
-Bear Hollow
-Trail Expected
-Groomed
 25th St.
 Trail Closed
 3 Skis
