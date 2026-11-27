@@ -5,7 +5,7 @@ Menu
 BOOK NOW
 MOUNTAIN REPORT
 
-Updated 2 minutes ago
+Updated 1 minutes ago
 
 WEATHER
 LIFTS & TRAILS
@@ -13,7 +13,7 @@ AREAS & PARKS
 MAPS
 WEATHER
 MID-MOUNTAIN
-31
+30
 °F
 °C
 
@@ -21,7 +21,7 @@ MOSTLY CLOUDY
 
 H: 39°F / L: 32°F
 
-Wind Chill: 31°F
+Wind Chill: 30°F
 
 Wind: 0mph N
 
@@ -50,19 +50,19 @@ Skies: Snow and Wind. Partly Cloudy
 
 SUN, NOV 29
 
-H: 39°F / L: 32°F
+H: 39°F / L: 33°F
 
-Wind: 8mph
+Wind: 7mph
 
-Skies: Partly Cloudy. Mostly Clear
+Skies: Mostly Cloudy. Mostly Clear
 
 MON, NOV 30
 
-H: 33°F / L: 30°F
+H: 34°F / L: 30°F
 
 Wind: 10mph
 
-Skies: Mostly Cloudy. Snow Showers
+Skies: Mostly Cloudy. Snow
 
 8 / 82
 OPEN TRAILS

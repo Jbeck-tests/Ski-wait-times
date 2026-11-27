@@ -22,9 +22,9 @@ SUNNY
 
 H: 39°F / L: 32°F
 
-Wind Chill: 32°F
+Wind Chill: 34°F
 
-Wind: 4mph SSW
+Wind: 2mph WNW
 
 18
 IN
@@ -43,7 +43,7 @@ Last 48 Hour: 0"
 Base Forecast
 SAT, NOV 28
 
-H: 31°F / L: 24°F
+H: 31°F / L: 23°F
 
 Wind: 18mph
 
@@ -55,15 +55,15 @@ H: 38°F / L: 32°F
 
 Wind: 10mph
 
-Skies: Partly Cloudy. Clear
+Skies: Mostly Cloudy. Windy
 
 MON, NOV 30
 
-H: 33°F / L: 29°F
+H: 34°F / L: 29°F
 
 Wind: 12mph
 
-Skies: Mostly Cloudy. Cloudy
+Skies: Mostly Cloudy. Snow Showers
 
 0 / 209
 OPEN TRAILS
