@@ -113,7 +113,7 @@ for a plaintext, Markdown-formatted data.
 
 Lift & Trail Report
 > View full lift & trail report
-2
+1
 /14
 Open Lifts
 28
@@ -175,7 +175,7 @@ Current Conditions & Forecast
 Lift & Trail Report
 Parking & Road Status
 Open Lifts
-2
+1
 /14
 Open Trails
 28
@@ -202,7 +202,7 @@ Groomed
 Groomed
 All Lifts
 LIFTS OPEN
-2 of 14
+1 of 14
 Lift	Status	Type	Hours	Notes
 Aerial Tram	
 	Tram	9 am - 3:45 pm	
