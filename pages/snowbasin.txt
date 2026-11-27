@@ -1,7 +1,7 @@
 Skip to Cookie banner
 Toggle Main Menu
 Menu
-37°F
+38°F
 0
 Search Site
 Book Now
@@ -72,10 +72,10 @@ Mostly Cloudy
 Wind 2 mph W
 Mid Mountain
 
-37°F
+38°F
 
 Mostly Cloudy
-Wind 4 mph SE
+Wind 7 mph SW
 Lens Recommendation
 
 AMP LS Bronze Chrome (Shield)
@@ -106,20 +106,20 @@ High
 
 Low
 
-28°F
+27°F
 
 Cloudy with Moderate/Heavy Snowfall
 
 Sunday 29th
 High
 
-39°F
+37°F
 
 Low
 
-27°F
+25°F
 
-Partly Cloudy
+Mostly Cloudy
 
 Monday 30th
 High
@@ -150,18 +150,18 @@ High
 
 Low
 
-28°F
+34°F
 
 Cloudy with Moderate/Heavy Snowfall
 
 Thursday 3rd
 High
 
-30°F
+34°F
 
 Low
 
-28°F
+30°F
 
 Cloudy with Moderate/Heavy Snowfall
 

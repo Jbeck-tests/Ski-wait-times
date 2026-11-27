@@ -45,7 +45,7 @@ SAT, NOV 28
 
 H: 31°F / L: 23°F
 
-Wind: 18mph
+Wind: 19mph
 
 Skies: Snow and Wind. Partly Cloudy
 
@@ -55,7 +55,7 @@ H: 38°F / L: 32°F
 
 Wind: 10mph
 
-Skies: Partly Cloudy. Windy
+Skies: Mostly Cloudy. Windy
 
 MON, NOV 30
 
