@@ -70,7 +70,7 @@ Scheduled for A.M.
 Scheduled for A.M.
 Status	Area	Comments
 
-Open
+Closed
 	
 HIGH TRAVERSE
 via Collins
@@ -165,7 +165,7 @@ WHITE CLIFFS
 via Wildcat
 
 
-Open
+Closed
 	
 BLACKJACK TRAVERSE
 via Wildcat
