@@ -1,7 +1,7 @@
 Skip to Cookie banner
 Toggle Main Menu
 Menu
-37°F
+35°F
 0
 Search Site
 Book Now
@@ -23,11 +23,11 @@ Opening Day is November 27th!
 
 Join us in kicking off our 86th season. Lifts will start spinning at 9am. Learn More >
 
-Happy Thanksgiving to our wonderful Snowbasin community. We can't wait to welcome you back for our 86th season on Friday, November 27!
+Happy Opening Day!! We can't wait to see all of your smiling faces back on the slopes this weekend for our 86th Winter Season! 
 
-Whether you'll be camping out for first chair and snagging your commemorative t-shirt for being one of the first 100 visitors, or sneaking in some late-morning turns, we're excited to welcome you to the slopes for our 86th season. Join us for Opening Day on Friday, November 27! Lifts will start spinning at 9am.
+Remember, it's early season conditions, extra reason to ski with caution! Take it slow and enjoy the ride. Let's make this season a long one
 
-Opening Day Terrain
+Opening Day Terrain: Lifts will start spinning at 9am.
 We're excited to offer top to bottom skiing with a mix of groomed and natural terrain.
 
 Needles Gondola, Littlecat Express, Becker Lift and Middle Bowl Express will be open with access to:
@@ -36,19 +36,13 @@ Groomed Runs: Sweet Revenge, Dogleg, Needles Way, Porcupine Traverse, Middle bow
 
 Natural Terrain: Pork Barrel, Fro Zone, Lower Fro Zone, Dan's Run, RockyJ, Two Bit Street, Boardwalk, Upper 119, 119 and Herberts
 
-Guests wanting to camp out the night before Opening Day may arrive starting at 6PM on Thursday and may only setup outside of the Needles Gondola maze. All belongings must be cleaned up by 7am on Friday morning. 
-
 Due to snowmaking operations and our teams gearing up for Opening Day, all uphill hiking & biking access is closed. Canyon Rim Biking Trail is also closed for the season.
 
-Last Updated Nov 25, 3:32 PM MT
+Last Updated Nov 27, 6:00 AM MT
 
-Last Updated: Nov 26, 7:33 AM MT
+Last Updated: Nov 27, 5:43 AM MT
 
 Snow Report
-Since 5am
-
-0”
-
 Overnight
 
 0”
@@ -67,21 +61,21 @@ Season
 
 7 days
 
-16”
+10”
 
 Conditions
 Base
 
-34°F
+30°F
 
 Mostly Cloudy
 Wind 2 mph W
 Mid Mountain
 
-37°F
+35°F
 
 Mostly Cloudy
-Wind 0 mph
+Wind 0 mph W
 Lens Recommendation
 
 AMP LS Bronze Chrome (Shield)
@@ -93,28 +87,17 @@ Extended Forecast (NOAA)
 Today
 High
 
-34°F
-
-Low
-
-23°F
-
-Partly Cloudy
-
-Wind
-
-2 mph W
-
-Friday 27th
-High
-
-37°F
+39°F
 
 Low
 
 28°F
 
 Mostly Cloudy
+
+Wind
+
+2 mph W
 
 Saturday 28th
 High
@@ -123,20 +106,20 @@ High
 
 Low
 
-27°F
+28°F
 
 Cloudy with Moderate/Heavy Snowfall
 
 Sunday 29th
 High
 
-37°F
+39°F
 
 Low
 
-25°F
+27°F
 
-Mostly Cloudy
+Partly Cloudy
 
 Monday 30th
 High
@@ -167,7 +150,7 @@ High
 
 Low
 
-30°F
+28°F
 
 Cloudy with Moderate/Heavy Snowfall
 
@@ -178,7 +161,9 @@ High
 
 Low
 
-30°F
+28°F
+
+Cloudy with Moderate/Heavy Snowfall
 
 Lifts
 
@@ -198,7 +183,7 @@ Needles Gondola
  
 Gondola
 	
-Lift Closed
+Lift Scheduled
 	9:00 AM – 4:00 PM
 Strawberry Gondola	
  
@@ -222,13 +207,13 @@ Littlecat Express
  
 Detachable Chairlift
 	
-Lift Closed
+Lift Scheduled
 	9:00 AM – 4:00 PM
 Middle Bowl Express	
  
 Detachable Chairlift
 	
-Lift Closed
+Lift Scheduled
 	9:00 AM – 4:00 PM
 Wildcat Express	
  
@@ -240,7 +225,7 @@ Becker
  
 Chair
 	
-Lift Closed
+Lift Scheduled
 	9:00 AM – 4:00 PM
 Porcupine	
  
@@ -372,17 +357,60 @@ Status
 Trail Name
 Status
 119
-Trail Closed
+Trail Expected
+Bear Hollow
+Trail Expected
 Groomed
+Boardwalk
+Trail Expected
+Bullwinkle
+Trail Expected
+Groomed
+Dan's Run
+Trail Expected
+Dog Leg
+Trail Expected
+Groomed
+Fro Zone
+Trail Expected
+Herbert's
+Trail Expected
+Littlecat
+Trail Expected
+Groomed
+Lo Fro Zone
+Trail Expected
+Needles Way
+Trail Expected
+Groomed
+Porcupine Traverse
+Trail Expected
+Groomed
+Pork Barrel
+Trail Expected
+Rocky J
+Trail Expected
+School Hill
+Trail Expected
+Groomed
+Slo Road
+Trail Expected
+Groomed
+Snow Shoe
+Trail Expected
+Sweet Revenge
+Trail Expected
+Groomed
+Two Bit Street
+Trail Expected
+Upper 119
+Trail Expected
 25th St.
 Trail Closed
 3 Skis
 Trail Closed
 Bash
 Trail Closed
-Bear Hollow
-Trail Closed
-Groomed
 Bear Hollow Woods
 Trail Closed
 Beaver Slide
@@ -391,44 +419,21 @@ Becker Face
 Trail Closed
 Becks
 Trail Closed
-Boardwalk
-Trail Closed
-Groomed
 Bobcat Ridge
 Trail Closed
-Bullwinkle
-Trail Closed
-Groomed
 Centennial
 Trail Closed
 Cirque
 Trail Closed
 City Hill
 Trail Closed
-Dan's Run
-Trail Closed
-Groomed
-Dog Leg
-Trail Closed
-Groomed
 Dwayne's
 Trail Closed
 Ease-a-long
 Trail Closed
-Groomed
-Fro Zone
-Trail Closed
 Grizz
 Trail Closed
 Harold's
-Trail Closed
-Herbert's
-Trail Closed
-Groomed
-Littlecat
-Trail Closed
-Groomed
-Lo Fro Zone
 Trail Closed
 Lower Moose Mound
 Trail Closed
@@ -436,10 +441,6 @@ Moose Mound
 Trail Closed
 Needles
 Trail Closed
-Groomed
-Needles Way
-Trail Closed
-Groomed
 Penny Lane
 Trail Closed
 Pfeiffalina
@@ -448,25 +449,10 @@ Philpot Ridge
 Trail Closed
 Pineview
 Trail Closed
-Porcupine Traverse
-Trail Closed
-Groomed
-Pork Barrel
-Trail Closed
 Powder Puff
 Trail Closed
 Groomed
-Rocky J
-Trail Closed
-School Hill
-Trail Closed
-Groomed
 Showboat
-Trail Closed
-Slo Road
-Trail Closed
-Groomed
-Snow Shoe
 Trail Closed
 Squirrel
 Trail Closed
@@ -480,14 +466,7 @@ Sunshine
 Trail Closed
 Sunshine Bowl
 Trail Closed
-Sweet Revenge
-Trail Closed
-Groomed
 The Wallow
-Trail Closed
-Two Bit Street
-Trail Closed
-Upper 119
 Trail Closed
 Utah Express
 Trail Closed

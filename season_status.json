@@ -1,7 +1,7 @@
 {
   "source": "https://www.skiutah.com/snowreport",
-  "fetched_at": "2026-11-26T16:40-07:00",
-  "as_of": "2026-11-26",
+  "fetched_at": "2026-11-27T07:00-07:00",
+  "as_of": "2026-11-27",
   "season": 2027,
   "resorts": {
     "alta": {
@@ -30,9 +30,9 @@
       "raw": "Opening Dec 4"
     },
     "snowbasin": {
-      "status": "opening",
-      "date": "2026-11-27",
-      "raw": "Opening Nov 27"
+      "status": "open",
+      "date": null,
+      "raw": "0\" / 21\""
     },
     "snowbird": {
       "status": "open",
@@ -42,7 +42,7 @@
     "solitude": {
       "status": "open",
       "date": null,
-      "raw": "0\" / 26\""
+      "raw": "0\" / 25\""
     }
   }
 }

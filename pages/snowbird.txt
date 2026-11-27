@@ -87,9 +87,7 @@ Season Total
 
 80"
 
-November 26, 2026 - 05:42 am
-
-Happy Thanksgiving! 
+November 27, 2026 - 05:45 am
 
 Resort Update:
 
@@ -99,11 +97,9 @@ All uphill travel is closed and early-season conditions exist. Please be aware o
 
 Mountain Report:
 
-Whether you're sitting down to Thanksgiving dinner or joining us on the slopes, there are four magic words today... GIVE ME THE BIRD!
+Happy Friday, folks! It's gonna be another great day at The Bird with early-season top-to-bottom skiing and the groomers riding in mid-season form. After a brief dryspell this week, the weather is starting to turn! Expect a windy day out there today ahead of a small storm overnight; we're talking 1-4 inches. Tonight is just the appetizer ahead of the main event early/mid next week when the forecasts are calling for a significant snow event. So enjoy the groomers today, the soft stuff tomorrow, and get those powder skis tuned up for next week! 
 
-On this Turkey Day, boy oh boy am I grateful we're out skiing again! Opening Day was phenomenal and the mountain is skiing great and, spoiler alert, more of the same is in store for today. Expect a mix of sunshine and clouds with upper-mountain temps in the 30s. It could be a little windy at the top with gusts near 30mph, so it might be a good day for a buff or extra layer before you've built up your mid-winter cold tolerance. 
-
-Our Tramsgiving event is from 12 to 3:45p, bring 3 non-perishable canned goods in exchange for one free scenic ride up the tram! All proceeds will benefit the Utah Food Bank. Great cause. Great views. What could be better? Snowbird Tramsgiving 
+And for all you aspiring rockstars out there, we have Karaoke in the Tram Club from 3-6p today! You can shred on the mountain, but can you rip on the mic? Swing by to enjoy a drink or two, some tasty food, and performances from Little Cottonwood's greatest unknown stars. Tram Club Karaoke - 21+
 
 It’s early season, so take it easy out there. Ski and ride in control, respect closures and rope lines, and remember that lift and terrain availability can change throughout the day.
 
@@ -117,7 +113,7 @@ for a plaintext, Markdown-formatted data.
 
 Lift & Trail Report
 > View full lift & trail report
-1
+0
 /14
 Open Lifts
 29
@@ -125,40 +121,40 @@ Open Lifts
 Open Trails
 Forecast
 > View full weather forecast
-28°/42°
-Thursday
-
-Partly Sunny
-
-31°/43°
+32°/43°
 Friday
 
 Mostly Cloudy
 
-21°/35°
+23°/36°
 Saturday
 
-Snow
+Light Snow
 
-30°/42°
+30°/44°
 Sunday
 
-Partly Sunny
+Mostly Sunny
 
-30°/40°
+29°/39°
 Monday
 
 Chance Light Snow
 
-29°/40°
+27°/39°
 Tuesday
 
-Light Snow Likely
+Light Snow
 
-25°/37°
+23°/36°
 Wednesday
 
 Light Snow Likely
+
+22°/35°
+Thursday
+
+Chance Light Snow
 
 Webcams
 > View all webcams
@@ -179,7 +175,7 @@ Current Conditions & Forecast
 Lift & Trail Report
 Parking & Road Status
 Open Lifts
-1
+0
 /14
 Open Trails
 29
@@ -206,7 +202,7 @@ Groomed
 Groomed
 All Lifts
 LIFTS OPEN
-1 of 14
+0 of 14
 Lift	Status	Type	Hours	Notes
 Aerial Tram	
 	Tram	9 am - 3:45 pm	
