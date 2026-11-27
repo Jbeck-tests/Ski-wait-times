@@ -1,7 +1,7 @@
 Skip to Cookie banner
 Toggle Main Menu
 Menu
-38°F
+37°F
 0
 Search Site
 Book Now
@@ -72,10 +72,10 @@ Mostly Cloudy
 Wind 2 mph W
 Mid Mountain
 
-38°F
+37°F
 
 Mostly Cloudy
-Wind 2 mph N
+Wind 8 mph SE
 Lens Recommendation
 
 AMP LS Bronze Chrome (Shield)
@@ -164,6 +164,15 @@ Low
 30°F
 
 Cloudy with Moderate/Heavy Snowfall
+
+Friday 4th
+High
+
+32°F
+
+Low
+
+32°F
 
 Lifts
 
