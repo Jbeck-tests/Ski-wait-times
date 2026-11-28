@@ -3,19 +3,19 @@ group	Gad Valley
 run	Alice Avenue	closed	green	
 run	Bananas	closed	blue	
 run	Barry Barry Steep	closed	black-2	
-run	Bass Benches	open	black	
+run	Bass Benches	closed	black	
 run	Bass Highway	open	green	1
 run	Bicarbonate Gully	closed	blue	
 run	Binx's Bumper	closed	black-2	
 run	Black Forest	closed	black	
 run	Blue Angel	open	black	
 run	Bluebell	closed	blue	
-run	Bonar's Pass	open	black	
+run	Bonar's Pass	closed	black	
 run	Boundary Bowl	closed	black-2	
 run	Bryce's Run	open	blue	
 run	Carbonate	closed	black	
 run	Cat Crew Cutoff	open	blue	
-run	Come From Behind Gully	open	black	
+run	Come From Behind Gully	closed	black	
 run	Creek Road	open	green	1
 run	Defiance Ledge	closed	black-2	
 run	Easy Street	closed	green	
@@ -30,13 +30,13 @@ run	Gad Chutes	closed	black-2
 run	Gad Gully	closed	black	
 run	Gadzooks	closed	black	
 run	Get Serious Chutes	closed	black-2	
-run	Goblin Gully	open	black	
+run	Goblin Gully	closed	black	
 run	Harper's Ferry	open	black	
 run	Harper's Ferry East	open	black	
 run	High Saddle	closed	black-2	
 run	Hoop's	closed	black	
 run	Jones Avenue	closed	black-2	
-run	Knucklehead Traverse	open	black	
+run	Knucklehead Traverse	closed	black	
 run	Lazy Susan	closed	blue	
 run	Low Saddle	closed	black	
 run	Lower Bassackwards	closed	blue	
@@ -44,7 +44,7 @@ run	Lower Emma	open	green	1
 run	Lower Tiger Tail	closed	black	
 run	Lowest Bassackwards	open	blue	
 run	Madam Annie's	closed	blue	
-run	Mark Malu Fork	open	black	
+run	Mark Malu Fork	closed	black	
 run	Middle Bassackwards	open	blue	1
 run	Middle Emma	open	green	1
 run	Middle Tiger Tail	closed	black	
@@ -53,19 +53,19 @@ run	Mini Miners' Camp	closed	green
 run	Mozzarella Bowl	closed	black	
 run	Mushroom Land	closed	black-2	
 run	Old Hollywood	open	black-2	
-run	Old Ladies	open	black	
+run	Old Ladies	closed	black	
 run	Old Same Place	closed	black	
 run	Organ Grinder	closed	black-2	
 run	Pucker Brush	closed	black	
-run	Rasta Chutes	open	black-2	
+run	Rasta Chutes	closed	black-2	
 run	Red Lens Line	closed	black	
 run	Regulator Gully	open	blue	
 run	Regulator Johnson	open	black	1
 run	Restaurant Roll	closed	black-2	
-run	Road to Provo	open	black	
+run	Road to Provo	closed	black	
 run	Roger's Run	open	blue	1
 run	S.T.H.	closed	black	
-run	Shireen	open	black	
+run	Shireen	closed	black	
 run	Sneaky Pete	closed	black	
 run	Ted's Bowl	closed	black	
 run	Temptation Chutes	closed	black-2	
