@@ -4,7 +4,7 @@ Menu
 BOOK NOW
 MOUNTAIN REPORT
 
-Updated 1 minutes ago
+Updated 4 minutes ago
 
 WEATHER
 LIFTS & TRAILS
@@ -22,9 +22,9 @@ RAIN
 
 H: 32°F / L: 21°F
 
-Wind Chill: 27°F
+Wind Chill: 25°F
 
-Wind: 5mph NNW
+Wind: 7mph NW
 
 18
 IN
