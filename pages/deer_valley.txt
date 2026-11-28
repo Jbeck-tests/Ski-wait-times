@@ -22,9 +22,9 @@ RAIN
 
 H: 32°F / L: 21°F
 
-Wind Chill: 25°F
+Wind Chill: 27°F
 
-Wind: 9mph WNW
+Wind: 7mph W
 
 18
 IN
@@ -36,7 +36,7 @@ Conditions: --
 
 Season Total: 27"
 
-Last 24 Hour: 0"
+Last 24 Hour: 2"
 
 Last 48 Hour: 0"
 
@@ -65,6 +65,20 @@ Wind: 11mph
 
 Skies: Snow. Snow
 
+2" - 2"
+NEW SNOW
+
+Mid-Mountain
+
+2"
+TODAY
+0"
+2-DAY
+0"
+3-DAY
+27"
+SEASON TOTAL
+27"
 0 / 209
 OPEN TRAILS
 0 / 209
