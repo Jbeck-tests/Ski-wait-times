@@ -115,7 +115,7 @@ for a plaintext, Markdown-formatted data.
 
 Lift & Trail Report
 > View full lift & trail report
-0
+2
 /14
 Open Lifts
 18
@@ -177,7 +177,7 @@ Current Conditions & Forecast
 Lift & Trail Report
 Parking & Road Status
 Open Lifts
-0
+2
 /14
 Open Trails
 18
@@ -204,10 +204,14 @@ Groomed
 Groomed
 All Lifts
 LIFTS OPEN
-0 of 14
+2 of 14
 Lift	Status	Type	Hours	Notes
 Aerial Tram	
 	Tram	9 am - 3:45 pm	
+
+WIND HOLD
+
+
 Baby Thunder	
 	Double	Closed for the season	
 Baby Thunder Conveyor	
@@ -224,6 +228,10 @@ Gadzoom
 	Quad	9 am - 4 pm	
 Little Cloud	
 	Quad	9 am - 3:45 pm	
+
+WIND HOLD
+
+
 Mid-Gad	
 	Double	Closed for the season	
 Mineral Basin	
@@ -234,6 +242,9 @@ Peruvian Tunnel
 	Carpet	Closed for the season	
 Wilbere	
 	Quad	9 am - 4:30 pm	
+
+WIND HOLD
+
 Gad Valley
 Trail 20 of 87
 Mineral Basin

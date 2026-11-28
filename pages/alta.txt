@@ -70,13 +70,13 @@ Scheduled for A.M.
 Scheduled for A.M.
 Status	Area	Comments
 
-Scheduled for A.M.
+Closed
 	
 HIGH TRAVERSE
 via Collins
 	
 
-Scheduled for A.M.
+Closed
 	
 MAIN STREET
 	
@@ -93,7 +93,7 @@ BACKSIDE
 via Collins
 	
 
-Scheduled for A.M.
+Closed
 	
 EBT/EAST BALDY TRAVERSE
 via Sugarloaf
@@ -111,7 +111,7 @@ MOUNT BALDY
 via Sugarloaf
 	
 
-Scheduled for A.M.
+Closed
 	
 ROCK N' ROLL
 via Supreme
