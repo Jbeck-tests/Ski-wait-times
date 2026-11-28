@@ -1,6 +1,6 @@
 Skip To Footer Navigation
 0"
-35°
+29°
 Menu
 Resort Status Update:
 
@@ -81,13 +81,13 @@ Overnight (4 pm - 9 am)
 
 Base Depth
 
-38"
+37"
 
 Season Total
 
 80"
 
-November 27, 2026 - 05:45 am
+November 28, 2026 - 05:45 am
 
 Resort Update:
 
@@ -97,9 +97,11 @@ All uphill travel is closed and early-season conditions exist. Please be aware o
 
 Mountain Report:
 
-Happy Friday, folks! It's gonna be another great day at The Bird with early-season top-to-bottom skiing and the groomers riding in mid-season form. After a brief dryspell this week, the weather is starting to turn! Expect a windy day out there today ahead of a small storm overnight; we're talking 1-4 inches. Tonight is just the appetizer ahead of the main event early/mid next week when the forecasts are calling for a significant snow event. So enjoy the groomers today, the soft stuff tomorrow, and get those powder skis tuned up for next week! 
+Happy Saturday! The storm that was forecasted for overnight got caught up in those classic Thanksgiving travel delays and is just now arriving at the mountain. We're now looking at 2-4 inches of fresh snow falling from 6-9a and light flurries continuing through 11a. Strong winds are accompanying the storm, so bundle up and keep an eye out for shifts to lift and terrain status throughout the day. 
 
-And for all you aspiring rockstars out there, we have Karaoke in the Tram Club from 3-6p today! You can shred on the mountain, but can you rip on the mic? Swing by to enjoy a drink or two, some tasty food, and performances from Little Cottonwood's greatest unknown stars. Tram Club Karaoke - 21+
+But what about the skiing? How's the skiing?!? It's superb. The bumps are skiing soft and the groomers are holding an edge admirably. I'll be lapping Little Cloud today but you really can't go wrong wherever you choose to make your turns. 
+
+No events on the calendar today, but might I suggest stopping by The Nest for their incredible Butter Chicken? It's so good that I, personally, consider it a glorious event every time I dig it. 
 
 It’s early season, so take it easy out there. Ski and ride in control, respect closures and rope lines, and remember that lift and terrain availability can change throughout the day.
 
@@ -113,7 +115,7 @@ for a plaintext, Markdown-formatted data.
 
 Lift & Trail Report
 > View full lift & trail report
-1
+0
 /14
 Open Lifts
 28
@@ -121,38 +123,38 @@ Open Lifts
 Open Trails
 Forecast
 > View full weather forecast
-32°/43°
-Friday
-
-Mostly Cloudy
-
-21°/35°
+18°/35°
 Saturday
 
-Light Snow Likely
+Snow
 
-31°/42°
+29°/42°
 Sunday
 
 Partly Sunny
 
-30°/40°
+28°/39°
 Monday
 
 Chance Light Snow
 
-29°/38°
+27°/37°
 Tuesday
 
 Light Snow Likely
 
-26°/38°
+22°/39°
 Wednesday
 
 Chance Light Snow
 
-24°/36°
+23°/37°
 Thursday
+
+Partly Sunny then Slight Chance Light Snow
+
+22°/37°
+Friday
 
 Chance Light Snow
 
@@ -175,7 +177,7 @@ Current Conditions & Forecast
 Lift & Trail Report
 Parking & Road Status
 Open Lifts
-1
+0
 /14
 Open Trails
 28
@@ -202,7 +204,7 @@ Groomed
 Groomed
 All Lifts
 LIFTS OPEN
-1 of 14
+0 of 14
 Lift	Status	Type	Hours	Notes
 Aerial Tram	
 	Tram	9 am - 3:45 pm	
@@ -248,7 +250,7 @@ Closed
 Mineral Basin
 Closed
 Road to Provo
-Open
+Closed
 Peruvian Gulch
 Closed
 Snowbird/Alta Connection

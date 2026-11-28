@@ -1,7 +1,7 @@
 Skip to Cookie banner
 Toggle Main Menu
 Menu
-38°F
+35°F
 0
 Search Site
 Book Now
@@ -40,7 +40,7 @@ Due to snowmaking operations and our teams gearing up for Opening Day, all uphil
 
 Last Updated Nov 27, 6:00 AM MT
 
-Last Updated: Nov 27, 5:43 AM MT
+Last Updated: Nov 28, 5:43 AM MT
 
 Snow Report
 Overnight
@@ -61,24 +61,24 @@ Season
 
 7 days
 
-10”
+1”
 
 Conditions
 Base
 
 36°F
 
-Mostly Cloudy
-Wind 2 mph W
+Cloudy with Moderate/Heavy Snowfall
+Wind 23 mph W
 Mid Mountain
 
-38°F
+35°F
 
-Mostly Cloudy
-Wind 3 mph W
+Cloudy with Moderate/Heavy Snowfall
+Wind 8 mph S
 Lens Recommendation
 
-AMP LS Bronze Chrome (Shield)
+AMP Aurora Green Chrome (Ambit)
 
 Forecast 
 Previous Day
@@ -87,28 +87,17 @@ Extended Forecast (NOAA)
 Today
 High
 
-39°F
+41°F
 
 Low
 
-28°F
+25°F
 
-Mostly Cloudy
+Cloudy with Moderate/Heavy Snowfall
 
 Wind
 
-2 mph W
-
-Saturday 28th
-High
-
-39°F
-
-Low
-
-27°F
-
-Cloudy with Moderate/Heavy Snowfall
+23 mph W
 
 Sunday 29th
 High
@@ -117,7 +106,7 @@ High
 
 Low
 
-25°F
+21°F
 
 Mostly Cloudy
 
@@ -139,31 +128,31 @@ High
 
 Low
 
-34°F
+32°F
 
 Cloudy with Moderate/Heavy Snowfall
 
 Wednesday 2nd
 High
 
-36°F
+34°F
 
 Low
 
-34°F
+27°F
 
-Cloudy with Moderate/Heavy Snowfall
+Mostly Cloudy
 
 Thursday 3rd
 High
 
-34°F
+30°F
 
 Low
 
-30°F
+27°F
 
-Cloudy with Moderate/Heavy Snowfall
+Mostly Cloudy
 
 Friday 4th
 High
@@ -172,7 +161,9 @@ High
 
 Low
 
-32°F
+28°F
+
+Cloudy with Moderate/Heavy Snowfall
 
 Lifts
 

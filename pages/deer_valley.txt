@@ -14,17 +14,17 @@ WEATHER
 BASE
 MID-MOUNTAIN
 SUMMIT
-40
+33
 °F
 °C
 
-CLOUDY
+RAIN
 
-H: 39°F / L: 32°F
+H: 32°F / L: 21°F
 
-Wind Chill: 40°F
+Wind Chill: 25°F
 
-Wind: 1mph WSW
+Wind: 9mph WNW
 
 18
 IN
@@ -41,29 +41,29 @@ Last 24 Hour: 0"
 Last 48 Hour: 0"
 
 Base Forecast
-SAT, NOV 28
-
-H: 31°F / L: 22°F
-
-Wind: 19mph
-
-Skies: Snow and Wind. Partly Cloudy
-
 SUN, NOV 29
 
-H: 38°F / L: 31°F
+H: 37°F / L: 31°F
 
-Wind: 10mph
+Wind: 11mph
 
-Skies: Mostly Cloudy. Windy
+Skies: Partly Cloudy. Partly Cloudy
 
 MON, NOV 30
 
-H: 34°F / L: 29°F
+H: 33°F / L: 29°F
 
 Wind: 12mph
 
-Skies: Mostly Cloudy. Snow
+Skies: Mostly Cloudy. Cloudy
+
+TUE, DEC 1
+
+H: 31°F / L: 29°F
+
+Wind: 11mph
+
+Skies: Snow. Snow
 
 0 / 209
 OPEN TRAILS
@@ -158,7 +158,7 @@ FLAGSTAFF MOUNTAIN
 
 JUDGE
 
-Closed—Closed
+9:00 AM—4:00 PM
 
 CLOSED FOR SEASON
 
@@ -1333,7 +1333,7 @@ SNOW PARK
 
 ALL SEASONS ADVENTURES
 
-OPEN
+SCHEDULED
 
 8:00 AM—6:00 PM
 
@@ -1434,7 +1434,7 @@ DEER VALLEY ETC.
 
 CLOSED FOR SEASON
 
-8:00 AM—5:00 PM
+7:30 AM—5:00 PM
 
 EDGAR'S APRÈS
 
@@ -1459,7 +1459,7 @@ DEER VALLEY EAST VILLAGE
 
 DEER VALLEY | HELLY HANSEN
 
-OPEN
+SCHEDULED
 
 10:00 AM—6:00 PM
 
@@ -1507,7 +1507,7 @@ CLOSED FOR SEASON
 
 SIGNATURES ON MAIN STREET
 
-OPEN
+SCHEDULED
 
 10:00 AM—6:00 PM
 
@@ -1554,7 +1554,7 @@ SNOW PARK TICKET OFFICE
 
 CLOSED FOR SEASON
 
-9:30 AM—3:30 PM
+Closed—Closed
 
 TRAIL MAPS
 WINTER INTERACTIVE MAP

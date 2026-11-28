@@ -1,18 +1,18 @@
 {
   "source": "https://www.skiutah.com/snowreport",
-  "fetched_at": "2026-11-27T16:40-07:00",
-  "as_of": "2026-11-27",
+  "fetched_at": "2026-11-28T07:01-07:00",
+  "as_of": "2026-11-28",
   "season": 2027,
   "resorts": {
     "alta": {
       "status": "open",
       "date": null,
-      "raw": "0\" / 36\""
+      "raw": "1\" / 36\""
     },
     "brighton": {
       "status": "open",
       "date": null,
-      "raw": "0\" / 30\""
+      "raw": "3\" / 30\""
     },
     "deer_valley": {
       "status": "opening",
@@ -22,7 +22,7 @@
     "park_city": {
       "status": "open",
       "date": null,
-      "raw": "0\" / 20\""
+      "raw": "2\" / 20\""
     },
     "powder_mountain": {
       "status": "opening",
@@ -37,12 +37,12 @@
     "snowbird": {
       "status": "open",
       "date": null,
-      "raw": "0\" / 38\""
+      "raw": "0\" / 37\""
     },
     "solitude": {
       "status": "open",
       "date": null,
-      "raw": "0\" / 25\""
+      "raw": "2\" / 26\""
     }
   }
 }
