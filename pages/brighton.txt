@@ -56,16 +56,16 @@ Base Depth
 30"
 LIFT STATUS
 
-Last updated: Saturday 09:00 AM
+Last updated: Saturday 09:14 AM
 
 Lifts Open
-1
+2
 
 of 8
 
 Lifts Closed
 
-7 of 8
+6 of 8
 
 Show legend
 
@@ -88,6 +88,8 @@ Majestic
 Milly Express
 
 Porcupine
+
+Closes 4:00 PM
 
 Snake Creek
 
@@ -293,7 +295,7 @@ Parking Lot
 
 PARKING & LOT STATUS
 
-Last updated: Saturday 09:00 AM
+Last updated: Saturday 09:14 AM
 
 Main Lot
 No Reservations Required Today

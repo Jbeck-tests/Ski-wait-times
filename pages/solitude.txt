@@ -5,15 +5,18 @@ Menu
 BOOK NOW
 MOUNTAIN REPORT
 
-Updated 4 minutes ago
+Updated 3 minutes ago
 
 WEATHER
 LIFTS & TRAILS
 AREAS & PARKS
 MAPS
 WEATHER
+
+Wind holds are possible on ridgeline lifts this morning as a storm passes through.
+
 MID-MOUNTAIN
-25
+24
 °F
 °C
 
@@ -21,7 +24,7 @@ MOSTLY CLOUDY
 
 H: 32°F / L: 18°F
 
-Wind Chill: 25°F
+Wind Chill: 24°F
 
 Wind: 0mph N
 
@@ -114,19 +117,19 @@ LINK
 
 9:00 AM—4:00 PM
 
-SCHEDULED
+OPEN
 
 MOONBEAM EXPRESS
 
 9:00 AM—4:00 PM
 
-SCHEDULED
+OPEN
 
 MAGIC CARPET
 
 9:00 AM—4:00 PM
 
-SCHEDULED
+OPEN
 
 SOLI PARKS TOW
 
@@ -140,7 +143,7 @@ EAGLE EXPRESS
 
 9:00 AM—4:00 PM
 
-SCHEDULED
+WIND HOLD
 
 POWDERHORN II
 
@@ -154,7 +157,7 @@ APEX EXPRESS
 
 9:00 AM—4:00 PM
 
-SCHEDULED
+WIND HOLD
 
 SUNRISE
 
@@ -708,7 +711,7 @@ CLOSED
 
 UPPER TUDE DUDES TERRAIN PARK
 
-SCHEDULED
+OPEN
 
 9:00 AM—3:30 PM
 
