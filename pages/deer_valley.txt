@@ -4,7 +4,7 @@ Menu
 BOOK NOW
 MOUNTAIN REPORT
 
-Updated 3 minutes ago
+Updated 1 minutes ago
 
 WEATHER
 LIFTS & TRAILS
@@ -14,7 +14,7 @@ WEATHER
 BASE
 MID-MOUNTAIN
 SUMMIT
-33
+32
 °F
 °C
 
@@ -22,9 +22,9 @@ RAIN
 
 H: 32°F / L: 21°F
 
-Wind Chill: 33°F
+Wind Chill: 27°F
 
-Wind: 1mph ENE
+Wind: 5mph NNW
 
 18
 IN
@@ -43,11 +43,11 @@ Last 48 Hour: 0"
 Base Forecast
 SUN, NOV 29
 
-H: 37°F / L: 31°F
+H: 37°F / L: 30°F
 
 Wind: 11mph
 
-Skies: Partly Cloudy. Partly Cloudy
+Skies: Partly Cloudy. Windy
 
 MON, NOV 30
 
@@ -59,7 +59,7 @@ Skies: Mostly Cloudy. Cloudy
 
 TUE, DEC 1
 
-H: 31°F / L: 29°F
+H: 32°F / L: 29°F
 
 Wind: 11mph
 
@@ -1347,7 +1347,7 @@ SNOW PARK
 
 ALL SEASONS ADVENTURES
 
-SCHEDULED
+OPEN
 
 8:00 AM—6:00 PM
 
@@ -1440,7 +1440,7 @@ Closed—Closed
 
 DEER VALLEY CAFÉ
 
-SCHEDULED
+OPEN
 
 8:00 AM—3:30 PM
 
